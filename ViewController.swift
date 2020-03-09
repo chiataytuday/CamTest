@@ -10,6 +10,8 @@ import UIKit
 import AVFoundation
 
 class ViewController: UIViewController {
+	let expoSlider = UISlider()
+	
 	let flashButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -42,17 +44,19 @@ class ViewController: UIViewController {
 		setButtons()
 	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		let touch = touches.first!.location(in: view)
-		let point = CGPoint(x: touch.x/view.frame.width, y: touch.y/view.frame.height)
-		
-		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.exposureMode = .autoExpose
-			currentDevice?.exposurePointOfInterest = point
-			currentDevice?.unlockForConfiguration()
-		} catch {}
-	}
+//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		let touch = touches.first!.location(in: view)
+//		let point = CGPoint(x: touch.x/view.frame.width, y: touch.y/view.frame.height)
+//
+//		do {
+//			try currentDevice?.lockForConfiguration()
+//			currentDevice?.exposureMode = .custom
+//			currentDevice?.exposurePointOfInterest = point
+//			currentDevice?.exposureMode = .locked
+//			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+//			currentDevice?.unlockForConfiguration()
+//		} catch {}
+//	}
 	
 	private func setButtons() {
 		view.addSubview(flashButton)
@@ -72,6 +76,26 @@ class ViewController: UIViewController {
 			lockButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25)
 		])
 		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+		
+		expoSlider.translatesAutoresizingMaskIntoConstraints = false
+		expoSlider.minimumValue = currentDevice!.minExposureTargetBias/2
+		expoSlider.maximumValue = currentDevice!.maxExposureTargetBias/2
+		expoSlider.addTarget(self, action: #selector(expoSliderValueChanged(sender:)), for: .valueChanged)
+		view.addSubview(expoSlider)
+		NSLayoutConstraint.activate([
+			expoSlider.centerYAnchor.constraint(equalTo: lockButton.centerYAnchor),
+			expoSlider.leadingAnchor.constraint(equalTo: lockButton.trailingAnchor, constant: 25),
+			expoSlider.trailingAnchor.constraint(equalTo: flashButton.leadingAnchor, constant: -25)
+		])
+	}
+	
+	@objc private func expoSliderValueChanged(sender: UISlider) {
+		do {
+			try currentDevice?.lockForConfiguration()
+			currentDevice?.exposureMode = .autoExpose
+			currentDevice?.setExposureTargetBias(expoSlider.value, completionHandler: nil)
+			currentDevice?.unlockForConfiguration()
+		} catch {}
 	}
 	
 	@objc private func lockButtonTapped() {
