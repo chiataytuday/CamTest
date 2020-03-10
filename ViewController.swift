@@ -67,10 +67,12 @@ class ViewController: UIViewController {
 		expoPointImage.alpha = 1
 		
 		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
+		print(exposurePoint)
 		do {
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.exposurePointOfInterest = exposurePoint
 			currentDevice?.exposureMode = .continuousAutoExposure
+			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
 			currentDevice?.unlockForConfiguration()
 		} catch { }
 	}
@@ -139,25 +141,25 @@ class ViewController: UIViewController {
 //	}
 	
 	@objc private func lockButtonTapped() {
-//		do {
-//			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
-//			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-//			try currentDevice?.lockForConfiguration()
-//			currentDevice?.exposureMode = isContinuous ? .autoExpose : .continuousAutoExposure
-//			currentDevice?.unlockForConfiguration()
-//		} catch {}
+		do {
+			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
+			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+			try currentDevice?.lockForConfiguration()
+			currentDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
+			currentDevice?.unlockForConfiguration()
+		} catch {}
 	}
 	
 	@objc private func flashButtonTapped() {
-//		let active = currentDevice?.isTorchActive
-//		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-//		do {
-//			if currentDevice!.hasTorch {
-//				try currentDevice?.lockForConfiguration()
-//				currentDevice?.torchMode = currentDevice!.isTorchActive ? .off : .on
-//				currentDevice?.unlockForConfiguration()
-//			}
-//		} catch {}
+		let active = currentDevice?.isTorchActive
+		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+		do {
+			if currentDevice!.hasTorch {
+				try currentDevice?.lockForConfiguration()
+				currentDevice?.torchMode = currentDevice!.isTorchActive ? .off : .on
+				currentDevice?.unlockForConfiguration()
+			}
+		} catch {}
 	}
 	
 	private func setCamera() {
@@ -187,7 +189,7 @@ class ViewController: UIViewController {
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: currentDevice!)
 			captureSession?.addInput(deviceInput)
-			photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
+			photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.h264])], completionHandler: nil)
 		} catch {}
 		
 		// Preview layer
