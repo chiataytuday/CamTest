@@ -10,7 +10,21 @@ import UIKit
 import AVFoundation
 
 class ViewController: UIViewController {
-	let expoSlider = UISlider()
+	let expoPointImage: UIImageView = {
+		let image = UIImage(systemName: "smallcircle.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 60, weight: .thin))
+		let imageView = UIImageView(image: image)
+		imageView.tintColor = .systemRed
+		imageView.alpha = 0
+		return imageView
+	}()
+	
+	let shotButton: UIButton = {
+		let button = UIButton(type: .custom)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.setImage(UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .thin)), for: .normal)
+		button.tintColor = .white
+		return button
+	}()
 	
 	let flashButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -42,6 +56,23 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		setCamera()
 		setButtons()
+		view.addSubview(expoPointImage)
+	}
+	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard let touch = touches.first?.location(in: view) else { return }
+		let pointLocation = CGPoint(x: touch.x - expoPointImage.frame.width/2,
+																	 y: touch.y - expoPointImage.frame.height/2)
+		expoPointImage.frame.origin = pointLocation
+		expoPointImage.alpha = 1
+		
+		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
+		do {
+			try currentDevice?.lockForConfiguration()
+			currentDevice?.exposurePointOfInterest = exposurePoint
+			currentDevice?.exposureMode = .continuousAutoExposure
+			currentDevice?.unlockForConfiguration()
+		} catch { }
 	}
 	
 //	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -59,65 +90,74 @@ class ViewController: UIViewController {
 //	}
 	
 	private func setButtons() {
+		view.addSubview(shotButton)
+		NSLayoutConstraint.activate([
+			shotButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			shotButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			shotButton.widthAnchor.constraint(equalToConstant: 72.5),
+			shotButton.heightAnchor.constraint(equalToConstant: 70)
+		])
+		
+		let offset = view.frame.width/4 + 11.125
 		view.addSubview(flashButton)
 		NSLayoutConstraint.activate([
-			flashButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
 			flashButton.widthAnchor.constraint(equalToConstant: 50),
 			flashButton.heightAnchor.constraint(equalToConstant: 50),
-			flashButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25)
+			flashButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
 		])
 		flashButton.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
 		
 		view.addSubview(lockButton)
 		NSLayoutConstraint.activate([
-			lockButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			lockButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
 			lockButton.widthAnchor.constraint(equalToConstant: 50),
 			lockButton.heightAnchor.constraint(equalToConstant: 50),
-			lockButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25)
+			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
 		])
 		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
 		
-		expoSlider.translatesAutoresizingMaskIntoConstraints = false
-		expoSlider.minimumValue = currentDevice!.minExposureTargetBias/2
-		expoSlider.maximumValue = currentDevice!.maxExposureTargetBias/2
-		expoSlider.addTarget(self, action: #selector(expoSliderValueChanged(sender:)), for: .valueChanged)
-		view.addSubview(expoSlider)
-		NSLayoutConstraint.activate([
-			expoSlider.centerYAnchor.constraint(equalTo: lockButton.centerYAnchor),
-			expoSlider.leadingAnchor.constraint(equalTo: lockButton.trailingAnchor, constant: 25),
-			expoSlider.trailingAnchor.constraint(equalTo: flashButton.leadingAnchor, constant: -25)
-		])
+//		expoSlider.translatesAutoresizingMaskIntoConstraints = false
+//		expoSlider.minimumValue = currentDevice!.minExposureTargetBias/3
+//		expoSlider.maximumValue = currentDevice!.maxExposureTargetBias/3
+//		expoSlider.addTarget(self, action: #selector(expoSliderValueChanged(sender:)), for: .valueChanged)
+//		view.addSubview(expoSlider)
+//		NSLayoutConstraint.activate([
+//			expoSlider.centerYAnchor.constraint(equalTo: lockButton.centerYAnchor),
+//			expoSlider.leadingAnchor.constraint(equalTo: lockButton.trailingAnchor, constant: 25),
+//			expoSlider.trailingAnchor.constraint(equalTo: flashButton.leadingAnchor, constant: -25)
+//		])
 	}
 	
-	@objc private func expoSliderValueChanged(sender: UISlider) {
-		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.exposureMode = .autoExpose
-			currentDevice?.setExposureTargetBias(expoSlider.value, completionHandler: nil)
-			currentDevice?.unlockForConfiguration()
-		} catch {}
-	}
+//	@objc private func expoSliderValueChanged(sender: UISlider) {
+//		do {
+//			try currentDevice?.lockForConfiguration()
+//			currentDevice?.exposureMode = .autoExpose
+//			currentDevice?.setExposureTargetBias(expoSlider.value, completionHandler: nil)
+//			currentDevice?.unlockForConfiguration()
+//		} catch {}
+//	}
 	
 	@objc private func lockButtonTapped() {
-		do {
-			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
-			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.exposureMode = isContinuous ? .autoExpose : .continuousAutoExposure
-			currentDevice?.unlockForConfiguration()
-		} catch {}
+//		do {
+//			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
+//			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+//			try currentDevice?.lockForConfiguration()
+//			currentDevice?.exposureMode = isContinuous ? .autoExpose : .continuousAutoExposure
+//			currentDevice?.unlockForConfiguration()
+//		} catch {}
 	}
 	
 	@objc private func flashButtonTapped() {
-		let active = currentDevice?.isTorchActive
-		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-		do {
-			if currentDevice!.hasTorch {
-				try currentDevice?.lockForConfiguration()
-				currentDevice?.torchMode = currentDevice!.isTorchActive ? .off : .on
-				currentDevice?.unlockForConfiguration()
-			}
-		} catch {}
+//		let active = currentDevice?.isTorchActive
+//		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+//		do {
+//			if currentDevice!.hasTorch {
+//				try currentDevice?.lockForConfiguration()
+//				currentDevice?.torchMode = currentDevice!.isTorchActive ? .off : .on
+//				currentDevice?.unlockForConfiguration()
+//			}
+//		} catch {}
 	}
 	
 	private func setCamera() {
