@@ -48,9 +48,11 @@ class ViewController: UIViewController {
 	var frontDevice: AVCaptureDevice?
 	var backDevice: AVCaptureDevice?
 	var currentDevice: AVCaptureDevice?
-	
 	var previewLayer: AVCaptureVideoPreviewLayer?
 	var photoOutput: AVCapturePhotoOutput?
+	
+	var exposurePb, focusPb: VerticalProgressBar!
+	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -64,10 +66,14 @@ class ViewController: UIViewController {
 		let pointLocation = CGPoint(x: touch.x - expoPointImage.frame.width/2,
 																	 y: touch.y - expoPointImage.frame.height/2)
 		expoPointImage.frame.origin = pointLocation
-		expoPointImage.alpha = 1
+		self.expoPointImage.alpha = 0
+		expoPointImage.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
+			self.expoPointImage.alpha = 1
+			self.expoPointImage.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+		}.startAnimation()
 		
 		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
-		print(exposurePoint)
 		do {
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.exposurePointOfInterest = exposurePoint
@@ -77,19 +83,21 @@ class ViewController: UIViewController {
 		} catch { }
 	}
 	
-//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		let touch = touches.first!.location(in: view)
-//		let point = CGPoint(x: touch.x/view.frame.width, y: touch.y/view.frame.height)
-//
-//		do {
-//			try currentDevice?.lockForConfiguration()
-//			currentDevice?.exposureMode = .custom
-//			currentDevice?.exposurePointOfInterest = point
-//			currentDevice?.exposureMode = .locked
-//			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-//			currentDevice?.unlockForConfiguration()
-//		} catch {}
-//	}
+	func exposureValueChanged() {
+		do {
+			try currentDevice?.lockForConfiguration()
+			currentDevice?.setExposureTargetBias(Float(exposurePb!.value), completionHandler: nil)
+			currentDevice?.unlockForConfiguration()
+		} catch {}
+	}
+	
+	func focusValueChanged() {
+		do {
+			try currentDevice?.lockForConfiguration()
+			currentDevice?.setFocusModeLocked(lensPosition: Float(focusPb!.value), completionHandler: nil)
+			currentDevice?.unlockForConfiguration()
+		} catch {}
+	}
 	
 	private func setButtons() {
 		view.addSubview(shotButton)
@@ -99,6 +107,7 @@ class ViewController: UIViewController {
 			shotButton.widthAnchor.constraint(equalToConstant: 72.5),
 			shotButton.heightAnchor.constraint(equalToConstant: 70)
 		])
+		shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
 		
 		let offset = view.frame.width/2.6
 		view.addSubview(flashButton)
@@ -119,32 +128,19 @@ class ViewController: UIViewController {
 		])
 		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
 		
-		let leftPb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.min", "sun.max.fill")
-		view.addSubview(leftPb)
+		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.min", "sun.max.fill")
+		exposurePb.delegate = exposureValueChanged
+		view.addSubview(exposurePb)
 		
-		let rightPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
-		view.addSubview(rightPb)
-		
-//		expoSlider.translatesAutoresizingMaskIntoConstraints = false
-//		expoSlider.minimumValue = currentDevice!.minExposureTargetBias/3
-//		expoSlider.maximumValue = currentDevice!.maxExposureTargetBias/3
-//		expoSlider.addTarget(self, action: #selector(expoSliderValueChanged(sender:)), for: .valueChanged)
-//		view.addSubview(expoSlider)
-//		NSLayoutConstraint.activate([
-//			expoSlider.centerYAnchor.constraint(equalTo: lockButton.centerYAnchor),
-//			expoSlider.leadingAnchor.constraint(equalTo: lockButton.trailingAnchor, constant: 25),
-//			expoSlider.trailingAnchor.constraint(equalTo: flashButton.leadingAnchor, constant: -25)
-//		])
+		focusPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
+		focusPb.delegate = focusValueChanged
+		view.addSubview(focusPb)
 	}
 	
-//	@objc private func expoSliderValueChanged(sender: UISlider) {
-//		do {
-//			try currentDevice?.lockForConfiguration()
-//			currentDevice?.exposureMode = .autoExpose
-//			currentDevice?.setExposureTargetBias(expoSlider.value, completionHandler: nil)
-//			currentDevice?.unlockForConfiguration()
-//		} catch {}
-//	}
+	@objc private func shotButtonTapped() {
+		let settings = AVCapturePhotoSettings()
+		photoOutput?.capturePhoto(with: settings, delegate: self)
+	}
 	
 	@objc private func lockButtonTapped() {
 		do {
@@ -187,7 +183,7 @@ class ViewController: UIViewController {
 		
 		do {
 			try currentDevice?.lockForConfiguration()
-			currentDevice?.setFocusModeLocked(lensPosition: 0, completionHandler: nil)
+			currentDevice?.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
 			currentDevice?.unlockForConfiguration()
 		} catch {}
 		
@@ -195,7 +191,9 @@ class ViewController: UIViewController {
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: currentDevice!)
 			captureSession?.addInput(deviceInput)
+			photoOutput = AVCapturePhotoOutput()
 			photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.h264])], completionHandler: nil)
+			captureSession?.addOutput(photoOutput!)
 		} catch {}
 		
 		// Preview layer
@@ -206,5 +204,13 @@ class ViewController: UIViewController {
 		self.view.layer.insertSublayer(previewLayer!, at: 0)
 		
 		captureSession?.startRunning()
+	}
+}
+
+extension ViewController: AVCapturePhotoCaptureDelegate {
+	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+		if let imageData = photo.fileDataRepresentation() {
+			UIImageWriteToSavedPhotosAlbum(UIImage(data: imageData)!, nil, nil, nil)
+		}
 	}
 }

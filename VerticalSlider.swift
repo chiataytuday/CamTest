@@ -9,7 +9,9 @@
 import UIKit
 
 class VerticalProgressBar: UIView {
+	var delegate: (() -> ())!
 	private var line, indicator: UIView!
+	var value: CGFloat = 0.5
 	
 	let numLabel: UILabel = {
 		let label = UILabel()
@@ -23,12 +25,12 @@ class VerticalProgressBar: UIView {
 	
 	init(frame: CGRect, _ right: Bool, _ topIcon: String?, _ bottomIcon: String?) {
 		if right {
-			calc = { (a) -> CGFloat in
-				return round((-6 * a + 3)*10)/10
+			calc = { (x) -> CGFloat in
+				return -6 * x + 3
 			}
 		} else {
-			calc = { (a) -> CGFloat in
-				return round((1 - a)*10)/10
+			calc = { (x) -> CGFloat in
+				return 1 - x
 			}
 		}
 		
@@ -109,8 +111,9 @@ class VerticalProgressBar: UIView {
 	
 	private func valueChanged() {
 		let pos = indicator.frame.origin.y + indicator.frame.height/2
-		let value = calc(pos/frame.height)
-		numLabel.text = "\(value)"
+		value = calc(pos/frame.height)
+		numLabel.text = "\(round((value)*10)/10)"
+		delegate()
 	}
 }
 
