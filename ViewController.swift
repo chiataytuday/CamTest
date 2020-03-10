@@ -100,7 +100,7 @@ class ViewController: UIViewController {
 			shotButton.heightAnchor.constraint(equalToConstant: 70)
 		])
 		
-		let offset = view.frame.width/4 + 11.125
+		let offset = view.frame.width/2.6
 		view.addSubview(flashButton)
 		NSLayoutConstraint.activate([
 			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
@@ -118,6 +118,12 @@ class ViewController: UIViewController {
 			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
 		])
 		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+		
+		let leftPb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.min", "sun.max.fill")
+		view.addSubview(leftPb)
+		
+		let rightPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
+		view.addSubview(rightPb)
 		
 //		expoSlider.translatesAutoresizingMaskIntoConstraints = false
 //		expoSlider.minimumValue = currentDevice!.minExposureTargetBias/3
