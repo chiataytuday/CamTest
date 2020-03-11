@@ -10,13 +10,6 @@ import UIKit
 import AVFoundation
 
 class ViewController: UIViewController {
-	let expoPointImage: UIImageView = {
-		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
-		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemYellow
-		imageView.alpha = 0
-		return imageView
-	}()
 	
 	let shotButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -44,6 +37,14 @@ class ViewController: UIViewController {
 		return button
 	}()
 	
+	let expoPointImage: UIImageView = {
+		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 60, weight: .ultraLight))
+		let imageView = UIImageView(image: image)
+		imageView.tintColor = .systemYellow
+		imageView.alpha = 0
+		return imageView
+	}()
+	
 	var captureSession: AVCaptureSession?
 	var frontDevice: AVCaptureDevice?
 	var backDevice: AVCaptureDevice?
@@ -53,32 +54,13 @@ class ViewController: UIViewController {
 	
 	var exposurePb, focusPb: VerticalProgressBar!
 	var activePb: VerticalProgressBar?
-	
 	var blackFrame: UIView!
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setCamera()
-		setButtons()
-		view.addSubview(expoPointImage)
-		blackFrame = UIView(frame: view.frame)
-		blackFrame.backgroundColor = .black
-		blackFrame.alpha = 0
-		view.insertSubview(blackFrame, belowSubview: shotButton)
-		
-		for button in [flashButton, shotButton, lockButton] {
-			button.imageView!.layer.shadowColor = UIColor.black.cgColor
-			button.imageView!.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			button.imageView!.layer.shadowOpacity = 0.3
-			button.imageView!.layer.shadowRadius = 3
-			button.imageView!.clipsToBounds = false
-		}
-		
-		let point = previewLayer?.layerPointConverted(fromCaptureDevicePoint: currentDevice!.exposurePointOfInterest)
-		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2,
-																					y: point!.y - expoPointImage.frame.height/2)
-		expoPointImage.alpha = 1
+		setSubviews()
 	}
 	
 //	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -108,7 +90,6 @@ class ViewController: UIViewController {
 		if activePb == nil {
 			activePb = x > view.frame.width/2 ? focusPb : exposurePb
 			activePb?.touchesBegan(touches, with: event)
-//			activePb?.alpha = 1
 		} else {
 			activePb?.touchesMoved(touches, with: event)
 		}
@@ -119,7 +100,7 @@ class ViewController: UIViewController {
 		activePb = nil
 	}
 	
-	func exposureValueChanged() {
+	private func exposureValueChanged() {
 		do {
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.setExposureTargetBias(Float(exposurePb!.value), completionHandler: nil)
@@ -127,72 +108,12 @@ class ViewController: UIViewController {
 		} catch {}
 	}
 	
-	func focusValueChanged() {
+	private func focusValueChanged() {
 		do {
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.setFocusModeLocked(lensPosition: Float(focusPb!.value), completionHandler: nil)
 			currentDevice?.unlockForConfiguration()
 		} catch {}
-	}
-	
-	private func setButtons() {
-		view.addSubview(shotButton)
-		NSLayoutConstraint.activate([
-			shotButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			shotButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			shotButton.widthAnchor.constraint(equalToConstant: 72.5),
-			shotButton.heightAnchor.constraint(equalToConstant: 70)
-		])
-		shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
-		
-		let offset = view.frame.width/3
-		view.addSubview(flashButton)
-		NSLayoutConstraint.activate([
-			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
-			flashButton.widthAnchor.constraint(equalToConstant: 50),
-			flashButton.heightAnchor.constraint(equalToConstant: 50),
-			flashButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
-		])
-		flashButton.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
-		
-		view.addSubview(lockButton)
-		NSLayoutConstraint.activate([
-			lockButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
-			lockButton.widthAnchor.constraint(equalToConstant: 50),
-			lockButton.heightAnchor.constraint(equalToConstant: 50),
-			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
-		])
-		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
-		
-		addLineGrid()
-		
-		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
-		exposurePb.delegate = exposureValueChanged
-		exposurePb.alpha = 0
-		view.addSubview(exposurePb)
-
-		focusPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
-		focusPb.delegate = focusValueChanged
-		focusPb.alpha = 0
-		view.addSubview(focusPb)
-	}
-	
-	private func addLineGrid() {
-		let vertLine1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let vertLine2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let horLine1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
-		let horLine2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
-		
-		for line in [vertLine1, vertLine2, horLine1, horLine2] {
-			line.alpha = 0.25
-			line.backgroundColor = .white
-			line.layer.shadowColor = UIColor.black.cgColor
-			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			line.layer.shadowOpacity = 0.5
-			line.layer.shadowRadius = 1
-			line.clipsToBounds = false
-			view.addSubview(line)
-		}
 	}
 	
 	@objc private func shotButtonTapped() {
@@ -224,6 +145,24 @@ class ViewController: UIViewController {
 				currentDevice?.unlockForConfiguration()
 			}
 		} catch {}
+	}
+	
+	private func drawLineGrid() {
+		let vertLine1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let vertLine2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let horLine1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
+		let horLine2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
+		
+		for line in [vertLine1, vertLine2, horLine1, horLine2] {
+			line.alpha = 0.25
+			line.backgroundColor = .white
+			line.layer.shadowColor = UIColor.black.cgColor
+			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+			line.layer.shadowOpacity = 0.5
+			line.layer.shadowRadius = 1
+			line.clipsToBounds = false
+			view.addSubview(line)
+		}
 	}
 	
 	private func setCamera() {
@@ -266,6 +205,66 @@ class ViewController: UIViewController {
 		self.view.layer.insertSublayer(previewLayer!, at: 0)
 		
 		captureSession?.startRunning()
+	}
+	
+	private func setSubviews() {
+		view.addSubview(shotButton)
+		NSLayoutConstraint.activate([
+			shotButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			shotButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			shotButton.widthAnchor.constraint(equalToConstant: 72.5),
+			shotButton.heightAnchor.constraint(equalToConstant: 70)
+		])
+		shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
+		
+		let offset = view.frame.width/3
+		view.addSubview(flashButton)
+		NSLayoutConstraint.activate([
+			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
+			flashButton.widthAnchor.constraint(equalToConstant: 50),
+			flashButton.heightAnchor.constraint(equalToConstant: 50),
+			flashButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
+		])
+		flashButton.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
+		
+		view.addSubview(lockButton)
+		NSLayoutConstraint.activate([
+			lockButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
+			lockButton.widthAnchor.constraint(equalToConstant: 50),
+			lockButton.heightAnchor.constraint(equalToConstant: 50),
+			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
+		])
+		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+		
+		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
+		exposurePb.delegate = exposureValueChanged
+		exposurePb.alpha = 0
+		view.addSubview(exposurePb)
+
+		focusPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
+		focusPb.delegate = focusValueChanged
+		focusPb.alpha = 0
+		view.addSubview(focusPb)
+		
+		blackFrame = UIView(frame: view.frame)
+		blackFrame.backgroundColor = .black
+		blackFrame.alpha = 0
+		view.insertSubview(blackFrame, belowSubview: shotButton)
+		
+		for button in [flashButton, shotButton, lockButton] {
+			button.imageView!.layer.shadowColor = UIColor.black.cgColor
+			button.imageView!.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+			button.imageView!.layer.shadowOpacity = 0.3
+			button.imageView!.layer.shadowRadius = 3
+			button.imageView!.clipsToBounds = false
+		}
+		
+		view.addSubview(expoPointImage)
+		let point = previewLayer?.layerPointConverted(fromCaptureDevicePoint: currentDevice!.exposurePointOfInterest)
+		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2, y: point!.y - expoPointImage.frame.height/2)
+		expoPointImage.alpha = 1
+		
+		drawLineGrid()
 	}
 }
 
