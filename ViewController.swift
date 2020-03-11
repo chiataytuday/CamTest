@@ -52,6 +52,7 @@ class ViewController: UIViewController {
 	var photoOutput: AVCapturePhotoOutput?
 	
 	var exposurePb, focusPb: VerticalProgressBar!
+	var activePb: VerticalProgressBar?
 	
 	
 	override func viewDidLoad() {
@@ -61,26 +62,42 @@ class ViewController: UIViewController {
 		view.addSubview(expoPointImage)
 	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let touch = touches.first?.location(in: view) else { return }
-		let pointLocation = CGPoint(x: touch.x - expoPointImage.frame.width/2,
-																	 y: touch.y - expoPointImage.frame.height/2)
-		expoPointImage.frame.origin = pointLocation
-		self.expoPointImage.alpha = 0
-		expoPointImage.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-			self.expoPointImage.alpha = 1
-			self.expoPointImage.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-		}.startAnimation()
-		
-		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
-		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.exposurePointOfInterest = exposurePoint
-			currentDevice?.exposureMode = .continuousAutoExposure
-			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-			currentDevice?.unlockForConfiguration()
-		} catch { }
+//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		guard let touch = touches.first?.location(in: view) else { return }
+//		let pointLocation = CGPoint(x: touch.x - expoPointImage.frame.width/2,
+//																	 y: touch.y - expoPointImage.frame.height/2)
+//		expoPointImage.frame.origin = pointLocation
+//		self.expoPointImage.alpha = 0
+//		expoPointImage.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+//		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
+//			self.expoPointImage.alpha = 1
+//			self.expoPointImage.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+//		}.startAnimation()
+//
+//		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
+//		do {
+//			try currentDevice?.lockForConfiguration()
+//			currentDevice?.exposurePointOfInterest = exposurePoint
+//			currentDevice?.exposureMode = .continuousAutoExposure
+//			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+//			currentDevice?.unlockForConfiguration()
+//		} catch { }
+//	}
+	
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard let x = touches.first?.location(in: view).x else { return }
+		if activePb == nil {
+			activePb = x > view.frame.width/2 ? focusPb : exposurePb
+			activePb?.touchesBegan(touches, with: event)
+			activePb?.alpha = 1
+		} else {
+			activePb?.touchesMoved(touches, with: event)
+		}
+	}
+	
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		activePb?.alpha = 0
+		activePb = nil
 	}
 	
 	func exposureValueChanged() {
@@ -128,13 +145,30 @@ class ViewController: UIViewController {
 		])
 		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
 		
+		addLineGrid()
+		
 		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.min", "sun.max.fill")
 		exposurePb.delegate = exposureValueChanged
+		exposurePb.alpha = 0
 		view.addSubview(exposurePb)
-		
+
 		focusPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
 		focusPb.delegate = focusValueChanged
+		focusPb.alpha = 0
 		view.addSubview(focusPb)
+	}
+	
+	private func addLineGrid() {
+		let vertLine1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let vertLine2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let horLine1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
+		let horLine2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
+		
+		for line in [vertLine1, vertLine2, horLine1, horLine2] {
+			line.backgroundColor = .white
+			line.alpha = 0.25
+			view.addSubview(line)
+		}
 	}
 	
 	@objc private func shotButtonTapped() {

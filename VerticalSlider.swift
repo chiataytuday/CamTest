@@ -12,6 +12,7 @@ class VerticalProgressBar: UIView {
 	var delegate: (() -> ())!
 	private var line, indicator: UIView!
 	var value: CGFloat = 0.5
+	var offset: CGFloat = 0
 	
 	let numLabel: UILabel = {
 		let label = UILabel()
@@ -83,21 +84,23 @@ class VerticalProgressBar: UIView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard let touchY = touches.first?.location(in: self).y else { return }
+		offset = indicator.frame.origin.y - touchY + indicator.frame.height/2
 		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
 			self.numLabel.alpha = 1
 		}.startAnimation()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let point = touches.first?.location(in: self) else { return }
-		let indicatorY = point.y - indicator.frame.height/2
+		guard let touchY = touches.first?.location(in: self).y else { return }
+		let y = touchY + offset - indicator.frame.height/2
 		
-		if indicatorY >= frame.height - indicator.frame.height/2 {
+		if y >= frame.height - indicator.frame.height/2 {
 			indicator.frame.origin.y = frame.height - indicator.frame.height/2
-		} else if indicatorY <= -indicator.frame.height/2 {
+		} else if y <= -indicator.frame.height/2 {
 			indicator.frame.origin.y = -indicator.frame.height/2
 		} else {
-			indicator.frame.origin.y = indicatorY
+			indicator.frame.origin.y = y
 		}
 		
 		valueChanged()
