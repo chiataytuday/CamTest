@@ -11,9 +11,9 @@ import AVFoundation
 
 class ViewController: UIViewController {
 	let expoPointImage: UIImageView = {
-		let image = UIImage(systemName: "smallcircle.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 60, weight: .thin))
+		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemRed
+		imageView.tintColor = .systemYellow
 		imageView.alpha = 0
 		return imageView
 	}()
@@ -74,6 +74,11 @@ class ViewController: UIViewController {
 			button.imageView!.layer.shadowRadius = 3
 			button.imageView!.clipsToBounds = false
 		}
+		
+		let point = previewLayer?.layerPointConverted(fromCaptureDevicePoint: currentDevice!.exposurePointOfInterest)
+		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2,
+																					y: point!.y - expoPointImage.frame.height/2)
+		expoPointImage.alpha = 1
 	}
 	
 //	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -161,7 +166,7 @@ class ViewController: UIViewController {
 		
 		addLineGrid()
 		
-		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.min", "sun.max.fill")
+		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
 		exposurePb.delegate = exposureValueChanged
 		exposurePb.alpha = 0
 		view.addSubview(exposurePb)
