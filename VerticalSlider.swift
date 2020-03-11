@@ -13,12 +13,12 @@ class VerticalProgressBar: UIView {
 	private var line, indicator: UIView!
 	var value: CGFloat = 0.5
 	var offset: CGFloat = 0
+	var step: CGFloat = 20
 	
 	let numLabel: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
 		label.textColor = .white
-		label.alpha = 0
 		return label
 	}()
 	
@@ -26,10 +26,12 @@ class VerticalProgressBar: UIView {
 	
 	init(frame: CGRect, _ right: Bool, _ topIcon: String?, _ bottomIcon: String?) {
 		if right {
+			step = 20
 			calc = { (x) -> CGFloat in
 				return -6 * x + 3
 			}
 		} else {
+			step = -20
 			calc = { (x) -> CGFloat in
 				return 1 - x
 			}
@@ -86,9 +88,12 @@ class VerticalProgressBar: UIView {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touchY = touches.first?.location(in: self).y else { return }
 		offset = indicator.frame.origin.y - touchY + indicator.frame.height/2
-		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-			self.numLabel.alpha = 1
-		}.startAnimation()
+
+		alpha = 0
+		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.frame.origin.x += self.step
+			self.alpha = 1
+		}, completion: nil)
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -107,9 +112,18 @@ class VerticalProgressBar: UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-			self.numLabel.alpha = 0
-		}.startAnimation()
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.frame.origin.x -= self.step
+			self.alpha = 0
+		}, completion: nil)
+//		frame.origin.x -= 20
+//		UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+//			frame.origin.x += 20
+//			alpha = 1
+//		}, completion: nil)
+//		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
+//			self.numLabel.alpha = 0
+//		}.startAnimation()
 	}
 	
 	private func valueChanged() {

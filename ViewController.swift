@@ -54,12 +54,18 @@ class ViewController: UIViewController {
 	var exposurePb, focusPb: VerticalProgressBar!
 	var activePb: VerticalProgressBar?
 	
+	var blackFrame: UIView!
+	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		setCamera()
 		setButtons()
 		view.addSubview(expoPointImage)
+		blackFrame = UIView(frame: view.frame)
+		blackFrame.backgroundColor = .black
+		blackFrame.alpha = 0
+		view.insertSubview(blackFrame, belowSubview: shotButton)
 	}
 	
 //	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -89,14 +95,14 @@ class ViewController: UIViewController {
 		if activePb == nil {
 			activePb = x > view.frame.width/2 ? focusPb : exposurePb
 			activePb?.touchesBegan(touches, with: event)
-			activePb?.alpha = 1
+//			activePb?.alpha = 1
 		} else {
 			activePb?.touchesMoved(touches, with: event)
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		activePb?.alpha = 0
+		activePb?.touchesEnded(touches, with: event)
 		activePb = nil
 	}
 	
@@ -126,7 +132,7 @@ class ViewController: UIViewController {
 		])
 		shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
 		
-		let offset = view.frame.width/2.6
+		let offset = view.frame.width/3
 		view.addSubview(flashButton)
 		NSLayoutConstraint.activate([
 			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
@@ -173,7 +179,11 @@ class ViewController: UIViewController {
 	
 	@objc private func shotButtonTapped() {
 		let settings = AVCapturePhotoSettings()
-		photoOutput?.capturePhoto(with: settings, delegate: self)
+		self.photoOutput?.capturePhoto(with: settings, delegate: self)
+		blackFrame.alpha = 1
+		UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
+			self.blackFrame.alpha = 0
+		}, completion: nil)
 	}
 	
 	@objc private func lockButtonTapped() {
