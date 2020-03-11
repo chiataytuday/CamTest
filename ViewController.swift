@@ -66,6 +66,14 @@ class ViewController: UIViewController {
 		blackFrame.backgroundColor = .black
 		blackFrame.alpha = 0
 		view.insertSubview(blackFrame, belowSubview: shotButton)
+		
+		for button in [flashButton, shotButton, lockButton] {
+			button.imageView!.layer.shadowColor = UIColor.black.cgColor
+			button.imageView!.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+			button.imageView!.layer.shadowOpacity = 0.3
+			button.imageView!.layer.shadowRadius = 3
+			button.imageView!.clipsToBounds = false
+		}
 	}
 	
 //	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -171,8 +179,13 @@ class ViewController: UIViewController {
 		let horLine2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
 		
 		for line in [vertLine1, vertLine2, horLine1, horLine2] {
-			line.backgroundColor = .white
 			line.alpha = 0.25
+			line.backgroundColor = .white
+			line.layer.shadowColor = UIColor.black.cgColor
+			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+			line.layer.shadowOpacity = 0.5
+			line.layer.shadowRadius = 1
+			line.clipsToBounds = false
 			view.addSubview(line)
 		}
 	}
