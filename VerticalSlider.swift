@@ -87,14 +87,14 @@ extension VerticalProgressBar {
 	private func setImages(_ btmName: String?, _ topName: String?) {
 		if let _ = btmName {
 			let btmImage = UIImageView(image: UIImage(systemName: btmName!, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
-			btmImage.center = CGPoint(x: indicator.center.x, y: line.frame.maxY + 25)
+			btmImage.center = CGPoint(x: indicator.center.x, y: line.frame.maxY + 35)
 			btmImage.tintColor = .white
 			line.addSubview(btmImage)
 		}
 		
 		if let _ = topName {
 			let topImage = UIImageView(image: UIImage(systemName: topName!, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
-			topImage.center = CGPoint(x: indicator.center.x, y: line.frame.minY - 25)
+			topImage.center = CGPoint(x: indicator.center.x, y: line.frame.minY - 35)
 			topImage.tintColor = .white
 			line.addSubview(topImage)
 		}

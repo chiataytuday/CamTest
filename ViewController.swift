@@ -12,11 +12,11 @@ import AudioToolbox
 
 class ViewController: UIViewController {
 	
-	let shotBtn: UIButton = {
+	var redCircle: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setImage(UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .thin)), for: .normal)
-		button.tintColor = .white
+		button.backgroundColor = .systemRed
+		button.layer.cornerRadius = 25
 		return button
 	}()
 	
@@ -49,8 +49,10 @@ class ViewController: UIViewController {
 	var captureSession: AVCaptureSession?
 	var captureDevice: AVCaptureDevice?
 	var previewLayer: AVCaptureVideoPreviewLayer?
-	var photoOutput: AVCapturePhotoOutput?
+	var videoFileOutput: AVCaptureMovieFileOutput?
+	var filePath: URL?
 	
+	var isRecording: Bool = false
 	var exposureBar, focusBar: VerticalProgressBar!
 	var activeBar: VerticalProgressBar?
 	var poiOffset: CGPoint?
@@ -151,10 +153,14 @@ class ViewController: UIViewController {
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: captureDevice!)
 			captureSession?.addInput(deviceInput)
-			photoOutput = AVCapturePhotoOutput()
-			photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.h264])], completionHandler: nil)
-			captureSession?.addOutput(photoOutput!)
+			videoFileOutput = AVCaptureMovieFileOutput()
+			videoFileOutput?.movieFragmentInterval = CMTime.invalid
+			captureSession?.addOutput(videoFileOutput!)
+			videoFileOutput!.connection(with: .video)!.preferredVideoStabilizationMode = .cinematic
 		} catch {}
+		
+		let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+		filePath = documentsURL.appendingPathComponent("output.mov")
 		
 		// Preview layer
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
@@ -167,21 +173,35 @@ class ViewController: UIViewController {
 	}
 	
 	private func setButtons() {
-		view.addSubview(shotBtn)
+		let whiteCircle = UIButton()
+		whiteCircle.translatesAutoresizingMaskIntoConstraints = false
+		whiteCircle.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+		whiteCircle.layer.cornerRadius = 32.5
+		whiteCircle.layer.borderColor = UIColor.white.cgColor
+		whiteCircle.layer.borderWidth = 5
+		whiteCircle.addShadow(2.5, 0.3)
+		view.addSubview(whiteCircle)
 		NSLayoutConstraint.activate([
-			shotBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			shotBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			shotBtn.widthAnchor.constraint(equalToConstant: 72.5),
-			shotBtn.heightAnchor.constraint(equalToConstant: 70)
+			whiteCircle.widthAnchor.constraint(equalToConstant: 65),
+			whiteCircle.heightAnchor.constraint(equalToConstant: 65),
+			whiteCircle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
 		])
-		shotBtn.imageView!.addShadow(2.5, 0.3)
-		shotBtn.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
+		
+		view.insertSubview(redCircle, belowSubview: whiteCircle)
+		NSLayoutConstraint.activate([
+			redCircle.widthAnchor.constraint(equalToConstant: 50),
+			redCircle.heightAnchor.constraint(equalToConstant: 50),
+			redCircle.centerXAnchor.constraint(equalTo: whiteCircle.centerXAnchor),
+			redCircle.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor)
+		])
+		whiteCircle.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
 		
 		let offset = view.frame.width/3
 		
 		view.addSubview(lightBtn)
 		NSLayoutConstraint.activate([
-			lightBtn.centerYAnchor.constraint(equalTo: shotBtn.centerYAnchor),
+			lightBtn.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
 			lightBtn.widthAnchor.constraint(equalToConstant: 50),
 			lightBtn.heightAnchor.constraint(equalToConstant: 50),
 			lightBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
@@ -191,7 +211,7 @@ class ViewController: UIViewController {
 		
 		view.addSubview(lockBtn)
 		NSLayoutConstraint.activate([
-			lockBtn.centerYAnchor.constraint(equalTo: shotBtn.centerYAnchor),
+			lockBtn.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
 			lockBtn.widthAnchor.constraint(equalToConstant: 50),
 			lockBtn.heightAnchor.constraint(equalToConstant: 50),
 			lockBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
@@ -201,12 +221,12 @@ class ViewController: UIViewController {
 	}
 	
 	private func setSliders() {
-		exposureBar = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
+		exposureBar = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 250), true, "sun.max.fill", "sun.min")
 		exposureBar.valueChanged = exposureValueChanged
 		exposureBar.alpha = 0
 		view.addSubview(exposureBar)
 
-		focusBar = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
+		focusBar = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 260), false, "plus.magnifyingglass", "minus.magnifyingglass")
 		focusBar.valueChanged = focusValueChanged
 		focusBar.alpha = 0
 		view.addSubview(focusBar)
@@ -224,8 +244,23 @@ class ViewController: UIViewController {
 
 extension ViewController {
 	@objc private func shotButtonTapped() {
-		let settings = AVCapturePhotoSettings()
-		self.photoOutput?.capturePhoto(with: settings, delegate: self)
+		if !isRecording {
+			isRecording = true
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseOut, animations: {
+				self.redCircle.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+				self.redCircle.layer.cornerRadius = 10
+			}, completion: nil)
+			let delegate: AVCaptureFileOutputRecordingDelegate = self
+			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: delegate)
+			
+		} else {
+			isRecording = false
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseIn, animations: {
+				self.redCircle.transform = CGAffineTransform(scaleX: 1, y: 1)
+				self.redCircle.layer.cornerRadius = 25
+			}, completion: nil)
+			videoFileOutput?.stopRecording()
+		}
 	}
 	
 	@objc private func lockButtonTapped() {
@@ -247,7 +282,7 @@ extension ViewController {
 	}
 	
 	@objc private func flashButtonTapped() {
-		UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.5)
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 		let active = captureDevice?.isTorchActive
 		lightBtn.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
 		let transition = CATransition()
@@ -286,15 +321,11 @@ extension ViewController {
 	}
 }
 
-
-extension ViewController: AVCapturePhotoCaptureDelegate {
-	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-		if let imageData = photo.fileDataRepresentation() {
-			UIImageWriteToSavedPhotosAlbum(UIImage(data: imageData)!, nil, nil, nil)
-		}
+extension ViewController: AVCaptureFileOutputRecordingDelegate {
+	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+		UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
 	}
 }
-
 
 extension UIView {
 	func addShadow(_ radius: CGFloat, _ opacity: Float) {
