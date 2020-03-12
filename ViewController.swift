@@ -174,20 +174,16 @@ class ViewController: UIViewController {
 		} catch {}
 	}
 	
-	private func drawLineGrid() {
-		let vertLine1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let vertLine2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let horLine1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
-		let horLine2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
+	private func setLineGrid() {
+		let vert1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let vert2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let hor1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
+		let hor2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
 		
-		for line in [vertLine1, vertLine2, horLine1, horLine2] {
+		for line in [vert1, vert2, hor1, hor2] {
 			line.alpha = 0.25
 			line.backgroundColor = .white
-			line.layer.shadowColor = UIColor.black.cgColor
-			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			line.layer.shadowOpacity = 0.5
-			line.layer.shadowRadius = 1
-			line.clipsToBounds = false
+			line.addShadow(1, 0.5)
 			view.addSubview(line)
 		}
 	}
@@ -278,20 +274,17 @@ class ViewController: UIViewController {
 		blackFrame.alpha = 0
 		view.insertSubview(blackFrame, belowSubview: shotButton)
 		
-		for button in [flashButton, shotButton, lockButton] {
-			button.imageView!.layer.shadowColor = UIColor.black.cgColor
-			button.imageView!.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			button.imageView!.layer.shadowOpacity = 0.3
-			button.imageView!.layer.shadowRadius = 3
-			button.imageView!.clipsToBounds = false
-		}
+		flashButton.imageView!.addShadow(2.5, 0.3)
+		shotButton.imageView!.addShadow(2.5, 0.3)
+		lockButton.imageView!.addShadow(2.5, 0.3)
+		expoPointImage.addShadow(1, 0.125)
 		
 		view.addSubview(expoPointImage)
 		let point = previewLayer?.layerPointConverted(fromCaptureDevicePoint: currentDevice!.exposurePointOfInterest)
 		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2, y: point!.y - expoPointImage.frame.height/2)
 		expoPointImage.alpha = 1
 		
-		drawLineGrid()
+		setLineGrid()
 	}
 }
 
@@ -300,5 +293,15 @@ extension ViewController: AVCapturePhotoCaptureDelegate {
 		if let imageData = photo.fileDataRepresentation() {
 			UIImageWriteToSavedPhotosAlbum(UIImage(data: imageData)!, nil, nil, nil)
 		}
+	}
+}
+
+extension UIView {
+	func addShadow(_ radius: CGFloat, _ opacity: Float) {
+		self.layer.shadowColor = UIColor.black.cgColor
+		self.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+		self.layer.shadowOpacity = opacity
+		self.layer.shadowRadius = radius
+		self.clipsToBounds = false
 	}
 }

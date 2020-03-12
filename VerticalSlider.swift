@@ -70,6 +70,7 @@ class VerticalProgressBar: UIView {
 		line.frame.origin = CGPoint(x: right ? frame.width/5 : frame.width * 4/5 - line.frame.width,
 																y: frame.height/2 - line.frame.height/2)
 		line.layer.cornerRadius = line.frame.width/2
+		line.addShadow(1.5, 0.3)
 		line.backgroundColor = .white
 		addSubview(line)
 		
@@ -116,14 +117,6 @@ class VerticalProgressBar: UIView {
 			self.frame.origin.x -= self.step
 			self.alpha = 0
 		}, completion: nil)
-//		frame.origin.x -= 20
-//		UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-//			frame.origin.x += 20
-//			alpha = 1
-//		}, completion: nil)
-//		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-//			self.numLabel.alpha = 0
-//		}.startAnimation()
 	}
 	
 	private func valueChanged() {
