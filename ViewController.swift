@@ -46,7 +46,7 @@ class ViewController: UIViewController {
 		return imageView
 	}()
 	
-	var aeView: UIView!
+//	var aeView: UIView!
 	
 	var captureSession: AVCaptureSession?
 	var frontDevice: AVCaptureDevice?
@@ -151,19 +151,19 @@ class ViewController: UIViewController {
 			transition.type = CATransitionType.fade
 			lockButton.imageView?.layer.add(transition, forKey: nil)
 			
-			if isContinuous {
-				aeView.alpha = 0
-				UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-					self.aeView.frame.origin.y += 20
-					self.aeView.alpha = 1
-				}, completion: nil)
-			} else {
-				aeView.alpha = 1
-				UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-					self.aeView.frame.origin.y -= 20
-					self.aeView.alpha = 0
-				}, completion: nil)
-			}
+//			if isContinuous {
+//				aeView.alpha = 0
+//				UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+//					self.aeView.frame.origin.y += 20
+//					self.aeView.alpha = 1
+//				}, completion: nil)
+//			} else {
+//				aeView.alpha = 1
+//				UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+//					self.aeView.frame.origin.y -= 20
+//					self.aeView.alpha = 0
+//				}, completion: nil)
+//			}
 			
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
@@ -300,29 +300,33 @@ class ViewController: UIViewController {
 		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2, y: point!.y - expoPointImage.frame.height/2)
 		expoPointImage.alpha = 1
 		
-		let aeLabel = UILabel()
-		aeLabel.text = "AE LOCK"
-		aeLabel.textColor = .black
-		aeLabel.font = UIFont.systemFont(ofSize: 14, weight: .light)
-		view.addSubview(aeLabel)
-		aeLabel.sizeToFit()
-		aeLabel.frame.origin = CGPoint(x: view.frame.midX, y: view.frame.minY + aeLabel.frame.height + 20)
-		
-		aeView = UIView(frame: aeLabel.frame)
-		aeView.backgroundColor = .systemYellow
-		aeView.frame.size.width *= 1.3
-		aeView.frame.size.height *= 1.3
-		aeView.layer.cornerRadius = 5
-		aeView.addSubview(aeLabel)
-		aeLabel.frame.origin = CGPoint(x: aeView.frame.width/2 - aeLabel.frame.width/2,
-																 y: aeView.frame.height/2 - aeLabel.frame.height/2)
-		aeView.frame.origin.x -= aeView.frame.width/2
-		aeView.frame.origin.y -= aeView.frame.height/2
-		aeView.addShadow(2.5, 0.3)
-		aeView.alpha = 0
-		view.addSubview(aeView)
+//		let aeLabel = UILabel()
+//		aeLabel.text = "AE LOCK"
+//		aeLabel.textColor = .black
+//		aeLabel.font = UIFont.systemFont(ofSize: 14, weight: .light)
+//		view.addSubview(aeLabel)
+//		aeLabel.sizeToFit()
+//		aeLabel.frame.origin = CGPoint(x: view.frame.midX, y: view.frame.minY + aeLabel.frame.height + 20)
+//
+//		aeView = UIView(frame: aeLabel.frame)
+//		aeView.backgroundColor = .systemYellow
+//		aeView.frame.size.width *= 1.3
+//		aeView.frame.size.height *= 1.3
+//		aeView.layer.cornerRadius = 5
+//		aeView.addSubview(aeLabel)
+//		aeLabel.frame.origin = CGPoint(x: aeView.frame.width/2 - aeLabel.frame.width/2,
+//																 y: aeView.frame.height/2 - aeLabel.frame.height/2)
+//		aeView.frame.origin.x -= aeView.frame.width/2
+//		aeView.frame.origin.y -= aeView.frame.height/2
+//		aeView.addShadow(2.5, 0.3)
+//		aeView.alpha = 0
+//		view.addSubview(aeView)
 		
 		setLineGrid()
+	}
+	
+	override var prefersStatusBarHidden: Bool {
+		return true
 	}
 }
 
