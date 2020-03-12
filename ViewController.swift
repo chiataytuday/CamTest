@@ -202,12 +202,12 @@ class ViewController: UIViewController {
 	
 	private func setSliders() {
 		exposureBar = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
-		exposureBar.delegate = exposureValueChanged
+		exposureBar.valueChanged = exposureValueChanged
 		exposureBar.alpha = 0
 		view.addSubview(exposureBar)
 
 		focusBar = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
-		focusBar.delegate = focusValueChanged
+		focusBar.valueChanged = focusValueChanged
 		focusBar.alpha = 0
 		view.addSubview(focusBar)
 	}
@@ -268,7 +268,7 @@ extension ViewController {
 	private func exposureValueChanged() {
 		do {
 			try captureDevice?.lockForConfiguration()
-			captureDevice?.setExposureTargetBias(Float(exposureBar!.value), completionHandler: nil)
+			captureDevice?.setExposureTargetBias(Float(exposureBar!.indicatorValue), completionHandler: nil)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 	}
@@ -276,7 +276,7 @@ extension ViewController {
 	private func focusValueChanged() {
 		do {
 			try captureDevice?.lockForConfiguration()
-			captureDevice?.setFocusModeLocked(lensPosition: Float(focusBar!.value), completionHandler: nil)
+			captureDevice?.setFocusModeLocked(lensPosition: Float(focusBar!.indicatorValue), completionHandler: nil)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 	}
