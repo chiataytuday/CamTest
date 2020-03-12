@@ -141,7 +141,14 @@ class ViewController: UIViewController {
 		do {
 			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
+			
 			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+			let transition = CATransition()
+			transition.duration = 0.15
+			transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+			transition.type = CATransitionType.fade
+			lockButton.imageView?.layer.add(transition, forKey: nil)
+			
 			try currentDevice?.lockForConfiguration()
 			currentDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
 			currentDevice?.unlockForConfiguration()
@@ -152,6 +159,12 @@ class ViewController: UIViewController {
 		UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.5)
 		let active = currentDevice?.isTorchActive
 		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+		let transition = CATransition()
+		transition.duration = 0.15
+		transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+		transition.type = CATransitionType.fade
+		flashButton.imageView?.layer.add(transition, forKey: nil)
+		
 		do {
 			if currentDevice!.hasTorch {
 				try currentDevice?.lockForConfiguration()
