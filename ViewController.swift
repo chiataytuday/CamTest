@@ -12,7 +12,7 @@ import AudioToolbox
 
 class ViewController: UIViewController {
 	
-	let shotButton: UIButton = {
+	let shotBtn: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setImage(UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .thin)), for: .normal)
@@ -20,7 +20,7 @@ class ViewController: UIViewController {
 		return button
 	}()
 	
-	let flashButton: UIButton = {
+	let lightBtn: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setImage(UIImage(systemName: "bolt.slash", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
@@ -29,7 +29,7 @@ class ViewController: UIViewController {
 		return button
 	}()
 	
-	let lockButton: UIButton = {
+	let lockBtn: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
@@ -38,7 +38,7 @@ class ViewController: UIViewController {
 		return button
 	}()
 	
-	let expoPointImage: UIImageView = {
+	let exposureView: UIImageView = {
 		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 60, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
 		imageView.tintColor = .systemYellow
@@ -46,157 +46,84 @@ class ViewController: UIViewController {
 		return imageView
 	}()
 	
-//	var aeView: UIView!
-	
 	var captureSession: AVCaptureSession?
-	var frontDevice: AVCaptureDevice?
-	var backDevice: AVCaptureDevice?
-	var currentDevice: AVCaptureDevice?
+	var captureDevice: AVCaptureDevice?
 	var previewLayer: AVCaptureVideoPreviewLayer?
 	var photoOutput: AVCapturePhotoOutput?
 	
-	var exposurePb, focusPb: VerticalProgressBar!
-	var activePb: VerticalProgressBar?
-	var blackFrame: UIView!
+	var exposureBar, focusBar: VerticalProgressBar!
+	var activeBar: VerticalProgressBar?
 	var poiOffset: CGPoint?
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		
 		setCamera()
-		setSubviews()
+		setButtons()
+		setSliders()
+		setPoint()
+		setLineGrid()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard poiOffset == nil else { return }
-		guard let touch = touches.first?.location(in: view) else { return }
-		guard expoPointImage.frame.contains(touch) else { return }
+		guard poiOffset == nil, let t = touches.first?.location(in: view),
+			exposureView.frame.contains(t) else { return }
 		
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.6, options: .curveEaseOut, animations: {
-						self.expoPointImage.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
-						self.poiOffset = CGPoint(x: touch.x - self.expoPointImage.frame.origin.x,
-																		 y: touch.y - self.expoPointImage.frame.origin.y)
-					}, completion: nil)
+			self.exposureView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+			self.poiOffset = CGPoint(x: t.x - self.exposureView.frame.origin.x,
+															 y: t.y - self.exposureView.frame.origin.y)
+		}, completion: nil)
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: view) else { return }
 		if let offset = poiOffset {
 			// poi
-			expoPointImage.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
+			exposureView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			let point = previewLayer?.captureDevicePointConverted(fromLayerPoint: touch)
 			do {
-				try currentDevice?.lockForConfiguration()
-				currentDevice?.exposurePointOfInterest = point!
-				currentDevice?.exposureMode = .continuousAutoExposure
-				lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-				currentDevice?.unlockForConfiguration()
+				try captureDevice?.lockForConfiguration()
+				captureDevice?.exposurePointOfInterest = point!
+				captureDevice?.exposureMode = .continuousAutoExposure
+				lockBtn.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+				captureDevice?.unlockForConfiguration()
 				
 			} catch { }
 			
 		} else {
 			// pb
-			if activePb == nil {
-				activePb = touch.x > view.frame.width/2 ? focusPb : exposurePb
-				activePb?.touchesBegan(touches, with: event)
+			if activeBar == nil {
+				activeBar = touch.x > view.frame.width/2 ? focusBar : exposureBar
+				activeBar?.touchesBegan(touches, with: event)
 			} else {
-				activePb?.touchesMoved(touches, with: event)
+				activeBar?.touchesMoved(touches, with: event)
 			}
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		activePb?.touchesEnded(touches, with: event)
-		activePb = nil
-		poiOffset = nil
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-			self.expoPointImage.transform = CGAffineTransform(scaleX: 1, y: 1)
-		}, completion: nil)
-	}
-	
-	private func exposureValueChanged() {
-		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.setExposureTargetBias(Float(exposurePb!.value), completionHandler: nil)
-			currentDevice?.unlockForConfiguration()
-		} catch {}
-	}
-	
-	private func focusValueChanged() {
-		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.setFocusModeLocked(lensPosition: Float(focusPb!.value), completionHandler: nil)
-			currentDevice?.unlockForConfiguration()
-		} catch {}
-	}
-	
-	@objc private func shotButtonTapped() {
-		let settings = AVCapturePhotoSettings()
-		self.photoOutput?.capturePhoto(with: settings, delegate: self)
-		blackFrame.alpha = 1
-		UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
-			self.blackFrame.alpha = 0
-		}, completion: nil)
-	}
-	
-	@objc private func lockButtonTapped() {
-		do {
-			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
-			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
-			
-			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-			let transition = CATransition()
-			transition.duration = 0.15
-			transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-			transition.type = CATransitionType.fade
-			lockButton.imageView?.layer.add(transition, forKey: nil)
-			
-//			if isContinuous {
-//				aeView.alpha = 0
-//				UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-//					self.aeView.frame.origin.y += 20
-//					self.aeView.alpha = 1
-//				}, completion: nil)
-//			} else {
-//				aeView.alpha = 1
-//				UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-//					self.aeView.frame.origin.y -= 20
-//					self.aeView.alpha = 0
-//				}, completion: nil)
-//			}
-			
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
-			currentDevice?.unlockForConfiguration()
-		} catch {}
-	}
-	
-	@objc private func flashButtonTapped() {
-		UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.5)
-		let active = currentDevice?.isTorchActive
-		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-		let transition = CATransition()
-		transition.duration = 0.15
-		transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-		transition.type = CATransitionType.fade
-		flashButton.imageView?.layer.add(transition, forKey: nil)
+		activeBar?.touchesEnded(touches, with: event)
+		activeBar = nil; poiOffset = nil
 		
-		do {
-			if currentDevice!.hasTorch {
-				try currentDevice?.lockForConfiguration()
-				currentDevice?.torchMode = currentDevice!.isTorchActive ? .off : .on
-				currentDevice?.unlockForConfiguration()
-			}
-		} catch {}
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.exposureView.transform = CGAffineTransform(scaleX: 1, y: 1)
+		}, completion: nil)
 	}
+	
 	
 	private func setLineGrid() {
-		let vert1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let vert2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let hor1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5, width: view.frame.width, height: 1))
-		let hor2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
+		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0,
+																	width: 1, height: view.frame.height))
+		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0,
+																	width: 1, height: view.frame.height))
+		let h1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,
+																	width: view.frame.width, height: 1))
+		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5,
+																	width: view.frame.width, height: 1))
 		
-		for line in [vert1, vert2, hor1, hor2] {
+		for line in [v1, v2, h1, h2] {
 			line.alpha = 0.25
 			line.backgroundColor = .white
 			line.addShadow(1, 0.6)
@@ -212,24 +139,17 @@ class ViewController: UIViewController {
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
 		let devices = discoverySession.devices
-		for device in devices {
-			if device.position == .front {
-				frontDevice = device
-			} else if device.position == .back {
-				backDevice = device
-			}
-		}
-		currentDevice = backDevice
+		captureDevice = devices.first { $0.position == .back }
 		
 		do {
-			try currentDevice?.lockForConfiguration()
-			currentDevice?.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
-			currentDevice?.unlockForConfiguration()
+			try captureDevice?.lockForConfiguration()
+			captureDevice?.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
+			captureDevice?.unlockForConfiguration()
 		} catch {}
 		
 		// Input-output
 		do {
-			let deviceInput = try AVCaptureDeviceInput(device: currentDevice!)
+			let deviceInput = try AVCaptureDeviceInput(device: captureDevice!)
 			captureSession?.addInput(deviceInput)
 			photoOutput = AVCapturePhotoOutput()
 			photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.h264])], completionHandler: nil)
@@ -246,89 +166,126 @@ class ViewController: UIViewController {
 		captureSession?.startRunning()
 	}
 	
-	private func setSubviews() {
-		view.addSubview(shotButton)
+	private func setButtons() {
+		view.addSubview(shotBtn)
 		NSLayoutConstraint.activate([
-			shotButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			shotButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			shotButton.widthAnchor.constraint(equalToConstant: 72.5),
-			shotButton.heightAnchor.constraint(equalToConstant: 70)
+			shotBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			shotBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			shotBtn.widthAnchor.constraint(equalToConstant: 72.5),
+			shotBtn.heightAnchor.constraint(equalToConstant: 70)
 		])
-		shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
+		shotBtn.imageView!.addShadow(2.5, 0.3)
+		shotBtn.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
 		
 		let offset = view.frame.width/3
-		view.addSubview(flashButton)
-		NSLayoutConstraint.activate([
-			flashButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
-			flashButton.widthAnchor.constraint(equalToConstant: 50),
-			flashButton.heightAnchor.constraint(equalToConstant: 50),
-			flashButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
-		])
-		flashButton.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
 		
-		view.addSubview(lockButton)
+		view.addSubview(lightBtn)
 		NSLayoutConstraint.activate([
-			lockButton.centerYAnchor.constraint(equalTo: shotButton.centerYAnchor),
-			lockButton.widthAnchor.constraint(equalToConstant: 50),
-			lockButton.heightAnchor.constraint(equalToConstant: 50),
-			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
+			lightBtn.centerYAnchor.constraint(equalTo: shotBtn.centerYAnchor),
+			lightBtn.widthAnchor.constraint(equalToConstant: 50),
+			lightBtn.heightAnchor.constraint(equalToConstant: 50),
+			lightBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
 		])
-		lockButton.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+		lightBtn.imageView!.addShadow(2.5, 0.3)
+		lightBtn.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
 		
-		exposurePb = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
-		exposurePb.delegate = exposureValueChanged
-		exposurePb.alpha = 0
-		view.addSubview(exposurePb)
+		view.addSubview(lockBtn)
+		NSLayoutConstraint.activate([
+			lockBtn.centerYAnchor.constraint(equalTo: shotBtn.centerYAnchor),
+			lockBtn.widthAnchor.constraint(equalToConstant: 50),
+			lockBtn.heightAnchor.constraint(equalToConstant: 50),
+			lockBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
+		])
+		lockBtn.imageView!.addShadow(2.5, 0.3)
+		lockBtn.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+	}
+	
+	private func setSliders() {
+		exposureBar = VerticalProgressBar(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 300), true, "sun.max.fill", "sun.min")
+		exposureBar.delegate = exposureValueChanged
+		exposureBar.alpha = 0
+		view.addSubview(exposureBar)
 
-		focusPb = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
-		focusPb.delegate = focusValueChanged
-		focusPb.alpha = 0
-		view.addSubview(focusPb)
+		focusBar = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 300), false, "plus.magnifyingglass", "minus.magnifyingglass")
+		focusBar.delegate = focusValueChanged
+		focusBar.alpha = 0
+		view.addSubview(focusBar)
+	}
+	
+	private func setPoint() {
+		exposureView.addShadow(1, 0.125)
+		view.addSubview(exposureView)
+		guard let p = previewLayer?.layerPointConverted(fromCaptureDevicePoint: captureDevice!.exposurePointOfInterest) else { return }
+		exposureView.center = p
+		exposureView.alpha = 1
+	}
+}
+
+
+extension ViewController {
+	@objc private func shotButtonTapped() {
+		let settings = AVCapturePhotoSettings()
+		self.photoOutput?.capturePhoto(with: settings, delegate: self)
+	}
+	
+	@objc private func lockButtonTapped() {
+		do {
+			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
+			let isContinuous = captureDevice?.exposureMode == .continuousAutoExposure
+			
+			lockBtn.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+			let transition = CATransition()
+			transition.duration = 0.15
+			transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+			transition.type = CATransitionType.fade
+			lockBtn.imageView?.layer.add(transition, forKey: nil)
+			
+			try captureDevice?.lockForConfiguration()
+			captureDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
+			captureDevice?.unlockForConfiguration()
+		} catch {}
+	}
+	
+	@objc private func flashButtonTapped() {
+		UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.5)
+		let active = captureDevice?.isTorchActive
+		lightBtn.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+		let transition = CATransition()
+		transition.duration = 0.15
+		transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+		transition.type = CATransitionType.fade
+		lightBtn.imageView?.layer.add(transition, forKey: nil)
 		
-		blackFrame = UIView(frame: view.frame)
-		blackFrame.backgroundColor = .black
-		blackFrame.alpha = 0
-		view.insertSubview(blackFrame, belowSubview: shotButton)
-		
-		flashButton.imageView!.addShadow(2.5, 0.3)
-		shotButton.imageView!.addShadow(2.5, 0.3)
-		lockButton.imageView!.addShadow(2.5, 0.3)
-		expoPointImage.addShadow(1, 0.125)
-		
-		view.addSubview(expoPointImage)
-		let point = previewLayer?.layerPointConverted(fromCaptureDevicePoint: currentDevice!.exposurePointOfInterest)
-		expoPointImage.frame.origin = CGPoint(x: point!.x - expoPointImage.frame.width/2, y: point!.y - expoPointImage.frame.height/2)
-		expoPointImage.alpha = 1
-		
-//		let aeLabel = UILabel()
-//		aeLabel.text = "AE LOCK"
-//		aeLabel.textColor = .black
-//		aeLabel.font = UIFont.systemFont(ofSize: 14, weight: .light)
-//		view.addSubview(aeLabel)
-//		aeLabel.sizeToFit()
-//		aeLabel.frame.origin = CGPoint(x: view.frame.midX, y: view.frame.minY + aeLabel.frame.height + 20)
-//
-//		aeView = UIView(frame: aeLabel.frame)
-//		aeView.backgroundColor = .systemYellow
-//		aeView.frame.size.width *= 1.3
-//		aeView.frame.size.height *= 1.3
-//		aeView.layer.cornerRadius = 5
-//		aeView.addSubview(aeLabel)
-//		aeLabel.frame.origin = CGPoint(x: aeView.frame.width/2 - aeLabel.frame.width/2,
-//																 y: aeView.frame.height/2 - aeLabel.frame.height/2)
-//		aeView.frame.origin.x -= aeView.frame.width/2
-//		aeView.frame.origin.y -= aeView.frame.height/2
-//		aeView.addShadow(2.5, 0.3)
-//		aeView.alpha = 0
-//		view.addSubview(aeView)
-		
-		setLineGrid()
+		do {
+			if captureDevice!.hasTorch {
+				try captureDevice?.lockForConfiguration()
+				captureDevice?.torchMode = captureDevice!.isTorchActive ? .off : .on
+				captureDevice?.unlockForConfiguration()
+			}
+		} catch {}
+	}
+	
+	private func exposureValueChanged() {
+		do {
+			try captureDevice?.lockForConfiguration()
+			captureDevice?.setExposureTargetBias(Float(exposureBar!.value), completionHandler: nil)
+			captureDevice?.unlockForConfiguration()
+		} catch {}
+	}
+	
+	private func focusValueChanged() {
+		do {
+			try captureDevice?.lockForConfiguration()
+			captureDevice?.setFocusModeLocked(lensPosition: Float(focusBar!.value), completionHandler: nil)
+			captureDevice?.unlockForConfiguration()
+		} catch {}
 	}
 	
 	override var prefersStatusBarHidden: Bool {
 		return true
 	}
 }
+
 
 extension ViewController: AVCapturePhotoCaptureDelegate {
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
@@ -337,6 +294,7 @@ extension ViewController: AVCapturePhotoCaptureDelegate {
 		}
 	}
 }
+
 
 extension UIView {
 	func addShadow(_ radius: CGFloat, _ opacity: Float) {

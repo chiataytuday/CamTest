@@ -13,7 +13,7 @@ class VerticalProgressBar: UIView {
 	private var line, indicator: UIView!
 	var value: CGFloat = 0.5
 	var offset: CGFloat = 0
-	var step: CGFloat = 20
+	var margin: CGFloat = 20
 	
 	let numLabel: UILabel = {
 		let label = UILabel()
@@ -22,41 +22,35 @@ class VerticalProgressBar: UIView {
 		return label
 	}()
 	
-	var calc: (CGFloat) -> CGFloat
+	var range: (CGFloat) -> CGFloat
 	
-	init(frame: CGRect, _ right: Bool, _ topIcon: String?, _ bottomIcon: String?) {
-		if right {
-			step = 20
-			calc = { (x) -> CGFloat in
-				return -6 * x + 3
-			}
+	init(frame: CGRect, _ labelOnRight: Bool, _ topName: String?, _ btmName: String?) {
+		if labelOnRight {
+			margin = 20
+			range = { (x) -> CGFloat in return -6 * x + 3 }
 		} else {
-			step = -20
-			calc = { (x) -> CGFloat in
-				return 1 - x
-			}
+			margin = -20
+			range = { (x) -> CGFloat in return 1 - x }
 		}
-		
 		super.init(frame: frame)
-		setupSubviews(right)
-		self.frame.origin = CGPoint(x: right ? 30 : frame.origin.x - self.frame.width - 30, y: frame.origin.y - self.frame.height/2)
 		
-		numLabel.textAlignment = right ? .left : .right
-		numLabel.frame.origin.x = right ? indicator.frame.width + 7.5 : -indicator.frame.width - numLabel.frame.width/2 - 7.5
-		
-		if let bottomName = bottomIcon {
-			let bottom = UIImageView(image: UIImage(systemName: bottomName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
-			bottom.tintColor = .white
-			bottom.frame.origin.y = line.frame.height + bottom.frame.height/2 + 7.5
-			bottom.frame.origin.x = -bottom.frame.width/2 + line.frame.width/2
-			line.addSubview(bottom)
+		setupSubviews(labelOnRight)
+		setImages(btmName, topName)
+	}
+	
+	private func setImages(_ btmName: String?, _ topName: String?) {
+		if let _ = btmName {
+			let btmImage = UIImageView(image: UIImage(systemName: btmName!, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
+			btmImage.center = CGPoint(x: indicator.center.x, y: line.frame.maxY + 25)
+			btmImage.tintColor = .white
+			line.addSubview(btmImage)
 		}
-		if let topName = topIcon {
-			let top = UIImageView(image: UIImage(systemName: topName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
-			top.tintColor = .white
-			top.frame.origin.y = -top.frame.height - top.frame.height/2 - 7.5
-			top.frame.origin.x = -top.frame.width/2 + line.frame.width/2
-			line.addSubview(top)
+		
+		if let _ = topName {
+			let topImage = UIImageView(image: UIImage(systemName: topName!, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
+			topImage.center = CGPoint(x: indicator.center.x, y: line.frame.minY - 25)
+			topImage.tintColor = .white
+			line.addSubview(topImage)
 		}
 	}
 	
@@ -70,13 +64,14 @@ class VerticalProgressBar: UIView {
 		line.frame.origin = CGPoint(x: right ? frame.width/5 : frame.width * 4/5 - line.frame.width,
 																y: frame.height/2 - line.frame.height/2)
 		line.layer.cornerRadius = line.frame.width/2
-		line.addShadow(1.5, 0.3)
 		line.backgroundColor = .white
+		line.addShadow(1.5, 0.3)
 		addSubview(line)
 		
 		indicator = UIView()
 		indicator.frame.size = CGSize(width: 16, height: 16)
-		indicator.frame.origin = CGPoint(x: line.frame.width/2 - indicator.frame.width/2, y: line.frame.height/2 - indicator.frame.height/2)
+		indicator.frame.origin = CGPoint(x: line.frame.width/2 - indicator.frame.width/2,
+																		 y: line.frame.height/2 - indicator.frame.height/2)
 		indicator.layer.cornerRadius = indicator.frame.width/2
 		indicator.backgroundColor = .white
 		line.addSubview(indicator)
@@ -84,29 +79,33 @@ class VerticalProgressBar: UIView {
 		indicator.addSubview(numLabel)
 		numLabel.frame.size = CGSize(width: 30, height: 20)
 		numLabel.frame.origin.y = -0.75
+		numLabel.textAlignment = right ? .left : .right
+		numLabel.frame.origin.x = right ? indicator.frame.width + 7.5 : -indicator.frame.width - numLabel.frame.width/2 - 7.5
+		
+		self.frame.origin = CGPoint(x: right ? 30 : frame.origin.x - self.frame.width - 30,
+																y: frame.origin.y - self.frame.height/2)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let touchY = touches.first?.location(in: self).y else { return }
-		offset = indicator.frame.origin.y - touchY + indicator.frame.height/2
+		guard let y = touches.first?.location(in: self).y else { return }
+		offset = indicator.center.y - y
 
-		alpha = 0
 		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-			self.frame.origin.x += self.step
+			self.frame.origin.x += self.margin
 			self.alpha = 1
 		}, completion: nil)
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let touchY = touches.first?.location(in: self).y else { return }
-		let y = touchY + offset - indicator.frame.height/2
-		
-		if y >= frame.height - indicator.frame.height/2 {
-			indicator.frame.origin.y = frame.height - indicator.frame.height/2
-		} else if y <= -indicator.frame.height/2 {
-			indicator.frame.origin.y = -indicator.frame.height/2
+		guard let t = touches.first?.location(in: self) else { return }
+		let y = t.y + offset
+
+		if y >= frame.height {
+			indicator.center.y = frame.height
+		} else if y <= 0 {
+			indicator.center.y = 0
 		} else {
-			indicator.frame.origin.y = y
+			indicator.center.y = y
 		}
 		
 		valueChanged()
@@ -114,14 +113,14 @@ class VerticalProgressBar: UIView {
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-			self.frame.origin.x -= self.step
+			self.frame.origin.x -= self.margin
 			self.alpha = 0
 		}, completion: nil)
 	}
 	
 	private func valueChanged() {
 		let pos = indicator.frame.origin.y + indicator.frame.height/2
-		value = calc(pos/frame.height)
+		value = range(pos/frame.height)
 		numLabel.text = "\(round((value)*10)/10)"
 		delegate()
 	}
