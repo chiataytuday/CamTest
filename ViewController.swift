@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import AudioToolbox
 
 class ViewController: UIViewController {
 	
@@ -55,6 +56,7 @@ class ViewController: UIViewController {
 	var exposurePb, focusPb: VerticalProgressBar!
 	var activePb: VerticalProgressBar?
 	var blackFrame: UIView!
+	var poiOffset: CGPoint?
 	
 	
 	override func viewDidLoad() {
@@ -63,41 +65,51 @@ class ViewController: UIViewController {
 		setSubviews()
 	}
 	
-//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		guard let touch = touches.first?.location(in: view) else { return }
-//		let pointLocation = CGPoint(x: touch.x - expoPointImage.frame.width/2,
-//																	 y: touch.y - expoPointImage.frame.height/2)
-//		expoPointImage.frame.origin = pointLocation
-//		self.expoPointImage.alpha = 0
-//		expoPointImage.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-//		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-//			self.expoPointImage.alpha = 1
-//			self.expoPointImage.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-//		}.startAnimation()
-//
-//		let exposurePoint = previewLayer!.captureDevicePointConverted(fromLayerPoint: touch)
-//		do {
-//			try currentDevice?.lockForConfiguration()
-//			currentDevice?.exposurePointOfInterest = exposurePoint
-//			currentDevice?.exposureMode = .continuousAutoExposure
-//			lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-//			currentDevice?.unlockForConfiguration()
-//		} catch { }
-//	}
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		guard poiOffset == nil else { return }
+		guard let touch = touches.first?.location(in: view) else { return }
+		guard expoPointImage.frame.contains(touch) else { return }
+		
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.6, options: .curveEaseOut, animations: {
+						self.expoPointImage.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+						self.poiOffset = CGPoint(x: touch.x - self.expoPointImage.frame.origin.x,
+																		 y: touch.y - self.expoPointImage.frame.origin.y)
+					}, completion: nil)
+	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let x = touches.first?.location(in: view).x else { return }
-		if activePb == nil {
-			activePb = x > view.frame.width/2 ? focusPb : exposurePb
-			activePb?.touchesBegan(touches, with: event)
+		guard let touch = touches.first?.location(in: view) else { return }
+		if let offset = poiOffset {
+			// poi
+			expoPointImage.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
+			let point = previewLayer?.captureDevicePointConverted(fromLayerPoint: touch)
+			do {
+				try currentDevice?.lockForConfiguration()
+				currentDevice?.exposurePointOfInterest = point!
+				currentDevice?.exposureMode = .continuousAutoExposure
+				lockButton.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+				currentDevice?.unlockForConfiguration()
+				
+			} catch { }
+			
 		} else {
-			activePb?.touchesMoved(touches, with: event)
+			// pb
+			if activePb == nil {
+				activePb = touch.x > view.frame.width/2 ? focusPb : exposurePb
+				activePb?.touchesBegan(touches, with: event)
+			} else {
+				activePb?.touchesMoved(touches, with: event)
+			}
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		activePb?.touchesEnded(touches, with: event)
 		activePb = nil
+		poiOffset = nil
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.expoPointImage.transform = CGAffineTransform(scaleX: 1, y: 1)
+		}, completion: nil)
 	}
 	
 	private func exposureValueChanged() {
@@ -127,6 +139,7 @@ class ViewController: UIViewController {
 	
 	@objc private func lockButtonTapped() {
 		do {
+			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 			let isContinuous = currentDevice?.exposureMode == .continuousAutoExposure
 			lockButton.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
 			try currentDevice?.lockForConfiguration()
@@ -136,6 +149,7 @@ class ViewController: UIViewController {
 	}
 	
 	@objc private func flashButtonTapped() {
+		UIImpactFeedbackGenerator(style: .soft).impactOccurred(intensity: 0.5)
 		let active = currentDevice?.isTorchActive
 		flashButton.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
 		do {
