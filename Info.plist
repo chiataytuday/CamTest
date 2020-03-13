@@ -21,9 +21,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>To capture photos</string>
+	<string>To capture</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To record audio</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>To save photos</string>
+	<string>To save</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

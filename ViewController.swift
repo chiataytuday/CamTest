@@ -159,6 +159,11 @@ extension ViewController {
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: captureDevice!)
 			captureSession?.addInput(deviceInput)
+			
+			let audioDevice = AVCaptureDevice.default(for: .audio)
+			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
+			captureSession?.addInput(audioInput)
+			
 			videoFileOutput = AVCaptureMovieFileOutput()
 			videoFileOutput?.movieFragmentInterval = CMTime.invalid
 			captureSession?.addOutput(videoFileOutput!)
@@ -282,11 +287,12 @@ extension ViewController {
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 		
-		let settings: (CGFloat, CGFloat) = isLocked ? (1, 0.5) : (1.1, 1)
+		let settings: (CGFloat, CGFloat, Float) = isLocked ? (1, 0.5, 0.3) : (1.1, 1, 0.15)
 		lockBtn.setImage(UIImage(systemName: isLocked ? "lock" : "lock.fill"), for: .normal)
 		UIViewPropertyAnimator(duration: 0.12, curve: .easeOut) {
 			self.lockBtn.transform = CGAffineTransform(scaleX: settings.0, y: settings.0)
 			self.lockBtn.alpha = settings.1
+			self.lockBtn.imageView?.layer.shadowOpacity = settings.2
 		}.startAnimation()
 	}
 	
@@ -300,11 +306,12 @@ extension ViewController {
 				captureDevice?.unlockForConfiguration()
 			} catch {}
 			
-			let settings: (CGFloat, CGFloat) = torchEnabled ? (1, 0.5) : (1.1, 1)
+			let settings: (CGFloat, CGFloat, Float) = torchEnabled ? (1, 0.5, 0.3) : (1.1, 1, 0.15)
 			lightBtn.setImage(UIImage(systemName: torchEnabled ? "bolt.slash" : "bolt.fill"), for: .normal)
 			UIViewPropertyAnimator(duration: 0.12, curve: .easeOut) {
 				self.lightBtn.transform = CGAffineTransform(scaleX: settings.0, y: settings.0)
 				self.lightBtn.alpha = settings.1
+				self.lightBtn.imageView?.layer.shadowOpacity = settings.2
 			}.startAnimation()
 		}
 	}
