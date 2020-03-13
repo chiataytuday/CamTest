@@ -70,7 +70,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.layer.cornerRadius = 3
+		view.layer.cornerRadius = 2
 		view.clipsToBounds = true
 		
 		setCamera()
@@ -260,9 +260,9 @@ extension ViewController {
 	}
 	
 	private func setProgressBar() {
-		progressBar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 6))
+		progressBar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 4))
 		progressBar.backgroundColor = .white
-		progressBar.layer.cornerRadius = 3
+		progressBar.layer.cornerRadius = 2
 		progressBar.addShadow(2.5, 0.15)
 		view.addSubview(progressBar)
 	}
@@ -281,7 +281,6 @@ extension ViewController {
 		isRecording = !isRecording
 		if isRecording {
 			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)
-			
 			progressAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 				self.progressBar.frame.size.width = self.view.frame.width
 			})
