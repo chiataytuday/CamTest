@@ -53,6 +53,8 @@ class ViewController: UIViewController {
 		return imageView
 	}()
 	
+	var progressBar: UIView!
+	
 	var captureSession: AVCaptureSession?
 	var captureDevice: AVCaptureDevice?
 	var previewLayer: AVCaptureVideoPreviewLayer?
@@ -63,16 +65,20 @@ class ViewController: UIViewController {
 	var exposureBar, focusBar: VerticalProgressBar!
 	var activeBar: VerticalProgressBar?
 	var touchOffset: CGPoint?
+	var progressAnim: UIViewPropertyAnimator?
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		view.layer.cornerRadius = 3
+		view.clipsToBounds = true
 		
 		setCamera()
 		setButtons()
 		setSliders()
 		setPoint()
 		setGrid()
+		setProgressBar()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -253,6 +259,14 @@ extension ViewController {
 		view.addSubview(poiView)
 	}
 	
+	private func setProgressBar() {
+		progressBar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 6))
+		progressBar.backgroundColor = .white
+		progressBar.layer.cornerRadius = 3
+		progressBar.addShadow(2.5, 0.15)
+		view.addSubview(progressBar)
+	}
+	
 	
 	@objc private func shotTouchDown() {
 		let scale: CGFloat = isRecording ? 0.45 : 0.9
@@ -267,8 +281,20 @@ extension ViewController {
 		isRecording = !isRecording
 		if isRecording {
 			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)
+			
+			progressAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
+				self.progressBar.frame.size.width = self.view.frame.width
+			})
+			progressAnim?.addCompletion({ (_) in self.shotTouchUp() })
+			progressAnim?.startAnimation()
+			
 		} else {
 			videoFileOutput?.stopRecording()
+			progressAnim?.stopAnimation(true)
+			progressAnim = nil
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+				self.progressBar.frame.size.width = 0
+			}, completion: nil)
 		}
 		
 		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
