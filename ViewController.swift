@@ -55,6 +55,7 @@ class ViewController: UIViewController {
 	var isRecording: Bool = false
 	var exposureBar, focusBar: VerticalProgressBar!
 	var activeBar: VerticalProgressBar?
+	var safeArea: CGRect?
 	var poiOffset: CGPoint?
 	
 	
@@ -83,6 +84,7 @@ class ViewController: UIViewController {
 		guard let touch = touches.first?.location(in: view) else { return }
 		if let offset = poiOffset {
 			// poi
+			print(safeArea!.contains(exposureView.frame))
 			exposureView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			let point = previewLayer?.captureDevicePointConverted(fromLayerPoint: touch)
 			do {
@@ -210,7 +212,7 @@ class ViewController: UIViewController {
 			lightBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
 		])
 		lightBtn.imageView!.addShadow(2.5, 0.3)
-		lightBtn.addTarget(self, action: #selector(flashButtonTapped), for: .touchDown)
+		lightBtn.addTarget(self, action: #selector(lightTouchDown), for: .touchDown)
 		
 		view.addSubview(lockBtn)
 		NSLayoutConstraint.activate([
@@ -220,7 +222,10 @@ class ViewController: UIViewController {
 			lockBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
 		])
 		lockBtn.imageView!.addShadow(2.5, 0.3)
-		lockBtn.addTarget(self, action: #selector(lockButtonTapped), for: .touchDown)
+		lockBtn.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
+		
+		safeArea = view.frame
+		safeArea?.size.height = view.frame.height - 135
 	}
 	
 	private func setSliders() {
@@ -248,10 +253,10 @@ class ViewController: UIViewController {
 
 
 extension ViewController {
-	
 	@objc private func shotTouchDown() {
 		let scale: CGFloat = isRecording ? 0.45 : 0.9
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.redCircle.transform = CGAffineTransform(scaleX: scale, y: scale)
 		}, completion: nil)
 	}
@@ -260,68 +265,39 @@ extension ViewController {
 		let scale: CGFloat = isRecording ? 1 : 0.55
 		let radius: CGFloat = isRecording ? 25 : 10
 		isRecording = !isRecording
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.redCircle.transform = CGAffineTransform(scaleX: scale, y: scale)
 			self.redCircle.layer.cornerRadius = radius
 		}, completion: nil)
 	}
 	
-//	@objc private func shotButtonTapped() {
-//		if !isRecording {
-//			isRecording = true
-//			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseOut, animations: {
-//				self.redCircle.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-//				self.redCircle.layer.cornerRadius = 10
-//			}, completion: nil)
-//			let delegate: AVCaptureFileOutputRecordingDelegate = self
-//			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: delegate)
-//
-//		} else {
-//			isRecording = false
-//			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseIn, animations: {
-//				self.redCircle.transform = CGAffineTransform(scaleX: 1, y: 1)
-//				self.redCircle.layer.cornerRadius = 25
-//			}, completion: nil)
-//			videoFileOutput?.stopRecording()
-//		}
-//	}
-	
-	@objc private func lockButtonTapped() {
+	@objc private func lockTouchDown() {
+		let isContinuous = captureDevice?.exposureMode == .continuousAutoExposure
 		do {
-			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
-			let isContinuous = captureDevice?.exposureMode == .continuousAutoExposure
-			
-			lockBtn.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-			let transition = CATransition()
-			transition.duration = 0.15
-			transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-			transition.type = CATransitionType.fade
-			lockBtn.imageView?.layer.add(transition, forKey: nil)
-			
 			try captureDevice?.lockForConfiguration()
 			captureDevice?.exposureMode = isContinuous ? .locked : .continuousAutoExposure
+			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 			captureDevice?.unlockForConfiguration()
+
+			lockBtn.setImage(UIImage(systemName: isContinuous ? "lock.fill" : "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+			lockBtn.imageView?.animate(0.15)
 		} catch {}
 	}
 	
-	@objc private func flashButtonTapped() {
-		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
-		let active = captureDevice?.isTorchActive
-		lightBtn.setImage(UIImage(systemName: active! ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
-		let transition = CATransition()
-		transition.duration = 0.15
-		transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-		transition.type = CATransitionType.fade
-		lightBtn.imageView?.layer.add(transition, forKey: nil)
-		
+	@objc private func lightTouchDown() {
 		do {
 			if captureDevice!.hasTorch {
 				try captureDevice?.lockForConfiguration()
 				captureDevice?.torchMode = captureDevice!.isTorchActive ? .off : .on
+				UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 				captureDevice?.unlockForConfiguration()
 			}
+			lightBtn.setImage(UIImage(systemName: captureDevice!.isTorchActive ? "bolt.slash" : "bolt.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+			lightBtn.imageView?.animate(0.15)
 		} catch {}
 	}
+	
 	
 	private func exposureValueChanged() {
 		do {
@@ -357,5 +333,15 @@ extension UIView {
 		self.layer.shadowOpacity = opacity
 		self.layer.shadowRadius = radius
 		self.clipsToBounds = false
+	}
+}
+
+extension UIImageView {
+	func animate(_ duration: Double) {
+		let transition = CATransition()
+		transition.duration = duration
+		transition.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
+		transition.type = CATransitionType.fade
+		self.layer.add(transition, forKey: nil)
 	}
 }
