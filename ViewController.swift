@@ -226,6 +226,14 @@ class ViewController: UIViewController {
 		
 		safeArea = view.frame
 		safeArea?.size.height = view.frame.height - 135
+
+//		var yourViewBorder = CAShapeLayer()
+//		yourViewBorder.strokeColor = UIColor.systemYellow.cgColor
+//		yourViewBorder.lineDashPattern = [16, 16]
+//		yourViewBorder.frame = safeArea!
+//		yourViewBorder.fillColor = nil
+//		yourViewBorder.path = UIBezierPath(rect: safeArea!).cgPath
+//		view.layer.addSublayer(yourViewBorder)
 	}
 	
 	private func setSliders() {
