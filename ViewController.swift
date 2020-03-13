@@ -57,6 +57,8 @@ class ViewController: UIViewController {
 	var activeBar: VerticalProgressBar?
 	var safeArea: CGRect?
 	var poiOffset: CGPoint?
+	var border: CAShapeLayer!
+	var safeView: UIView!
 	
 	
 	override func viewDidLoad() {
@@ -73,10 +75,13 @@ class ViewController: UIViewController {
 		guard poiOffset == nil, let t = touches.first?.location(in: view),
 			exposureView.frame.contains(t) else { return }
 		
+		safeView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.6, options: .curveEaseOut, animations: {
-			self.exposureView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+			self.exposureView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+			self.safeView.transform = CGAffineTransform(scaleX: 1, y: 1)
 			self.poiOffset = CGPoint(x: t.x - self.exposureView.frame.origin.x,
 															 y: t.y - self.exposureView.frame.origin.y)
+			self.safeView.alpha = 1
 		}, completion: nil)
 	}
 	
@@ -84,7 +89,7 @@ class ViewController: UIViewController {
 		guard let touch = touches.first?.location(in: view) else { return }
 		if let offset = poiOffset {
 			// poi
-			print(safeArea!.contains(exposureView.frame))
+//			print(safeArea!.contains(exposureView.frame))
 			exposureView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			let point = previewLayer?.captureDevicePointConverted(fromLayerPoint: touch)
 			do {
@@ -113,6 +118,8 @@ class ViewController: UIViewController {
 		
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.exposureView.transform = CGAffineTransform(scaleX: 1, y: 1)
+			self.safeView.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+			self.safeView.alpha = 0
 		}, completion: nil)
 	}
 	
@@ -224,16 +231,33 @@ class ViewController: UIViewController {
 		lockBtn.imageView!.addShadow(2.5, 0.3)
 		lockBtn.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		
-		safeArea = view.frame
-		safeArea?.size.height = view.frame.height - 135
+//		safeArea = view.frame
+//		safeArea?.size.height = view.frame.height - 155
+//		safeArea?.size.width -= 40
+//		safeArea?.origin.x += 10
+//		safeArea?.origin.y += 10
+		
+		safeView = UIView(frame: view.frame)
+		safeView.frame.size.height = view.frame.height - 160
+		safeView.frame.size.width -= 30
+		safeView.frame.origin.x += 5
+		safeView.frame.origin.y += 5
+		view.addSubview(safeView)
+		safeView.isUserInteractionEnabled = false
 
-//		var yourViewBorder = CAShapeLayer()
-//		yourViewBorder.strokeColor = UIColor.systemYellow.cgColor
-//		yourViewBorder.lineDashPattern = [16, 16]
-//		yourViewBorder.frame = safeArea!
-//		yourViewBorder.fillColor = nil
-//		yourViewBorder.path = UIBezierPath(rect: safeArea!).cgPath
-//		view.layer.addSublayer(yourViewBorder)
+		border = CAShapeLayer()
+		border.strokeColor = UIColor.systemYellow.cgColor
+		border.lineDashPattern = [22, 25]
+		border.lineWidth = 1.5
+		border.frame = safeView.frame
+		border.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.01).cgColor
+		border.path = UIBezierPath(roundedRect: safeView.frame, cornerRadius: 10).cgPath
+		border.shadowRadius = 1
+		border.shadowColor = UIColor.black.cgColor
+		border.shadowOffset = CGSize(width: 0.5, height: 0.5)
+		border.shadowOpacity = 0.125
+		safeView.layer.addSublayer(border)
+		safeView.alpha = 0
 	}
 	
 	private func setSliders() {
