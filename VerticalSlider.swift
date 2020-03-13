@@ -9,11 +9,14 @@
 import UIKit
 
 class VerticalProgressBar: UIView {
-	var valueChanged: (() -> ())!
 	private var line, indicator: UIView!
 	var indicatorValue: CGFloat = 0.5
 	var lineMargin: CGFloat = 20
 	var touchOffset: CGFloat = 0
+	
+	var valueChanged: (() -> ())!
+	var setValue: ((CGFloat) -> Void)!
+	var range: ((CGFloat) -> CGFloat)!
 	
 	let numLabel: UILabel = {
 		let label = UILabel()
@@ -22,20 +25,26 @@ class VerticalProgressBar: UIView {
 		return label
 	}()
 	
-	var range: (CGFloat) -> CGFloat
 	
 	init(frame: CGRect, _ labelOnRight: Bool, _ topName: String?, _ btmName: String?) {
-		if labelOnRight {
-			lineMargin = 20
-			range = { (x) -> CGFloat in return -6 * x + 3 }
-		} else {
-			lineMargin = -20
-			range = { (x) -> CGFloat in return 1 - x }
-		}
 		super.init(frame: frame)
-		
 		setupSubviews(labelOnRight)
 		setImages(btmName, topName)
+		
+		if labelOnRight {
+			lineMargin = 20
+			range = {(x) -> CGFloat in return -6 * x + 3}
+			setValue = {(x) -> Void in
+				self.indicator.center.y = (3 - x) / 6 * frame.height
+			}
+		} else {
+			lineMargin = -20
+			range = {(x) -> CGFloat in return 1 - x}
+			setValue = {(x) -> Void in
+				self.indicator.center.y = (1 - x) * frame.height
+			}
+		}
+		
 	}
 	
 	required init?(coder: NSCoder) {

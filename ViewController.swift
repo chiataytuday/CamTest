@@ -145,7 +145,8 @@ class ViewController: UIViewController {
 		
 		do {
 			try captureDevice?.lockForConfiguration()
-			captureDevice?.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
+			captureDevice?.setFocusModeLocked(lensPosition: 0.8, completionHandler: nil)
+			captureDevice?.setExposureTargetBias(-0.8, completionHandler: nil)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 		
@@ -195,7 +196,9 @@ class ViewController: UIViewController {
 			redCircle.centerXAnchor.constraint(equalTo: whiteCircle.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor)
 		])
-		whiteCircle.addTarget(self, action: #selector(shotButtonTapped), for: .touchDown)
+		whiteCircle.addTarget(self, action: #selector(shotTouchDown), for: .touchDown)
+		whiteCircle.addTarget(self, action: #selector(shotTouchUp), for: .touchUpInside)
+		whiteCircle.addTarget(self, action: #selector(shotTouchUp), for: .touchUpOutside)
 		
 		let offset = view.frame.width/3
 		
@@ -225,11 +228,13 @@ class ViewController: UIViewController {
 		exposureBar.valueChanged = exposureValueChanged
 		exposureBar.alpha = 0
 		view.addSubview(exposureBar)
+		exposureBar.setValue(-0.8)
 
 		focusBar = VerticalProgressBar(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 260), false, "plus.magnifyingglass", "minus.magnifyingglass")
 		focusBar.valueChanged = focusValueChanged
 		focusBar.alpha = 0
 		view.addSubview(focusBar)
+		focusBar.setValue(0.8)
 	}
 	
 	private func setPoint() {
@@ -243,25 +248,43 @@ class ViewController: UIViewController {
 
 
 extension ViewController {
-	@objc private func shotButtonTapped() {
-		if !isRecording {
-			isRecording = true
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseOut, animations: {
-				self.redCircle.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-				self.redCircle.layer.cornerRadius = 10
-			}, completion: nil)
-			let delegate: AVCaptureFileOutputRecordingDelegate = self
-			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: delegate)
-			
-		} else {
-			isRecording = false
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseIn, animations: {
-				self.redCircle.transform = CGAffineTransform(scaleX: 1, y: 1)
-				self.redCircle.layer.cornerRadius = 25
-			}, completion: nil)
-			videoFileOutput?.stopRecording()
-		}
+	
+	@objc private func shotTouchDown() {
+		let scale: CGFloat = isRecording ? 0.45 : 0.9
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			self.redCircle.transform = CGAffineTransform(scaleX: scale, y: scale)
+		}, completion: nil)
 	}
+	
+	@objc private func shotTouchUp() {
+		let scale: CGFloat = isRecording ? 1 : 0.55
+		let radius: CGFloat = isRecording ? 25 : 10
+		isRecording = !isRecording
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			self.redCircle.transform = CGAffineTransform(scaleX: scale, y: scale)
+			self.redCircle.layer.cornerRadius = radius
+		}, completion: nil)
+	}
+	
+//	@objc private func shotButtonTapped() {
+//		if !isRecording {
+//			isRecording = true
+//			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseOut, animations: {
+//				self.redCircle.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+//				self.redCircle.layer.cornerRadius = 10
+//			}, completion: nil)
+//			let delegate: AVCaptureFileOutputRecordingDelegate = self
+//			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: delegate)
+//
+//		} else {
+//			isRecording = false
+//			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.1, options: .curveEaseIn, animations: {
+//				self.redCircle.transform = CGAffineTransform(scaleX: 1, y: 1)
+//				self.redCircle.layer.cornerRadius = 25
+//			}, completion: nil)
+//			videoFileOutput?.stopRecording()
+//		}
+//	}
 	
 	@objc private func lockButtonTapped() {
 		do {
