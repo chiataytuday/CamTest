@@ -8,7 +8,7 @@
 
 import UIKit
 
-class VerticalProgressBar: UIView {
+class VerticalSlider: UIView {
 	private var line, indicator: UIView!
 	var indicatorValue: CGFloat = 0.5
 	var lineMargin: CGFloat = 20
@@ -18,7 +18,7 @@ class VerticalProgressBar: UIView {
 	var setValue: ((CGFloat) -> Void)!
 	var range: ((CGFloat) -> CGFloat)!
 	
-	let numLabel: UILabel = {
+	let valueLabel: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
 		label.textColor = .white
@@ -29,7 +29,7 @@ class VerticalProgressBar: UIView {
 	init(frame: CGRect, _ labelOnRight: Bool, _ topName: String?, _ btmName: String?) {
 		super.init(frame: frame)
 		setupSubviews(labelOnRight)
-		setImages(btmName, topName)
+		setupImages(btmName, topName)
 		
 		if labelOnRight {
 			lineMargin = 20
@@ -63,8 +63,8 @@ class VerticalProgressBar: UIView {
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let t = touches.first?.location(in: self) else { return }
-		let y = t.y + touchOffset
+		guard let touch = touches.first?.location(in: self) else { return }
+		let y = touch.y + touchOffset
 
 		if y >= frame.height {
 			indicator.center.y = frame.height
@@ -85,15 +85,15 @@ class VerticalProgressBar: UIView {
 	}
 }
 
-extension VerticalProgressBar {
+extension VerticalSlider {
 	private func updateSubviews() {
 		let y = indicator.frame.origin.y + indicator.frame.height/2
 		indicatorValue = range(y/frame.height)
-		numLabel.text = "\(round((indicatorValue)*10)/10)"
+		valueLabel.text = "\(round((indicatorValue)*10)/10)"
 		valueChanged()
 	}
 	
-	private func setImages(_ btmName: String?, _ topName: String?) {
+	private func setupImages(_ btmName: String?, _ topName: String?) {
 		if let _ = btmName {
 			let btmImage = UIImageView(image: UIImage(systemName: btmName!, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)))
 			btmImage.center = CGPoint(x: indicator.center.x, y: line.frame.maxY + 35)
@@ -127,11 +127,11 @@ extension VerticalProgressBar {
 		indicator.backgroundColor = .white
 		line.addSubview(indicator)
 		
-		indicator.addSubview(numLabel)
-		numLabel.frame.size = CGSize(width: 30, height: 20)
-		numLabel.frame.origin.y = -0.75
-		numLabel.textAlignment = labelOnRight ? .left : .right
-		numLabel.frame.origin.x = labelOnRight ? indicator.frame.width + 7.5 : -indicator.frame.width - numLabel.frame.width/2 - 7.5
+		indicator.addSubview(valueLabel)
+		valueLabel.frame.size = CGSize(width: 30, height: 20)
+		valueLabel.frame.origin.y = -0.75
+		valueLabel.textAlignment = labelOnRight ? .left : .right
+		valueLabel.frame.origin.x = labelOnRight ? indicator.frame.width + 7.5 : -indicator.frame.width - valueLabel.frame.width/2 - 7.5
 		
 		self.frame.origin = CGPoint(x: labelOnRight ? 30 : frame.origin.x - self.frame.width - 30,
 																y: frame.origin.y - self.frame.height/2)

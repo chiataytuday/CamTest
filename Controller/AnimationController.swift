@@ -46,8 +46,8 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		viewToAnimate.clipsToBounds = true
 		viewToAnimate.transform = CGAffineTransform(rotationAngle: 0.15).translatedBy(x: -50, y: 200).scaledBy(x: 0.1, y: 0.1)
-		let duration = transitionDuration(using: transitionContext)
 		
+		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 2, options: .curveEaseOut, animations: {
 			transitionContext.viewController(forKey: .from)!.view.alpha = 0.2
 			viewToAnimate.transform = CGAffineTransform(scaleX: 1, y: 1)
