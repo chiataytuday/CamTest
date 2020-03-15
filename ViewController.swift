@@ -23,11 +23,12 @@ class ViewController: UIViewController {
 	let lightBtn: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 25), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "bolt.slash"), for: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5), forImageIn: .normal)
+		button.setImage(UIImage(systemName: "bolt"), for: .normal)
 		button.adjustsImageWhenHighlighted = false
 		button.imageView!.addShadow(2.5, 0.3)
 		button.tintColor = .white
+		button.layer.cornerRadius = 25
 		button.alpha = 0.5
 		return button
 	}()
@@ -35,21 +36,22 @@ class ViewController: UIViewController {
 	let lockBtn: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 25), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "lock"), for: .normal)
 		button.adjustsImageWhenHighlighted = false
 		button.imageView!.addShadow(2.5, 0.3)
 		button.tintColor = .white
+		button.layer.cornerRadius = 25
 		button.alpha = 0.5
 		return button
 	}()
 	
 	let poiView: UIImageView = {
-		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 60, weight: .ultraLight))
+		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
 		imageView.tintColor = .systemYellow
 		imageView.addShadow(1, 0.125)
-		imageView.alpha = 0
+//		imageView.alpha = 0.5
 		return imageView
 	}()
 	
@@ -70,7 +72,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.layer.cornerRadius = 2
+		view.layer.cornerRadius = 6
 		view.clipsToBounds = true
 		
 		setCamera()
@@ -85,10 +87,11 @@ class ViewController: UIViewController {
 		guard touchOffset == nil, let touch = touches.first?.location(in: view),
 			poiView.frame.contains(touch) else { return }
 
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.6, options: .curveEaseOut, animations: {
-			self.poiView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			self.poiView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.touchOffset = CGPoint(x: touch.x - self.poiView.frame.origin.x,
 															 y: touch.y - self.poiView.frame.origin.y)
+			self.poiView.alpha = 1
 		}, completion: nil)
 	}
 	
@@ -101,8 +104,7 @@ class ViewController: UIViewController {
 			do {
 				try captureDevice?.lockForConfiguration()
 				captureDevice?.exposurePointOfInterest = point!
-				captureDevice?.exposureMode = .continuousAutoExposure
-				lockBtn.setImage(UIImage(systemName: "lock", withConfiguration: UIImage.SymbolConfiguration(pointSize: 25)), for: .normal)
+				captureDevice?.exposureMode = .autoExpose
 				captureDevice?.unlockForConfiguration()
 			} catch { }
 			
@@ -123,6 +125,7 @@ class ViewController: UIViewController {
 		
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.poiView.transform = CGAffineTransform(scaleX: 1, y: 1)
+//			self.poiView.alpha = 0.5
 		}, completion: nil)
 	}
 }
@@ -137,7 +140,7 @@ extension ViewController {
 		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
 		
 		for line in [v1, v2, h1, h2] {
-			line.alpha = 0.25
+			line.alpha = 0.2
 			line.backgroundColor = .white
 			line.addShadow(1, 0.6)
 			view.addSubview(line)
@@ -220,7 +223,9 @@ extension ViewController {
 		// Light
 		let offset = view.frame.width/3
 		view.addSubview(lightBtn)
-		lightBtn.addTarget(self, action: #selector(lightTouchDown), for: .touchDown)
+		lightBtn.addTarget(self, action: #selector(btnTouchDown(button:)), for: .touchDown)
+		lightBtn.addTarget(self, action: #selector(btnTouchUp(button:)), for: [.touchUpInside, .touchUpOutside])
+		lightBtn.addTarget(self, action: #selector(lightTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			lightBtn.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
 			lightBtn.widthAnchor.constraint(equalToConstant: 50),
@@ -229,7 +234,9 @@ extension ViewController {
 		])
 		
 		view.addSubview(lockBtn)
-		lockBtn.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
+		lockBtn.addTarget(self, action: #selector(btnTouchDown(button:)), for: .touchDown)
+		lockBtn.addTarget(self, action: #selector(btnTouchUp(button:)), for: [.touchUpInside, .touchUpOutside])
+		lockBtn.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			lockBtn.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
 			lockBtn.widthAnchor.constraint(equalToConstant: 50),
@@ -255,14 +262,13 @@ extension ViewController {
 	private func setPoint() {
 		guard let p = previewLayer?.layerPointConverted(fromCaptureDevicePoint: captureDevice!.exposurePointOfInterest) else { return }
 		poiView.center = p
-		poiView.alpha = 1
 		view.addSubview(poiView)
 	}
 	
 	private func setProgressBar() {
-		progressBar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 4))
+		progressBar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
 		progressBar.backgroundColor = .white
-		progressBar.layer.cornerRadius = 2
+		progressBar.layer.cornerRadius = 1.5
 		progressBar.addShadow(2.5, 0.15)
 		view.addSubview(progressBar)
 	}
@@ -303,7 +309,20 @@ extension ViewController {
 		}, completion: nil)
 	}
 	
-	@objc private func lockTouchDown() {
+	@objc private func btnTouchDown(button: UIButton) {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
+			button.transform = CGAffineTransform(scaleX: 1, y: 1)
+			button.alpha = 0.5
+		}, completion: nil)
+	}
+	
+	@objc private func btnTouchUp(button: UIButton) {
+		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
+			button.transform = CGAffineTransform(scaleX: 1, y: 1)
+		}, completion: nil)
+	}
+	
+	@objc private func lockTouchUp() {
 		let isLocked = captureDevice?.exposureMode == .locked
 		do {
 			try captureDevice?.lockForConfiguration()
@@ -311,17 +330,11 @@ extension ViewController {
 			UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
-		
-		let settings: (CGFloat, CGFloat, Float) = isLocked ? (1, 0.5, 0.3) : (1.2, 1, 0.15)
 		lockBtn.setImage(UIImage(systemName: isLocked ? "lock" : "lock.fill"), for: .normal)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-			self.lockBtn.transform = CGAffineTransform(scaleX: settings.0, y: settings.0)
-			self.lockBtn.alpha = settings.1
-			self.lockBtn.imageView?.layer.shadowOpacity = settings.2
-		}, completion: nil)
+		lockBtn.alpha = isLocked ? 0.5 : 1
 	}
 	
-	@objc private func lightTouchDown() {
+	@objc private func lightTouchUp() {
 		if captureDevice!.hasTorch {
 			let torchEnabled = captureDevice!.isTorchActive
 			do {
@@ -330,15 +343,8 @@ extension ViewController {
 				UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.5)
 				captureDevice?.unlockForConfiguration()
 			} catch {}
-			
-			let settings: (CGFloat, CGFloat, Float) = torchEnabled ? (1, 0.5, 0.3) : (1.2, 1, 0.15)
 			lightBtn.setImage(UIImage(systemName: torchEnabled ? "bolt.slash" : "bolt.fill"), for: .normal)
-			
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-				self.lightBtn.transform = CGAffineTransform(scaleX: settings.0, y: settings.0)
-				self.lightBtn.alpha = settings.1
-				self.lightBtn.imageView?.layer.shadowOpacity = settings.2
-			}, completion: nil)
+			lightBtn.alpha = torchEnabled ? 0.5 : 1
 		}
 	}
 	
@@ -366,7 +372,19 @@ extension ViewController {
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-		UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
+		let playerView = PlayerController()
+		playerView.url = outputFileURL
+		playerView.modalPresentationStyle = .overFullScreen
+		present(playerView, animated: true)
+//		playerView.viewDidLoad()
+//		playerView.view.transform = CGAffineTransform(scaleX: 0, y: 0)
+//		addChild(playerView)
+//		view.addSubview(playerView.view)
+//		UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+//			playerView.view.transform = CGAffineTransform(scaleX: 1, y: 1)
+//
+//		}, completion: nil)
+//		UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
 	}
 }
 
