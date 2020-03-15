@@ -44,13 +44,14 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		print(1)
 		viewToAnimate.clipsToBounds = true
-		viewToAnimate.transform = CGAffineTransform(scaleX: 0, y: 0)
+		viewToAnimate.transform = CGAffineTransform(rotationAngle: 0.2).scaledBy(x: 0.2, y: 0.2).translatedBy(x: -200, y: 800)
 		
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 2, options: .curveEaseOut, animations: {
+			transitionContext.viewController(forKey: .from)!.view.alpha = 0.5
 			viewToAnimate.transform = CGAffineTransform(scaleX: 1, y: 1)
+			(transitionContext.viewController(forKey: .to) as! PlayerController).blurEffectView.alpha = 0
 		}) { (_) in
 			transitionContext.completeTransition(true)
 		}

@@ -12,6 +12,7 @@ import AVFoundation
 class PlayerController: UIViewController {
 	
 	var url: URL!
+	var blurEffectView: UIVisualEffectView!
 	
 	private let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -39,6 +40,7 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 		view.layer.cornerRadius = 6
 		view.clipsToBounds = true
+		transitioningDelegate = self
 		
 		let item = AVPlayerItem(url: url)
 		let player = AVPlayer(playerItem: item)
@@ -75,6 +77,12 @@ class PlayerController: UIViewController {
 		progressView.layer.cornerRadius = 1.5
 		progressView.addShadow(2.5, 0.15)
 		view.addSubview(progressView)
+		
+		let blurEffect = UIBlurEffect(style: .regular)
+    blurEffectView = UIVisualEffectView(effect: blurEffect)
+    blurEffectView.frame = self.view.bounds
+    blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+    view.addSubview(blurEffectView)
 	}
 	
 	@objc private func playerItemDidReachEnd(notification: Notification) {
@@ -86,6 +94,6 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(1, .present)
+		return AnimationController(0.6, .present)
 	}
 }
