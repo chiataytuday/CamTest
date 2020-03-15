@@ -9,38 +9,30 @@
 import UIKit
 import AVFoundation
 
-//view.addSubview(startButton)
-//NSLayoutConstraint.activate([
-//	startButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -40),
-//	startButton.leadingAnchor.constraint(equalTo: view.centerXAnchor),
-//	startButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50),
-//	startButton.heightAnchor.constraint(equalToConstant: 50)
-//])
-
 class PlayerController: UIViewController {
 	
 	var url: URL!
 	
-	private let removeButton: UIButton = {
+	private let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
-		button.layer.cornerRadius = 26.25
+		button.layer.cornerRadius = 21
 		button.backgroundColor = .white
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 25, weight: .medium), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "xmark"), for: .normal)
+		button.setTitle("To camera roll", for: .normal)
+		button.setTitleColor(.systemGray6, for: .normal)
+		button.titleLabel?.font = UIFont.systemFont(ofSize: 21, weight: .regular)
+		button.setImage(UIImage(systemName: "square.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(pointSize: 21, weight: .regular)), for: .normal)
+		button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 0)
+		button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
+		button.tintColor = .systemGray6
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.tintColor = .systemRed
+		button.addShadow(2.5, 0.15)
 		return button
 	}()
 	
-	private let saveButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.layer.cornerRadius = 26.25
-		button.backgroundColor = .white
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 25, weight: .medium), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.tintColor = .systemGreen
-		return button
+	private let progressView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .white
+		return view
 	}()
 
 	override func viewDidLoad() {
@@ -52,6 +44,17 @@ class PlayerController: UIViewController {
 		let player = AVPlayer(playerItem: item)
 		player.actionAtItemEnd = .none
 		NotificationCenter.default.addObserver(self, selector: #selector(playerItemDidReachEnd(notification:)), name: .AVPlayerItemDidPlayToEndTime, object: player.currentItem)
+		player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
+			guard time.seconds > 0, item.duration.seconds > 0 else {
+				self.progressView.frame.size.width = 0
+				return
+			}
+			let duration = CGFloat(time.seconds/item.duration.seconds)
+			UIViewPropertyAnimator(duration: 0.09, curve: .linear) {
+				self.progressView.frame.size.width = duration * self.view.frame.width
+			}.startAnimation()
+			
+		}
 		
 		
 		let layer = AVPlayerLayer(player: player)
@@ -60,23 +63,18 @@ class PlayerController: UIViewController {
 		view.layer.addSublayer(layer)
 		player.play()
 		
-		let offset = view.frame.width/3 - 52.5/4
-		
 		view.addSubview(saveButton)
 		NSLayoutConstraint.activate([
-			saveButton.heightAnchor.constraint(equalToConstant: 52.5),
-			saveButton.widthAnchor.constraint(equalToConstant: 52.5),
-			saveButton.centerYAnchor.constraint(equalTo: view.bottomAnchor, constant: -77.5),
-			saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
+			saveButton.heightAnchor.constraint(equalToConstant: 52),
+			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
+			saveButton.widthAnchor.constraint(equalToConstant: 220),
+			saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		view.addSubview(removeButton)
-		NSLayoutConstraint.activate([
-			removeButton.heightAnchor.constraint(equalToConstant: 52.5),
-			removeButton.widthAnchor.constraint(equalToConstant: 52.5),
-			removeButton.centerYAnchor.constraint(equalTo: view.bottomAnchor, constant: -77.5),
-			removeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset),
-		])
+		progressView.frame = CGRect(x: 0, y: 0, width: view.frame.width, height: 3)
+		progressView.layer.cornerRadius = 1.5
+		progressView.addShadow(2.5, 0.15)
+		view.addSubview(progressView)
 	}
 	
 	@objc private func playerItemDidReachEnd(notification: Notification) {
