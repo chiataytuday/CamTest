@@ -94,6 +94,6 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.6, .present)
+		return AnimationController(0.5, .present)
 	}
 }

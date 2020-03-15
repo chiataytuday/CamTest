@@ -45,15 +45,18 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		viewToAnimate.clipsToBounds = true
-		viewToAnimate.transform = CGAffineTransform(rotationAngle: 0.2).scaledBy(x: 0.2, y: 0.2).translatedBy(x: -200, y: 800)
-		
+		viewToAnimate.transform = CGAffineTransform(rotationAngle: 0.15).translatedBy(x: -50, y: 200).scaledBy(x: 0.1, y: 0.1)
 		let duration = transitionDuration(using: transitionContext)
+		
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 2, options: .curveEaseOut, animations: {
-			transitionContext.viewController(forKey: .from)!.view.alpha = 0.5
+			transitionContext.viewController(forKey: .from)!.view.alpha = 0.2
 			viewToAnimate.transform = CGAffineTransform(scaleX: 1, y: 1)
-			(transitionContext.viewController(forKey: .to) as! PlayerController).blurEffectView.alpha = 0
 		}) { (_) in
 			transitionContext.completeTransition(true)
 		}
+		
+		UIViewPropertyAnimator(duration: duration, curve: .easeOut) {
+			(transitionContext.viewController(forKey: .to) as! PlayerController).blurEffectView.alpha = 0
+		}.startAnimation()
 	}
 }
