@@ -19,8 +19,8 @@ class PlayerController: UIViewController {
 		button.backgroundColor = .white
 		button.setTitle("To camera roll", for: .normal)
 		button.setTitleColor(.systemGray6, for: .normal)
-		button.titleLabel?.font = UIFont.systemFont(ofSize: 21, weight: .regular)
-		button.setImage(UIImage(systemName: "square.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(pointSize: 21, weight: .regular)), for: .normal)
+		button.titleLabel?.font = UIFont.systemFont(ofSize: 20 , weight: .regular)
+		button.setImage(UIImage(systemName: "square.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)), for: .normal)
 		button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 0)
 		button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
 		button.tintColor = .systemGray6
