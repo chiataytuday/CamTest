@@ -18,6 +18,8 @@ class ViewController: UIViewController {
 	var videoFileOutput: AVCaptureMovieFileOutput?
 	var filePath: URL?
 	
+	var whiteCircle: UIButton!
+	
 	private let redButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -191,15 +193,18 @@ extension ViewController {
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer?.videoGravity = .resizeAspectFill
 		previewLayer?.frame = view.frame
+		previewLayer?.frame.size.height -= 110
+		previewLayer?.cornerRadius = 20
 		previewLayer?.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer!, at: 0)
+		
 		
 		captureSession?.startRunning()
 	}
 	
 	private func setupUserInterface() {
 		// Recording
-		let whiteCircle = UIButton()
+		whiteCircle = UIButton()
 		whiteCircle.translatesAutoresizingMaskIntoConstraints = false
 		whiteCircle.backgroundColor = .black
 		whiteCircle.layer.cornerRadius = 20
@@ -210,7 +215,7 @@ extension ViewController {
 			whiteCircle.widthAnchor.constraint(equalToConstant: 60),
 			whiteCircle.heightAnchor.constraint(equalToConstant: 60),
 			whiteCircle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
+			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25)
 		])
 		
 		view.insertSubview(redButton, aboveSubview: whiteCircle)
