@@ -73,7 +73,7 @@ class ViewController: UIViewController {
 	private let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
 		bar.backgroundColor = .white
-		bar.layer.cornerRadius = 1.5
+		bar.layer.cornerRadius = 1
 		return bar
 	}()
 	
@@ -283,7 +283,7 @@ extension ViewController {
 	
 	@objc private func recordTouchDown() {
 		redButton.transform = CGAffineTransform(rotationAngle: 0)
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.whiteCircle.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.redButton.transform = CGAffineTransform(translationX: 0, y: 5).scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/4)
 		}, completion: nil)
