@@ -33,12 +33,13 @@ class ViewController: UIViewController {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "bolt"), for: .normal)
+		button.setImage(UIImage(systemName: "bolt.fill"), for: .normal)
 		button.backgroundColor = .black
 		button.tintColor = .systemGray2
 		button.layer.cornerRadius = 20
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
+		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
 	
@@ -46,19 +47,22 @@ class ViewController: UIViewController {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "lock"), for: .normal)
+		button.setImage(UIImage(systemName: "lock.fill"), for: .normal)
 		button.backgroundColor = .black
 		button.tintColor = .systemGray2
 		button.layer.cornerRadius = 20
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
+		button.adjustsImageWhenHighlighted = false
+		button.clipsToBounds = false
+		button.contentEdgeInsets = UIEdgeInsets(top: <#T##CGFloat#>, left: <#T##CGFloat#>, bottom: <#T##CGFloat#>, right: <#T##CGFloat#>)
 		return button
 	}()
 	
 	private let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .white
+		imageView.tintColor = .systemYellow
 		imageView.addShadow(1, 0.125)
 		return imageView
 	}()
@@ -67,7 +71,6 @@ class ViewController: UIViewController {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
 		bar.backgroundColor = .white
 		bar.layer.cornerRadius = 1.5
-//		bar.addShadow(2.5, 0.15)
 		return bar
 	}()
 	
@@ -141,8 +144,8 @@ class ViewController: UIViewController {
 extension ViewController {
 	
 	private func setupGrid() {
-		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
+		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
+		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
 		let h1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,	width: view.frame.width, height: 1))
 		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
 
@@ -232,8 +235,6 @@ extension ViewController {
 		// Light
 		let offset = view.frame.width/3
 		view.addSubview(torchButton)
-		torchButton.addTarget(self, action: #selector(buttonTouchDown(button:)), for: .touchDown)
-		torchButton.addTarget(self, action: #selector(buttonTouchUp(button:)), for: [.touchUpInside, .touchUpOutside])
 		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			torchButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
@@ -243,8 +244,7 @@ extension ViewController {
 		])
 		
 		view.addSubview(lockButton)
-		lockButton.addTarget(self, action: #selector(buttonTouchDown(button:)), for: .touchDown)
-		lockButton.addTarget(self, action: #selector(buttonTouchUp(button:)), for: [.touchUpInside, .touchUpOutside])
+		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		lockButton.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			lockButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
@@ -310,16 +310,23 @@ extension ViewController {
 		}, completion: nil)
 	}
 	
-	@objc private func buttonTouchDown(button: UIButton) {
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-			button.transform = CGAffineTransform(scaleX: 1, y: 1)
-			button.alpha = 0.5
-		}, completion: nil)
-	}
+//	@objc private func buttonTouchDown(button: UIButton) {
+//		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
+//			button.transform = CGAffineTransform(scaleX: 1, y: 1)
+//			button.alpha = 0.5
+//		}, completion: nil)
+//	}
+//
+//	@objc private func buttonTouchUp(button: UIButton) {
+//		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
+//			button.transform = CGAffineTransform(scaleX: 1, y: 1)
+//		}, completion: nil)
+//	}
 	
-	@objc private func buttonTouchUp(button: UIButton) {
-		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-			button.transform = CGAffineTransform(scaleX: 1, y: 1)
+	@objc private func lockTouchDown() {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.lockButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+			self.lockButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: -.pi/3)
 		}, completion: nil)
 	}
 	
@@ -330,8 +337,18 @@ extension ViewController {
 			captureDevice?.exposureMode = isLocked ? .continuousAutoExposure : .locked
 			captureDevice?.unlockForConfiguration()
 		} catch {}
-		lockButton.setImage(UIImage(systemName: isLocked ? "lock" : "lock.fill"), for: .normal)
-		lockButton.alpha = isLocked ? 0.5 : 1
+		let args: (UIColor, UIColor) = isLocked ? (UIColor.black, UIColor.systemGray2) : (UIColor.systemGray2, UIColor.black)
+//		lockButton.backgroundColor = args.0
+//		lockButton.tintColor = args.1
+//		lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.lockButton.transform = CGAffineTransform(scaleX: 1, y: 1)
+			self.lockButton.backgroundColor = args.0
+			self.lockButton.tintColor = args.1
+			self.lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+			self.lockButton.imageView!.transform = CGAffineTransform(rotationAngle: 0)
+			
+		}, completion: nil)
 	}
 	
 	@objc private func torchTouchUp() {
@@ -342,8 +359,10 @@ extension ViewController {
 				captureDevice?.torchMode = torchEnabled ? .off : .on
 				captureDevice?.unlockForConfiguration()
 			} catch {}
-			torchButton.setImage(UIImage(systemName: torchEnabled ? "bolt.slash" : "bolt.fill"), for: .normal)
-			torchButton.alpha = torchEnabled ? 0.5 : 1
+			let args: (UIColor, UIColor) = torchEnabled ? (UIColor.black, UIColor.systemGray2) : (UIColor.systemGray2, UIColor.black)
+			torchButton.backgroundColor = args.0
+			torchButton.tintColor = args.1
+			torchButton.layer.borderColor = torchEnabled ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
 		}
 	}
 	
