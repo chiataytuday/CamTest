@@ -56,8 +56,9 @@ class VerticalSlider: UIView {
 		guard let y = touches.first?.location(in: self).y else { return }
 		touchOffset = indicator.center.y - y
 
+		self.frame.origin.x = -self.lineMargin/2
 		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-			self.frame.origin.x += self.lineMargin
+			self.frame.origin.x += self.lineMargin * 0.75
 			self.alpha = 1
 		}, completion: nil)
 	}
@@ -80,7 +81,7 @@ class VerticalSlider: UIView {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.frame.origin.x -= self.lineMargin
-			self.alpha = 0
+//			self.alpha = 0
 		}, completion: nil)
 	}
 }
@@ -111,11 +112,12 @@ extension VerticalSlider {
 	
 	private func setupSubviews(_ labelOnRight: Bool) {
 		line = UIView()
-		line.frame.size = CGSize(width: 2, height: frame.height)
-		line.frame.origin = CGPoint(x: labelOnRight ? frame.width/5 : frame.width * 4/5 - line.frame.width,
+		line.frame.size = CGSize(width: 40, height: frame.height)
+		line.frame.origin = CGPoint(x: labelOnRight ? 0 : frame.width * 4/5 - line.frame.width,
 																y: frame.height/2 - line.frame.height/2)
-		line.layer.cornerRadius = line.frame.width/2
-		line.backgroundColor = .white
+//		line.layer.cornerRadius = line.frame.width/2
+		line.roundCorners(corners: [.topRight, .bottomRight], radius: 20)
+		line.backgroundColor = .black
 		line.addShadow(1.5, 0.3)
 		addSubview(line)
 		
@@ -133,7 +135,16 @@ extension VerticalSlider {
 		valueLabel.textAlignment = labelOnRight ? .left : .right
 		valueLabel.frame.origin.x = labelOnRight ? indicator.frame.width + 7.5 : -indicator.frame.width - valueLabel.frame.width/2 - 7.5
 		
-		self.frame.origin = CGPoint(x: labelOnRight ? 30 : frame.origin.x - self.frame.width - 30,
-																y: frame.origin.y - self.frame.height/2)
+		self.frame.origin = CGPoint(x: labelOnRight ? 0 : frame.origin.x - self.frame.width - 30,
+																y: frame.origin.y - self.frame.height/2 - 55)
 	}
+}
+
+extension UIView {
+   func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        layer.mask = mask
+    }
 }
