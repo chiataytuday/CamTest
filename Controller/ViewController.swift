@@ -282,14 +282,14 @@ extension ViewController {
 	
 	
 	@objc private func recordTouchDown() {
-		let scale: CGFloat = isRecording ? 0.55 : 0.9
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			self.redButton.transform = CGAffineTransform(scaleX: scale, y: scale)
+		redButton.transform = CGAffineTransform(rotationAngle: 0)
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.whiteCircle.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+			self.redButton.transform = CGAffineTransform(translationX: 0, y: 5).scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/4)
 		}, completion: nil)
 	}
 	
 	@objc private func recordTouchUp() {
-		let args: (CGFloat, CGFloat) = isRecording ? (1, 10) : (0.65, 5)
 		isRecording = !isRecording
 		if isRecording {
 			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)
@@ -308,24 +308,13 @@ extension ViewController {
 			}, completion: nil)
 		}
 		
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			self.redButton.transform = CGAffineTransform(scaleX: args.0, y: args.0)
-			self.redButton.layer.cornerRadius = args.1
+		let radius: CGFloat = isRecording ? 3.5 : 10
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.whiteCircle.transform = CGAffineTransform(scaleX: 1, y: 1)
+			self.redButton.transform = CGAffineTransform(translationX: 0, y: 0).scaledBy(x: 1, y: 1)
+			self.redButton.layer.cornerRadius = radius
 		}, completion: nil)
 	}
-	
-//	@objc private func buttonTouchDown(button: UIButton) {
-//		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-//			button.transform = CGAffineTransform(scaleX: 1, y: 1)
-//			button.alpha = 0.5
-//		}, completion: nil)
-//	}
-//
-//	@objc private func buttonTouchUp(button: UIButton) {
-//		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1.5, options: [.allowUserInteraction, .curveEaseOut], animations: {
-//			button.transform = CGAffineTransform(scaleX: 1, y: 1)
-//		}, completion: nil)
-//	}
 	
 	@objc private func lockTouchDown() {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
@@ -341,17 +330,14 @@ extension ViewController {
 			captureDevice?.exposureMode = isLocked ? .continuousAutoExposure : .locked
 			captureDevice?.unlockForConfiguration()
 		} catch {}
+		
 		let args: (UIColor, UIColor) = isLocked ? (UIColor.black, UIColor.systemGray2) : (UIColor.systemGray2, UIColor.black)
-//		lockButton.backgroundColor = args.0
-//		lockButton.tintColor = args.1
-//		lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.lockButton.transform = CGAffineTransform(scaleX: 1, y: 1)
 			self.lockButton.backgroundColor = args.0
 			self.lockButton.tintColor = args.1
 			self.lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
 			self.lockButton.imageView!.transform = CGAffineTransform(rotationAngle: 0)
-			
 		}, completion: nil)
 	}
 	
