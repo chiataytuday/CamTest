@@ -40,6 +40,8 @@ class ViewController: UIViewController {
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.adjustsImageWhenHighlighted = false
+		button.imageView?.clipsToBounds = false
+		button.imageView?.contentMode = .center
 		return button
 	}()
 	
@@ -54,8 +56,9 @@ class ViewController: UIViewController {
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.adjustsImageWhenHighlighted = false
-		button.clipsToBounds = false
-		button.contentEdgeInsets = UIEdgeInsets(top: <#T##CGFloat#>, left: <#T##CGFloat#>, bottom: <#T##CGFloat#>, right: <#T##CGFloat#>)
+		button.imageView?.clipsToBounds = false
+		button.imageView?.contentMode = .center
+		
 		return button
 	}()
 	
@@ -235,6 +238,7 @@ extension ViewController {
 		// Light
 		let offset = view.frame.width/3
 		view.addSubview(torchButton)
+		torchButton.addTarget(self, action: #selector(torchTouchDown), for: [.touchDown])
 		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			torchButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
@@ -324,7 +328,7 @@ extension ViewController {
 //	}
 	
 	@objc private func lockTouchDown() {
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.lockButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.lockButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: -.pi/3)
 		}, completion: nil)
@@ -351,6 +355,13 @@ extension ViewController {
 		}, completion: nil)
 	}
 	
+	@objc private func torchTouchDown() {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.torchButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+			self.torchButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: .pi/4)
+		}, completion: nil)
+	}
+	
 	@objc private func torchTouchUp() {
 		if captureDevice!.hasTorch {
 			let torchEnabled = captureDevice!.isTorchActive
@@ -360,9 +371,18 @@ extension ViewController {
 				captureDevice?.unlockForConfiguration()
 			} catch {}
 			let args: (UIColor, UIColor) = torchEnabled ? (UIColor.black, UIColor.systemGray2) : (UIColor.systemGray2, UIColor.black)
-			torchButton.backgroundColor = args.0
-			torchButton.tintColor = args.1
-			torchButton.layer.borderColor = torchEnabled ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+//			torchButton.backgroundColor = args.0
+//			torchButton.tintColor = args.1
+//			torchButton.layer.borderColor = torchEnabled ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+			
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+				self.torchButton.transform = CGAffineTransform(scaleX: 1, y: 1)
+				self.torchButton.backgroundColor = args.0
+				self.torchButton.tintColor = args.1
+				self.torchButton.layer.borderColor = torchEnabled ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+				self.torchButton.imageView!.transform = CGAffineTransform(rotationAngle: 0)
+				
+			}, completion: nil)
 		}
 	}
 	
