@@ -21,41 +21,42 @@ class ViewController: UIViewController {
 	private let redButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
+		button.isUserInteractionEnabled = false
 		button.backgroundColor = .systemRed
-		button.layer.cornerRadius = 25
+		button.layer.cornerRadius = 10
 		return button
 	}()
 	
 	private let torchButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "bolt"), for: .normal)
-		button.adjustsImageWhenHighlighted = false
-		button.imageView!.addShadow(2.5, 0.3)
-		button.tintColor = .white
-		button.layer.cornerRadius = 25
-		button.alpha = 0.5
+		button.backgroundColor = .black
+		button.tintColor = .systemGray2
+		button.layer.cornerRadius = 20
+		button.layer.borderWidth = 1
+		button.layer.borderColor = UIColor.systemGray5.cgColor
 		return button
 	}()
 	
 	private let lockButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "lock"), for: .normal)
-		button.adjustsImageWhenHighlighted = false
-		button.imageView!.addShadow(2.5, 0.3)
-		button.tintColor = .white
-		button.layer.cornerRadius = 25
-		button.alpha = 0.5
+		button.backgroundColor = .black
+		button.tintColor = .systemGray2
+		button.layer.cornerRadius = 20
+		button.layer.borderWidth = 1
+		button.layer.borderColor = UIColor.systemGray5.cgColor
 		return button
 	}()
 	
 	private let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemYellow
+		imageView.tintColor = .white
 		imageView.addShadow(1, 0.125)
 		return imageView
 	}()
@@ -64,7 +65,7 @@ class ViewController: UIViewController {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
 		bar.backgroundColor = .white
 		bar.layer.cornerRadius = 1.5
-		bar.addShadow(2.5, 0.15)
+//		bar.addShadow(2.5, 0.15)
 		return bar
 	}()
 	
@@ -77,7 +78,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.layer.cornerRadius = 6
+		view.layer.cornerRadius = 20
 		view.clipsToBounds = true
 		
 		setupCamera()
@@ -200,26 +201,25 @@ extension ViewController {
 		// Recording
 		let whiteCircle = UIButton()
 		whiteCircle.translatesAutoresizingMaskIntoConstraints = false
-		whiteCircle.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
-		whiteCircle.layer.cornerRadius = 32.5
-		whiteCircle.layer.borderColor = UIColor.white.cgColor
-		whiteCircle.layer.borderWidth = 5
-		whiteCircle.addShadow(2.5, 0.15)
+		whiteCircle.backgroundColor = .black
+		whiteCircle.layer.cornerRadius = 20
+		whiteCircle.layer.borderColor = UIColor.systemGray5.cgColor
+		whiteCircle.layer.borderWidth = 1
 		view.addSubview(whiteCircle)
 		NSLayoutConstraint.activate([
-			whiteCircle.widthAnchor.constraint(equalToConstant: 65),
-			whiteCircle.heightAnchor.constraint(equalToConstant: 65),
+			whiteCircle.widthAnchor.constraint(equalToConstant: 60),
+			whiteCircle.heightAnchor.constraint(equalToConstant: 60),
 			whiteCircle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
 		])
 		
-		view.insertSubview(redButton, belowSubview: whiteCircle)
+		view.insertSubview(redButton, aboveSubview: whiteCircle)
 		whiteCircle.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
 		whiteCircle.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		whiteCircle.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		NSLayoutConstraint.activate([
-			redButton.widthAnchor.constraint(equalToConstant: 50),
-			redButton.heightAnchor.constraint(equalToConstant: 50),
+			redButton.widthAnchor.constraint(equalToConstant: 20),
+			redButton.heightAnchor.constraint(equalToConstant: 20),
 			redButton.centerXAnchor.constraint(equalTo: whiteCircle.centerXAnchor),
 			redButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor)
 		])
@@ -232,8 +232,8 @@ extension ViewController {
 		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			torchButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
-			torchButton.widthAnchor.constraint(equalToConstant: 50),
-			torchButton.heightAnchor.constraint(equalToConstant: 50),
+			torchButton.widthAnchor.constraint(equalToConstant: 49),
+			torchButton.heightAnchor.constraint(equalToConstant: 47.5),
 			torchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
 		])
 		
@@ -243,8 +243,8 @@ extension ViewController {
 		lockButton.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			lockButton.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
-			lockButton.widthAnchor.constraint(equalToConstant: 50),
-			lockButton.heightAnchor.constraint(equalToConstant: 50),
+			lockButton.widthAnchor.constraint(equalToConstant: 49),
+			lockButton.heightAnchor.constraint(equalToConstant: 47.5),
 			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
 		])
 		
@@ -273,14 +273,14 @@ extension ViewController {
 	
 	
 	@objc private func recordTouchDown() {
-		let scale: CGFloat = isRecording ? 0.45 : 0.9
+		let scale: CGFloat = isRecording ? 0.55 : 0.9
 		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.redButton.transform = CGAffineTransform(scaleX: scale, y: scale)
 		}, completion: nil)
 	}
 	
 	@objc private func recordTouchUp() {
-		let args: (CGFloat, CGFloat) = isRecording ? (1, 25) : (0.55, 10)
+		let args: (CGFloat, CGFloat) = isRecording ? (1, 10) : (0.65, 5)
 		isRecording = !isRecording
 		if isRecording {
 			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)

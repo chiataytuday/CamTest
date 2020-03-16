@@ -40,7 +40,7 @@ class PlayerController: UIViewController {
 		let view = UIView()
 		view.backgroundColor = .white
 		view.layer.cornerRadius = 1.5
-		view.addShadow(2.5, 0.15)
+//		view.addShadow(2.5, 0.15)
 		return view
 	}()
 
@@ -52,7 +52,7 @@ class PlayerController: UIViewController {
 	}
 	
 	private func setupView() {
-		view.layer.cornerRadius = 6
+		view.layer.cornerRadius = 15
 		view.clipsToBounds = true
 		transitioningDelegate = self
 		
