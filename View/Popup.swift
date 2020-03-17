@@ -9,6 +9,8 @@
 import UIKit
 
 class Popup: UIView {
+		
+	var expanded = false
 	
 	private let imageView: UIImageView = {
 		let image = UIImage(systemName: "sun.max.fill")
@@ -26,8 +28,7 @@ class Popup: UIView {
 		label.sizeToFit()
 		return label
 	}()
-	
-	var wide: Bool = false
+
 	
 	init(_ origin: CGPoint) {
 		let rect = CGRect(x: 0, y: 0, width: imageView.frame.width + valueLabel.frame.width + 5, height: imageView.frame.height)
@@ -50,13 +51,13 @@ class Popup: UIView {
 		valueLabel.text = "\(value)"
 		valueLabel.sizeToFit()
 		
-		if value < 0 && !wide || value >= 0 && wide {
-			let args: (CGFloat, CGFloat) = wide ? (-10, 5) : (10, -5)
+		if value < 0 && !expanded || value >= 0 && expanded {
+			let args: (CGFloat, CGFloat) = expanded ? (-10, 5) : (10, -5)
 			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 				self.frame.size.width += args.0
 				self.frame.origin.x += args.1
 			}, completion: nil)
-			wide = value < 0
+			expanded = value < 0
 		}
 	}
 	
@@ -72,10 +73,6 @@ class Popup: UIView {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
 		}, completion: nil)
-	}
-	
-	func setImage(_ imageName: String) {
-		imageView.image = UIImage(systemName: imageName)
 	}
 	
 	func setImage(_ image: UIImage) {

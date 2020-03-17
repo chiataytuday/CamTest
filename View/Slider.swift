@@ -32,8 +32,7 @@ class Slider: UIView {
 		layer.cornerRadius = 20
 		clipsToBounds = true
 		backgroundColor = .black
-		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2,
-										 y: parentFrame.midY - 50)
+		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2, y: parentFrame.midY - 50)
 		
 		progressView = UIView(frame: bounds)
 		progressView.backgroundColor = .white
@@ -84,7 +83,6 @@ class Slider: UIView {
 		let coef = progressView.frame.size.height/frame.size.height
 		UIViewPropertyAnimator(duration: 0.025, curve: .easeOut) {
 			self.progressView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
-//			self.progressView.backgroundColor = UIColor.white.withAlphaComponent(0.35 + coef/2)
 		}.startAnimation()
 		
 		value = coef * (max - min) + min
