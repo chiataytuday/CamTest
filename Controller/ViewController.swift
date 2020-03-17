@@ -76,6 +76,16 @@ class ViewController: UIViewController {
 		return bar
 	}()
 	
+	private let timerLabel: UILabel = {
+		let label = UILabel()
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.text = "'15"
+		label.font = UIFont.systemFont(ofSize: 16, weight: .light)
+		label.textColor = .systemGray3
+		label.alpha = 0
+		return label
+	}()
+	
 	var isRecording: Bool = false
 	var exposureSlider, focusSlider: Slider!
 	var activeSlider: Slider?
@@ -261,6 +271,12 @@ extension ViewController {
 			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
 		])
 		
+		view.addSubview(timerLabel)
+		NSLayoutConstraint.activate([
+			timerLabel.centerYAnchor.constraint(equalTo: whiteCircle.centerYAnchor),
+			timerLabel.centerXAnchor.constraint(equalTo: lockButton.centerXAnchor, constant: -offset/1.25)
+		])
+		
 		view.addSubview(durationBar)
 	}
 	
@@ -306,6 +322,20 @@ extension ViewController {
 			})
 			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
 			durationBarAnim?.startAnimation()
+			
+			UIView.animate(withDuration: 0.1) {
+				self.timerLabel.alpha = 1
+			}
+			
+			// recordingTimer: Timer?
+			var sec = 15
+			Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
+				if sec == 0 {
+					timer.invalidate()
+				}
+				sec -= 1
+				self.timerLabel.text = "'\(sec)"
+			}
 			
 		} else {
 			videoFileOutput?.stopRecording()
