@@ -258,7 +258,7 @@ extension ViewController {
 		
 		exposureSlider = Slider(CGSize(width: 40, height: 240), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.customRange(-2, 2, -1)
+		exposureSlider.customRange(-4, 4, -1)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureValue
 		view.addSubview(exposureSlider)
