@@ -32,7 +32,7 @@ class PlayerController: UIViewController {
 		button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
 		button.tintColor = .systemGray6
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.addShadow(2.5, 0.15)
+//		button.addShadow(2.5, 0.15)
 		return button
 	}()
 	
