@@ -63,10 +63,9 @@ class ViewController: UIViewController {
 	}()
 	
 	private let exposurePointView: UIImageView = {
-		let image = UIImage(systemName: "viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 70, weight: .ultraLight))
+		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
 		imageView.tintColor = .systemYellow
-		imageView.addShadow(1, 0.125)
 		return imageView
 	}()
 	
@@ -78,8 +77,8 @@ class ViewController: UIViewController {
 	}()
 	
 	var isRecording: Bool = false
-	var exposureSlider, focusSlider: VerticalSlider!
-	var activeSlider: VerticalSlider?
+	var exposureSlider, focusSlider: Slider!
+	var activeSlider: Slider?
 	var touchOffset: CGPoint?
 	var durationBarAnim: UIViewPropertyAnimator?
 	
@@ -91,9 +90,11 @@ class ViewController: UIViewController {
 		
 		setupCamera()
 		setupUserInterface()
+		setupGrid()
 		setupSliders()
 		setupExposurePoint()
-		setupGrid()
+		
+		print(captureDevice?.exposureMode == .locked)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -112,12 +113,16 @@ class ViewController: UIViewController {
 		guard let touch = touches.first?.location(in: view) else { return }
 		if let offset = touchOffset {
 			// Point of interest
-			exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
+			UIViewPropertyAnimator(duration: 0.1, curve: .easeOut) {
+				self.exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
+			}.startAnimation()
 			let point = previewLayer?.captureDevicePointConverted(fromLayerPoint: touch)
+			let mode = captureDevice?.exposureMode
 			do {
 				try captureDevice?.lockForConfiguration()
+				captureDevice?.exposureMode = .custom
 				captureDevice?.exposurePointOfInterest = point!
-				captureDevice?.exposureMode = .autoExpose
+				captureDevice?.exposureMode = mode!
 				captureDevice?.unlockForConfiguration()
 			} catch { }
 			
@@ -163,7 +168,7 @@ extension ViewController {
 	private func setupCamera() {
 		// Session
 		captureSession = AVCaptureSession()
-		captureSession?.sessionPreset = .hd1920x1080
+//		captureSession?.sessionPreset = .hd4K3840x2160
 		
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
@@ -193,13 +198,13 @@ extension ViewController {
 		} catch {}
 		
 		let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		filePath = documentsURL.appendingPathComponent("output.mov")
+		filePath = documentsURL.appendingPathComponent("output").appendingPathExtension("mp4")
 		
 		// Preview layer
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer?.videoGravity = .resizeAspectFill
 		previewLayer?.frame = view.frame
-		previewLayer?.frame.size.height -= 110
+		previewLayer?.frame.size.height -= 100
 		previewLayer?.cornerRadius = 20
 		previewLayer?.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer!, at: 0)
@@ -221,7 +226,7 @@ extension ViewController {
 			whiteCircle.widthAnchor.constraint(equalToConstant: 60),
 			whiteCircle.heightAnchor.constraint(equalToConstant: 60),
 			whiteCircle.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25)
+			whiteCircle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
 		])
 		
 		view.insertSubview(redButton, aboveSubview: whiteCircle)
@@ -261,22 +266,26 @@ extension ViewController {
 	}
 	
 	private func setupSliders() {
-		exposureSlider = VerticalSlider(frame: CGRect(x: 0, y: view.frame.midY, width: 55, height: 250), true, "sun.max.fill", "sun.min")
-		exposureSlider.valueChanged = updateExposureValue
-		exposureSlider.setValue(-1)
-		exposureSlider.alpha = 0
+		let notification = Notification(CGPoint(x: view.center.x, y: 20))
+		view.addSubview(notification)
+		
+		exposureSlider = Slider(CGSize(width: 40, height: 240), view.frame, .left)
+		exposureSlider.notification = notification
+		exposureSlider.delegate = updateExposureValue
+		exposureSlider.setImage("sun.max.fill")
+		exposureSlider.customRange(-2, 2, -1)
 		view.addSubview(exposureSlider)
-
-		focusSlider = VerticalSlider(frame: CGRect(x: view.frame.maxX, y: view.frame.midY, width: 55, height: 260), false, "plus.magnifyingglass", "minus.magnifyingglass")
-		focusSlider.valueChanged = updateLensPosition
-		focusSlider.setValue(0.5)
-		focusSlider.alpha = 0
+		
+		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
+		focusSlider.notification = notification
+		focusSlider.delegate = updateLensPosition
+		focusSlider.customRange(0, 1, 0.5)
+		focusSlider.setImage("globe")
 		view.addSubview(focusSlider)
 	}
 	
 	private func setupExposurePoint() {
-		guard let exposurePoint = previewLayer?.layerPointConverted(fromCaptureDevicePoint: captureDevice!.exposurePointOfInterest) else { return }
-		exposurePointView.center = exposurePoint
+		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
 	}
 	
@@ -376,7 +385,7 @@ extension ViewController {
 	private func updateExposureValue() {
 		do {
 			try captureDevice?.lockForConfiguration()
-			captureDevice?.setExposureTargetBias(Float(exposureSlider!.indicatorValue), completionHandler: nil)
+			captureDevice?.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 	}
@@ -384,7 +393,7 @@ extension ViewController {
 	private func updateLensPosition() {
 		do {
 			try captureDevice?.lockForConfiguration()
-			captureDevice?.setFocusModeLocked(lensPosition: Float(focusSlider!.indicatorValue), completionHandler: nil)
+			captureDevice?.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
 			captureDevice?.unlockForConfiguration()
 		} catch {}
 	}

@@ -95,8 +95,8 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func seekToZero(notification: Notification) {
-		guard let playerItem = notification.object as? AVPlayerItem else { return }
-		playerItem.seek(to: .zero, completionHandler: nil)
+//		guard let playerItem = notification.object as? AVPlayerItem else { return }
+//		playerItem.seek(to: .zero, completionHandler: nil)
 	}
 }
 
