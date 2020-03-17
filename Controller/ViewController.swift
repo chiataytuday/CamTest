@@ -122,6 +122,21 @@ class ViewController: UIViewController {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		activeSlider?.touchesEnded(touches, with: event)
 		activeSlider = nil
+		
+		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 100 {
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+				self.exposurePointView.center.y = self.view.frame.height - 100 - self.exposurePointView.frame.height/2
+			}, completion: nil)
+			let point = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
+			let mode = captureDevice.exposureMode
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.exposureMode = .custom
+				captureDevice.exposurePointOfInterest = point
+				captureDevice.exposureMode = mode
+				captureDevice.unlockForConfiguration()
+			} catch {}
+		}
 		touchOffset = nil
 		
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
