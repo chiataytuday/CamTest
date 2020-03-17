@@ -281,7 +281,7 @@ extension ViewController {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.recordButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
-				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/4)
+				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 		}, completion: nil)
 	}
 	
@@ -311,6 +311,7 @@ extension ViewController {
 			
 		} else {
 			videoFileOutput.stopRecording()
+			recordingTimer?.invalidate()
 			durationBarAnim?.stopAnimation(true)
 			durationBarAnim = nil
 			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
