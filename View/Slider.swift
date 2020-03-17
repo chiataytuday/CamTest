@@ -21,7 +21,7 @@ class Slider: UIView {
 	let sliderPosition: SliderPosition
 	
 	private var imageView: UIImageView?
-	var notification: Notification?
+	var popup: Popup?
 	var delegate: (() -> ())?
 	
 	
@@ -68,8 +68,8 @@ class Slider: UIView {
 		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		}, completion: nil)
-		notification?.setImage(imageView!.image!)
-		notification?.show()
+		popup?.setImage(imageView!.image!)
+		popup?.show()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -89,7 +89,7 @@ class Slider: UIView {
 		
 		value = coef * (max - min) + min
 		let roundedValue = floor(value*10)/10
-		notification?.update(roundedValue)
+		popup?.update(roundedValue)
 		delegate?()
 	}
 	
@@ -97,7 +97,7 @@ class Slider: UIView {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveEaseIn, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 		})
-		notification?.hide()
+		popup?.hide()
 	}
 	
 	required init?(coder: NSCoder) {

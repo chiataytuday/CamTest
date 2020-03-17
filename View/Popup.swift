@@ -1,5 +1,5 @@
 //
-//  Notification.swift
+//  Popup.swift
 //  CamTest
 //
 //  Created by debavlad on 17.03.2020.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Notification: UIView {
+class Popup: UIView {
 	
 	private let imageView: UIImageView = {
 		let image = UIImage(systemName: "sun.max.fill")

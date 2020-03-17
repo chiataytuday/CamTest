@@ -70,8 +70,8 @@ class ViewController: UIViewController {
 	}()
 	
 	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
-		bar.backgroundColor = .white
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
+		bar.backgroundColor = .systemRed
 		bar.layer.cornerRadius = 1
 		return bar
 	}()
@@ -85,8 +85,6 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.layer.cornerRadius = 20
-		view.clipsToBounds = true
 		
 		setupCamera()
 		setupUserInterface()
@@ -94,6 +92,7 @@ class ViewController: UIViewController {
 		setupSliders()
 		setupExposurePoint()
 		
+		durationBar.frame.origin.y = view.frame.height - 0.5
 		print(captureDevice?.exposureMode == .locked)
 	}
 	
@@ -168,7 +167,7 @@ extension ViewController {
 	private func setupCamera() {
 		// Session
 		captureSession = AVCaptureSession()
-//		captureSession?.sessionPreset = .hd4K3840x2160
+		captureSession?.sessionPreset = .hd4K3840x2160
 		
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
@@ -241,7 +240,7 @@ extension ViewController {
 		])
 		
 		// Light
-		let offset = view.frame.width/3
+		let offset: CGFloat = 80
 		view.addSubview(torchButton)
 		torchButton.addTarget(self, action: #selector(torchTouchDown), for: [.touchDown])
 		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
@@ -266,18 +265,18 @@ extension ViewController {
 	}
 	
 	private func setupSliders() {
-		let notification = Notification(CGPoint(x: view.center.x, y: 20))
-		view.addSubview(notification)
+		let popup = Popup(CGPoint(x: view.center.x, y: 20))
+		view.addSubview(popup)
 		
 		exposureSlider = Slider(CGSize(width: 40, height: 240), view.frame, .left)
-		exposureSlider.notification = notification
+		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureValue
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.customRange(-2, 2, -1)
 		view.addSubview(exposureSlider)
 		
 		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
-		focusSlider.notification = notification
+		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		focusSlider.customRange(0, 1, 0.5)
 		focusSlider.setImage("globe")

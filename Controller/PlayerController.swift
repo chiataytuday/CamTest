@@ -40,7 +40,6 @@ class PlayerController: UIViewController {
 		let view = UIView()
 		view.backgroundColor = .white
 		view.layer.cornerRadius = 1.5
-//		view.addShadow(2.5, 0.15)
 		return view
 	}()
 
@@ -95,8 +94,8 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func seekToZero(notification: Notification) {
-//		guard let playerItem = notification.object as? AVPlayerItem else { return }
-//		playerItem.seek(to: .zero, completionHandler: nil)
+		guard let playerItem = notification.object as? AVPlayerItem else { return }
+		playerItem.seek(to: .zero, completionHandler: nil)
 	}
 }
 
