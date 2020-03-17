@@ -323,9 +323,11 @@ extension ViewController {
 			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
 			durationBarAnim?.startAnimation()
 			
-			UIView.animate(withDuration: 0.1) {
+			timerLabel.transform = CGAffineTransform(translationX: 5, y: 0)
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 				self.timerLabel.alpha = 1
-			}
+				self.timerLabel.transform = CGAffineTransform.identity
+			}, completion: nil)
 			
 			// recordingTimer: Timer?
 			var sec = 15
