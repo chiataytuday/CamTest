@@ -57,7 +57,7 @@ class ViewController: UIViewController {
 	private let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
 		bar.backgroundColor = .systemRed
-		bar.layer.cornerRadius = 1
+		bar.layer.cornerRadius = 0.25
 		return bar
 	}()
 	
@@ -310,7 +310,7 @@ extension ViewController {
 			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
 			durationBarAnim?.startAnimation()
 			timerLabel.transform = CGAffineTransform(translationX: 5, y: 0)
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 				self.timerLabel.alpha = 1
 				self.timerLabel.transform = CGAffineTransform.identity
 			}, completion: nil)
@@ -344,7 +344,7 @@ extension ViewController {
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
-		UIView.animate(withDuration: 0.55, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.recordButton.transform = CGAffineTransform.identity
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = radius
@@ -443,6 +443,11 @@ extension ViewController {
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+		do {
+			try captureDevice.lockForConfiguration()
+			captureDevice.torchMode = .off
+			captureDevice.unlockForConfiguration()
+		} catch {}
 		let playerController = PlayerController()
 		playerController.url = outputFileURL
 		playerController.modalPresentationStyle = .overFullScreen

@@ -20,27 +20,11 @@ class PlayerController: UIViewController {
 		return effectView
 	}()
 	
-	private let saveButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.layer.cornerRadius = 21
-		button.backgroundColor = .white
-		button.setTitle("To camera roll", for: .normal)
-		button.setTitleColor(.systemGray6, for: .normal)
-		button.titleLabel?.font = UIFont.systemFont(ofSize: 20 , weight: .regular)
-		button.setImage(UIImage(systemName: "square.and.arrow.down", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)), for: .normal)
-		button.imageEdgeInsets = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 0)
-		button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
-		button.tintColor = .systemGray6
-		button.translatesAutoresizingMaskIntoConstraints = false
-//		button.addShadow(2.5, 0.15)
-		return button
-	}()
-	
 	private let progressView: UIView = {
-		let view = UIView()
-		view.backgroundColor = .white
-		view.layer.cornerRadius = 1.5
-		return view
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
+		bar.backgroundColor = .white
+		bar.layer.cornerRadius = 0.25
+		return bar
 	}()
 
 	
@@ -55,16 +39,8 @@ class PlayerController: UIViewController {
 		view.clipsToBounds = true
 		transitioningDelegate = self
 		
-		view.addSubview(saveButton)
-		NSLayoutConstraint.activate([
-			saveButton.heightAnchor.constraint(equalToConstant: 52),
-			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40),
-			saveButton.widthAnchor.constraint(equalToConstant: 220),
-			saveButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-		])
-		
-		progressView.frame = CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 3))
 		view.addSubview(progressView)
+		progressView.frame.origin.y = view.frame.height - 0.5
 		
     blurEffectView.frame = view.bounds
     view.addSubview(blurEffectView)
@@ -72,10 +48,15 @@ class PlayerController: UIViewController {
 	
 	private func setupPlayer() {
 		let item = AVPlayerItem(url: url)
-		let player = AVPlayer(playerItem: item)
-		player.actionAtItemEnd = .none
-		NotificationCenter.default.addObserver(self, selector: #selector(seekToZero(notification:)), name: .AVPlayerItemDidPlayToEndTime, object: player.currentItem)
-		player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
+		let queuePlayer = AVQueuePlayer(playerItem: item)
+		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+		let layer = AVPlayerLayer(player: queuePlayer)
+		layer.frame = view.frame
+		layer.videoGravity = .resizeAspectFill
+		view.layer.addSublayer(layer)
+		queuePlayer.play()
+		
+		queuePlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
 			guard time.seconds > 0, item.duration.seconds > 0 else {
 				self.progressView.frame.size.width = 0
 				return
@@ -85,18 +66,9 @@ class PlayerController: UIViewController {
 				self.progressView.frame.size.width = duration * self.view.frame.width
 			}.startAnimation()
 		}
-		
-		let layer = AVPlayerLayer(player: player)
-		layer.frame = view.frame
-		layer.videoGravity = .resizeAspectFill
-		view.layer.addSublayer(layer)
-		player.play()
 	}
 	
-	@objc private func seekToZero(notification: Notification) {
-		guard let playerItem = notification.object as? AVPlayerItem else { return }
-		playerItem.seek(to: .zero, completionHandler: nil)
-	}
+	private var looper: AVPlayerLooper?
 }
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
