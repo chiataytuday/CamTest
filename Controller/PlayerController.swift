@@ -14,7 +14,7 @@ class PlayerController: UIViewController {
 	var url: URL!
 	
 	let blurEffectView: UIVisualEffectView = {
-		let blurEffect = UIBlurEffect(style: .regular)
+		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
 		let effectView = UIVisualEffectView(effect: blurEffect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		return effectView
@@ -101,6 +101,6 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.5, .present)
+		return AnimationController(0.35, .present)
 	}
 }

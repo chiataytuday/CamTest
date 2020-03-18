@@ -169,7 +169,7 @@ extension ViewController {
 	private func setupCamera() {
 		// Session
 		captureSession = AVCaptureSession()
-		captureSession.sessionPreset = .hd4K3840x2160
+		captureSession.sessionPreset = .hd1920x1080
 		
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
@@ -328,9 +328,18 @@ extension ViewController {
 			videoFileOutput.stopRecording()
 			recordingTimer?.invalidate()
 			durationBarAnim?.stopAnimation(true)
+			recordButton.isUserInteractionEnabled = false
 			durationBarAnim = nil
 			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.durationBar.frame.size.width = 0
+			}, completion: nil)
+			UIView.animate(withDuration: 0.4, delay: 0.12, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+				self.timerLabel.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+				self.timerLabel.alpha = 0
+			}, completion: nil)
+			UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+				self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+				self.lockButton.alpha = 0
 			}, completion: nil)
 		}
 		
