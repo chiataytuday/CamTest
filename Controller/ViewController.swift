@@ -267,6 +267,12 @@ extension ViewController {
 		durationBar.frame.origin.y = view.frame.height - 0.5
 	}
 	
+	public func resetControls() {
+		lockButton.transform = CGAffineTransform.identity
+		lockButton.alpha = 1
+		recordButton.isUserInteractionEnabled = true
+	}
+	
 	private func setupControls() {
 		let popup = Popup(CGPoint(x: view.center.x, y: 20))
 		view.addSubview(popup)

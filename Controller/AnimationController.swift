@@ -39,8 +39,26 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 				transitionContext.containerView.addSubview(toViewController.view)
 				presentAnimation(with: transitionContext, viewToAnimate: toViewController.view)
 			case .dismiss:
-				print("Implement this")
+				transitionContext.containerView.addSubview(fromViewController.view)
+				dismissAnimation(with: transitionContext, viewToAnimate: fromViewController.view)
 		}
+	}
+	
+	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
+		(transitionContext.viewController(forKey: .to) as! ViewController).resetControls()
+		
+		let duration = transitionDuration(using: transitionContext)
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 3, options: .curveEaseOut, animations: {
+			transitionContext.viewController(forKey: .to)!.view.alpha = 1
+			viewToAnimate.transform = CGAffineTransform(scaleX: 0.4, y: 0.4)
+			viewToAnimate.alpha = 0
+		}) { (_) in
+			transitionContext.completeTransition(true)
+		}
+		
+		UIViewPropertyAnimator(duration: duration, curve: .easeOut) {
+			(transitionContext.viewController(forKey: .from) as! PlayerController).blurEffectView.alpha = 1
+		}.startAnimation()
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {

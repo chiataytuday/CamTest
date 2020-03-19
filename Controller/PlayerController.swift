@@ -37,8 +37,11 @@ class PlayerController: UIViewController {
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
 		button.tintColor = .systemGray2
 		button.backgroundColor = .black
+		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
+	
+	var stackView: UIStackView!
 	
 	let blurEffectView: UIVisualEffectView = {
 		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
@@ -76,37 +79,27 @@ class PlayerController: UIViewController {
     blurEffectView.frame = view.bounds
     view.addSubview(blurEffectView)
 		
+		exportButton.addTarget(self, action: #selector(exportTouchDown), for: .touchDown)
+		exportButton.addTarget(self, action: #selector(exportTouchUp), for: [.touchUpInside, .touchUpOutside])
+		backButton.addTarget(self, action: #selector(backTouchDown), for: .touchDown)
+		backButton.addTarget(self, action: #selector(backTouchUp), for: [.touchUpInside, .touchUpOutside])
 		NSLayoutConstraint.activate([
 			exportButton.widthAnchor.constraint(equalToConstant: 110),
 			exportButton.heightAnchor.constraint(equalToConstant: 50),
 			backButton.widthAnchor.constraint(equalToConstant: 50),
 			backButton.heightAnchor.constraint(equalToConstant: 50)
 		])
-		let stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
+		stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.alignment = .center
 		stackView.distribution = .equalSpacing
 		stackView.clipsToBounds = true
+		stackView.spacing = -5
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
 		])
-		
-//		let stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
-//		stackView.translatesAutoresizingMaskIntoConstraints = false
-//		stackView.layer.cornerRadius = 20
-//		stackView.clipsToBounds = true
-//		view.addSubview(stackView)
-//		NSLayoutConstraint.activate([
-//			exportButton.widthAnchor.constraint(equalToConstant: 110),
-//			exportButton.heightAnchor.constraint(equalToConstant: 50),
-//			backButton.widthAnchor.constraint(equalToConstant: 50),
-//			backButton.heightAnchor.constraint(equalToConstant: 50),
-//			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-//			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-//		])
-		
 	}
 	
 	private func setupPlayer() {
@@ -134,11 +127,45 @@ class PlayerController: UIViewController {
 	}
 	
 	private var looper: AVPlayerLooper?
+	
+	@objc private func exportTouchDown() {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+			self.exportButton.backgroundColor = .systemGray6
+		}, completion: nil)
+	}
+	
+	@objc private func exportTouchUp() {
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.stackView.transform  = CGAffineTransform.identity
+			self.exportButton.backgroundColor = .black
+		}, completion: nil)
+	}
+	
+	@objc private func backTouchDown() {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+			self.backButton.backgroundColor = .systemRed
+			self.backButton.tintColor = .white
+		}, completion: nil)
+	}
+	
+	@objc private func backTouchUp() {
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.stackView.transform  = CGAffineTransform.identity
+//			self.backButton.backgroundColor = .black
+		}, completion: nil)
+		dismiss(animated: true, completion: nil)
+	}
 }
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
 		return AnimationController(0.35, .present)
+	}
+	
+	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+		return AnimationController(0.35, .dismiss)
 	}
 }
 
