@@ -23,7 +23,8 @@ class PlayerController: UIViewController {
 		button.titleEdgeInsets.right = -8
 		button.imageEdgeInsets.left = -8
 		button.backgroundColor = .black
-		button.tintColor = .white
+		button.tintColor = .systemGray
+		button.setTitleColor(.systemGray, for: .normal)
 		button.adjustsImageWhenHighlighted = false
 		button.imageView?.clipsToBounds = false
 		button.imageView?.contentMode = .center
@@ -35,7 +36,7 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = .systemGray2
+		button.tintColor = .systemGray3
 		button.backgroundColor = .black
 		button.adjustsImageWhenHighlighted = false
 		return button
@@ -67,6 +68,7 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 //		setupPlayer()
 		setupView()
+		print("didload")
 		
 		view.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 		UIViewPropertyAnimator(duration: 3, curve: .easeOut) {
