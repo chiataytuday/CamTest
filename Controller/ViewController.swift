@@ -19,6 +19,14 @@ class ViewController: UIViewController {
 	var durationBarAnim: UIViewPropertyAnimator?
 	private var recordingTimer: Timer?
 	
+	let blurEffectView: UIVisualEffectView = {
+		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
+		let effectView = UIVisualEffectView(effect: blurEffect)
+		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+		effectView.alpha = 0
+		return effectView
+	}()
+	
 	var captureSession: AVCaptureSession!
 	var captureDevice: AVCaptureDevice!
 	var previewLayer: AVCaptureVideoPreviewLayer!
@@ -80,6 +88,9 @@ class ViewController: UIViewController {
 		setupBottomMenu()
 		setupGrid()
 		setupControls()
+		
+    blurEffectView.frame = view.bounds
+    view.addSubview(blurEffectView)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -455,8 +466,11 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 			captureDevice.unlockForConfiguration()
 		} catch {}
 		let playerController = PlayerController()
-		playerController.url = outputFileURL
-		playerController.modalPresentationStyle = .overFullScreen
-		present(playerController, animated: true)
+		playerController.setupPlayer(outputFileURL) {
+			playerController.modalPresentationStyle = .overFullScreen
+			self.present(playerController, animated: true)
+		}
+//		playerController.url = outputFileURL
+//		playerController.setupPlayer()
 	}
 }

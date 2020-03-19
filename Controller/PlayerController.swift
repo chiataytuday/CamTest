@@ -44,7 +44,7 @@ class PlayerController: UIViewController {
 	var stackView: UIStackView!
 	
 	let blurEffectView: UIVisualEffectView = {
-		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
 		let effectView = UIVisualEffectView(effect: blurEffect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		return effectView
@@ -64,7 +64,7 @@ class PlayerController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		setupPlayer()
+//		setupPlayer()
 		setupView()
 	}
 	
@@ -76,8 +76,8 @@ class PlayerController: UIViewController {
 		view.addSubview(progressView)
 		progressView.frame.origin.y = view.frame.height - 0.5
 		
-    blurEffectView.frame = view.bounds
-    view.addSubview(blurEffectView)
+//    view.addSubview(blurEffectView)
+//		view.insertSubview(blurEffectView, at: 0)
 		
 		exportButton.addTarget(self, action: #selector(exportTouchDown), for: .touchDown)
 		exportButton.addTarget(self, action: #selector(exportTouchUp), for: [.touchUpInside, .touchUpOutside])
@@ -100,9 +100,12 @@ class PlayerController: UIViewController {
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
 		])
+		
+    blurEffectView.frame = view.bounds
+		view.addSubview(blurEffectView)
 	}
 	
-	private func setupPlayer() {
+	public func setupPlayer(_ url: URL, handler: @escaping () -> ()) {
 		let item = AVPlayerItem(url: url)
 		let queuePlayer = AVQueuePlayer(playerItem: item)
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
@@ -114,6 +117,12 @@ class PlayerController: UIViewController {
 		view.layer.addSublayer(layer)
 		queuePlayer.play()
 		
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+			handler()
+		}
+	}
+	
+//	public func setupPlayer() {
 //		queuePlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
 //			guard time.seconds > 0, item.duration.seconds > 0 else {
 //				self.progressView.frame.size.width = 0
@@ -124,7 +133,7 @@ class PlayerController: UIViewController {
 //				self.progressView.frame.size.width = duration * self.view.frame.width
 //			}.startAnimation()
 //		}
-	}
+//	}
 	
 	private var looper: AVPlayerLooper?
 	
@@ -148,6 +157,9 @@ class PlayerController: UIViewController {
 			self.backButton.backgroundColor = .systemRed
 			self.backButton.tintColor = .white
 		}, completion: nil)
+		UIViewPropertyAnimator(duration: 0.4, curve: .easeOut) {
+			self.view.transform = CGAffineTransform(translationX: 0, y: 20).scaledBy(x: 0.95, y: 0.95)
+		}.startAnimation()
 	}
 	
 	@objc private func backTouchUp() {
@@ -165,7 +177,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.35, .dismiss)
+		return AnimationController(1, .dismiss)
 	}
 }
 
