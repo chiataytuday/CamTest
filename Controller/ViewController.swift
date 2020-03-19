@@ -206,7 +206,7 @@ extension ViewController {
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
 		previewLayer.frame.size.height -= 100
-		previewLayer.cornerRadius = 20
+		previewLayer.cornerRadius = 17.5
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		

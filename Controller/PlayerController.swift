@@ -16,12 +16,13 @@ class PlayerController: UIViewController {
 	let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
 		button.setTitle("Export", for: .normal)
-		button.titleEdgeInsets.right = -5
-		button.imageEdgeInsets.left = -5
-		button.backgroundColor = .systemRed
+		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+		button.titleEdgeInsets.right = -8
+		button.imageEdgeInsets.left = -8
+		button.backgroundColor = .black
 		button.tintColor = .white
 		button.adjustsImageWhenHighlighted = false
 		button.imageView?.clipsToBounds = false
@@ -32,10 +33,10 @@ class PlayerController: UIViewController {
 	let backButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = .white
-		button.backgroundColor = .systemGreen
+		button.tintColor = .systemGray2
+		button.backgroundColor = .black
 		return button
 	}()
 	
@@ -54,8 +55,8 @@ class PlayerController: UIViewController {
 	}()
 
 	override func viewDidLayoutSubviews() {
-		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 18)
+		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 17.5)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 17.5)
 	}
 	
 	override func viewDidLoad() {
@@ -89,7 +90,7 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
 		])
 		
 //		let stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
@@ -114,23 +115,22 @@ class PlayerController: UIViewController {
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
 		let layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
-		layer.frame.size.height -= 61
 		layer.videoGravity = .resizeAspectFill
-		layer.cornerRadius = 20
+		layer.cornerRadius = 17.5
 		layer.masksToBounds = true
 		view.layer.addSublayer(layer)
 		queuePlayer.play()
 		
-		queuePlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
-			guard time.seconds > 0, item.duration.seconds > 0 else {
-				self.progressView.frame.size.width = 0
-				return
-			}
-			let duration = CGFloat(time.seconds/item.duration.seconds)
-			UIViewPropertyAnimator(duration: 0.09, curve: .linear) {
-				self.progressView.frame.size.width = duration * self.view.frame.width
-			}.startAnimation()
-		}
+//		queuePlayer.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(USEC_PER_SEC)), queue: .main) { (time) in
+//			guard time.seconds > 0, item.duration.seconds > 0 else {
+//				self.progressView.frame.size.width = 0
+//				return
+//			}
+//			let duration = CGFloat(time.seconds/item.duration.seconds)
+//			UIViewPropertyAnimator(duration: 0.09, curve: .linear) {
+//				self.progressView.frame.size.width = duration * self.view.frame.width
+//			}.startAnimation()
+//		}
 	}
 	
 	private var looper: AVPlayerLooper?
