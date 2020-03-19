@@ -22,7 +22,7 @@ class Popup: UIView {
 	private let valueLabel: UILabel = {
 		let label = UILabel()
 		label.text = "0.0"
-		label.font = UIFont.systemFont(ofSize: 18, weight: .light)
+		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
 		label.textColor = .systemGray
 		label.lineBreakMode = .byClipping
 		label.sizeToFit()
@@ -32,16 +32,17 @@ class Popup: UIView {
 	
 	init(_ origin: CGPoint) {
 		let rect = CGRect(x: 0, y: 0, width: imageView.frame.width + valueLabel.frame.width + 5, height: imageView.frame.height)
+		super.init(frame: rect.insetBy(dx: -18.25, dy: -10))
+		
 		valueLabel.frame.origin.x += imageView.frame.width + 5
 		for el in [imageView, valueLabel] {
 			el.frame.origin.x += 18.25
-			el.frame.origin.y += 10
+			el.center.y = center.y + 10
 		}
 		
-		super.init(frame: rect.insetBy(dx: -18.25, dy: -10))
 		center = origin
 		backgroundColor = .black
-		layer.cornerRadius = 20
+		layer.cornerRadius = frame.height/2
 		addSubview(imageView)
 		addSubview(valueLabel)
 		alpha = 0

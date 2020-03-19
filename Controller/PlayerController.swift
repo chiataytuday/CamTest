@@ -13,6 +13,32 @@ class PlayerController: UIViewController {
 	
 	var url: URL!
 	
+	let exportButton: UIButton = {
+		let button = UIButton(type: .custom)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
+		button.setTitle("Export", for: .normal)
+		button.titleEdgeInsets.right = -5
+		button.imageEdgeInsets.left = -5
+		button.backgroundColor = .systemRed
+		button.tintColor = .white
+		button.adjustsImageWhenHighlighted = false
+		button.imageView?.clipsToBounds = false
+		button.imageView?.contentMode = .center
+		return button
+	}()
+	
+	let backButton: UIButton = {
+		let button = UIButton(type: .custom)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+		button.setImage(UIImage(systemName: "xmark"), for: .normal)
+		button.tintColor = .white
+		button.backgroundColor = .systemGreen
+		return button
+	}()
+	
 	let blurEffectView: UIVisualEffectView = {
 		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
 		let effectView = UIVisualEffectView(effect: blurEffect)
@@ -22,11 +48,15 @@ class PlayerController: UIViewController {
 	
 	private let progressView: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
-		bar.backgroundColor = .white
+		bar.backgroundColor = .systemGray2
 		bar.layer.cornerRadius = 0.25
 		return bar
 	}()
 
+	override func viewDidLayoutSubviews() {
+		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 18)
+	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -35,15 +65,47 @@ class PlayerController: UIViewController {
 	}
 	
 	private func setupView() {
-		view.layer.cornerRadius = 15
 		view.clipsToBounds = true
 		transitioningDelegate = self
+		view.backgroundColor = .black
 		
 		view.addSubview(progressView)
 		progressView.frame.origin.y = view.frame.height - 0.5
 		
     blurEffectView.frame = view.bounds
     view.addSubview(blurEffectView)
+		
+		NSLayoutConstraint.activate([
+			exportButton.widthAnchor.constraint(equalToConstant: 110),
+			exportButton.heightAnchor.constraint(equalToConstant: 50),
+			backButton.widthAnchor.constraint(equalToConstant: 50),
+			backButton.heightAnchor.constraint(equalToConstant: 50)
+		])
+		let stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		stackView.alignment = .center
+		stackView.distribution = .equalSpacing
+		stackView.clipsToBounds = true
+		view.addSubview(stackView)
+		NSLayoutConstraint.activate([
+			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+		])
+		
+//		let stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
+//		stackView.translatesAutoresizingMaskIntoConstraints = false
+//		stackView.layer.cornerRadius = 20
+//		stackView.clipsToBounds = true
+//		view.addSubview(stackView)
+//		NSLayoutConstraint.activate([
+//			exportButton.widthAnchor.constraint(equalToConstant: 110),
+//			exportButton.heightAnchor.constraint(equalToConstant: 50),
+//			backButton.widthAnchor.constraint(equalToConstant: 50),
+//			backButton.heightAnchor.constraint(equalToConstant: 50),
+//			stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+//			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+//		])
+		
 	}
 	
 	private func setupPlayer() {
@@ -52,7 +114,10 @@ class PlayerController: UIViewController {
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
 		let layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
+		layer.frame.size.height -= 61
 		layer.videoGravity = .resizeAspectFill
+		layer.cornerRadius = 20
+		layer.masksToBounds = true
 		view.layer.addSublayer(layer)
 		queuePlayer.play()
 		
@@ -75,4 +140,13 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
 		return AnimationController(0.35, .present)
 	}
+}
+
+extension UIView {
+   func roundCorners(corners: UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        layer.mask = mask
+    }
 }
