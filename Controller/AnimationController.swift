@@ -64,19 +64,16 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		viewToAnimate.clipsToBounds = true
-		viewToAnimate.transform = CGAffineTransform(translationX: 0, y: 250).scaledBy(x: 0.1, y: 0.1)
+		guard let from = transitionContext.viewController(forKey: .from) as? ViewController, let to = transitionContext.viewController(forKey: .to) as? PlayerController else { return }
 		
+		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.1, y: 0.1).rotated(by: .pi/4)
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 3, options: .curveEaseOut, animations: {
-			transitionContext.viewController(forKey: .from)!.view.alpha = 0.2
-			viewToAnimate.transform = CGAffineTransform(scaleX: 1, y: 1)
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+			from.view.alpha = 0.15
+			to.blurEffectView.alpha = 0
+			viewToAnimate.transform = CGAffineTransform.identity
 		}) { (_) in
 			transitionContext.completeTransition(true)
 		}
-		
-		UIViewPropertyAnimator(duration: duration, curve: .easeOut) {
-			(transitionContext.viewController(forKey: .to) as! PlayerController).blurEffectView.alpha = 0
-		}.startAnimation()
 	}
 }

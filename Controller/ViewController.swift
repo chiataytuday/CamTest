@@ -358,6 +358,9 @@ extension ViewController {
 				self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 				self.lockButton.alpha = 0
 			}, completion: nil)
+			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+				self.blurEffectView.alpha = 1
+			}, completion: nil)
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
@@ -467,10 +470,9 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 		} catch {}
 		let playerController = PlayerController()
 		playerController.setupPlayer(outputFileURL) {
+			playerController.setupView()
 			playerController.modalPresentationStyle = .overFullScreen
 			self.present(playerController, animated: true)
 		}
-//		playerController.url = outputFileURL
-//		playerController.setupPlayer()
 	}
 }

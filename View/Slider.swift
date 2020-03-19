@@ -64,7 +64,7 @@ class Slider: UIView {
 		offset = progressView.frame.height + touch.y
 		let x = sliderPosition == .left ? frame.width/2 : -frame.width/2
 
-		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		}, completion: nil)
 		popup?.setImage(imageView!.image!)

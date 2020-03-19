@@ -32,17 +32,17 @@ class Popup: UIView {
 	
 	init(_ origin: CGPoint) {
 		let rect = CGRect(x: 0, y: 0, width: imageView.frame.width + valueLabel.frame.width + 5, height: imageView.frame.height)
-		super.init(frame: rect.insetBy(dx: -18.25, dy: -10))
+		super.init(frame: rect.insetBy(dx: -16, dy: -7.25))
 		
 		valueLabel.frame.origin.x += imageView.frame.width + 5
 		for el in [imageView, valueLabel] {
-			el.frame.origin.x += 18.25
-			el.center.y = center.y + 10
+			el.frame.origin.x += 16
+			el.center.y = center.y + 7.25
 		}
 		
 		center = origin
 		backgroundColor = .black
-		layer.cornerRadius = frame.height/2
+		layer.cornerRadius = 17.5
 		addSubview(imageView)
 		addSubview(valueLabel)
 		alpha = 0
@@ -63,14 +63,14 @@ class Popup: UIView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: 0, y: 20)
 			self.alpha = 1
 		}, completion: nil)
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveEaseIn, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
 		}, completion: nil)

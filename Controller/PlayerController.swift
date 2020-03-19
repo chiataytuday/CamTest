@@ -47,6 +47,7 @@ class PlayerController: UIViewController {
 		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
 		let effectView = UIVisualEffectView(effect: blurEffect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+		effectView.alpha = 1
 		return effectView
 	}()
 	
@@ -66,9 +67,18 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 //		setupPlayer()
 		setupView()
+		
+		view.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+		UIViewPropertyAnimator(duration: 3, curve: .easeOut) {
+			self.view.transform = CGAffineTransform.identity
+		}.startAnimation()
 	}
 	
-	private func setupView() {
+	public func setup() {
+		
+	}
+	
+	public func setupView() {
 		view.clipsToBounds = true
 		transitioningDelegate = self
 		view.backgroundColor = .black
@@ -95,11 +105,11 @@ class PlayerController: UIViewController {
 		stackView.distribution = .equalSpacing
 		stackView.clipsToBounds = true
 		stackView.spacing = -5
-		view.addSubview(stackView)
-		NSLayoutConstraint.activate([
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
-		])
+//		view.addSubview(stackView)
+//		NSLayoutConstraint.activate([
+//			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
+//		])
 		
     blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
@@ -173,11 +183,11 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.35, .present)
+		return AnimationController(0.4, .present)
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(1, .dismiss)
+		return AnimationController(2, .dismiss)
 	}
 }
 
