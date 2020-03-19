@@ -386,11 +386,11 @@ extension ViewController {
 			captureDevice.unlockForConfiguration()
 		} catch {}
 		
-		let args: (UIColor, UIColor) = isLocked ? (.black, .systemGray2) : (.systemGray2, .black)
+		let args: (UIColor, UIColor) = isLocked ? (.black, .systemGray) : (.systemGray, .black)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.lockButton.transform = CGAffineTransform.identity
 			self.lockButton.imageView!.transform = CGAffineTransform.identity
-			self.lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
+			self.lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray.cgColor
 			self.lockButton.backgroundColor = args.0
 			self.lockButton.tintColor = args.1
 		}, completion: nil)
@@ -446,7 +446,7 @@ extension ViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.backgroundColor = .black
-		button.tintColor = .systemGray2
+		button.tintColor = .systemGray
 		button.layer.cornerRadius = 20
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor

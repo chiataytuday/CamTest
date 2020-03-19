@@ -74,10 +74,6 @@ class PlayerController: UIViewController {
 		}.startAnimation()
 	}
 	
-	public func setup() {
-		
-	}
-	
 	public func setupView() {
 		view.clipsToBounds = true
 		transitioningDelegate = self
@@ -85,9 +81,6 @@ class PlayerController: UIViewController {
 		
 		view.addSubview(progressView)
 		progressView.frame.origin.y = view.frame.height - 0.5
-		
-//    view.addSubview(blurEffectView)
-//		view.insertSubview(blurEffectView, at: 0)
 		
 		exportButton.addTarget(self, action: #selector(exportTouchDown), for: .touchDown)
 		exportButton.addTarget(self, action: #selector(exportTouchUp), for: [.touchUpInside, .touchUpOutside])
@@ -105,11 +98,11 @@ class PlayerController: UIViewController {
 		stackView.distribution = .equalSpacing
 		stackView.clipsToBounds = true
 		stackView.spacing = -5
-//		view.addSubview(stackView)
-//		NSLayoutConstraint.activate([
-//			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
-//		])
+		view.addSubview(stackView)
+		NSLayoutConstraint.activate([
+			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
+		])
 		
     blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
