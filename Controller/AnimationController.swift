@@ -45,22 +45,31 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		(transitionContext.viewController(forKey: .to) as! ViewController).resetControls()
-		(transitionContext.viewController(forKey: .from) as! PlayerController).blurEffectView.alpha = 1
-		(transitionContext.viewController(forKey: .from) as! PlayerController).view.clipsToBounds = false
-		(transitionContext.viewController(forKey: .to) as! ViewController).blurEffectView.alpha = 1
+//		(transitionContext.viewController(forKey: .to) as! ViewController).resetControls()
+//		(transitionContext.viewController(forKey: .from) as! PlayerController).blurEffectView.alpha = 1
+//		(transitionContext.viewController(forKey: .from) as! PlayerController).view.clipsToBounds = false
+//		(transitionContext.viewController(forKey: .to) as! ViewController).blurEffectView.alpha = 1
+//		let duration = transitionDuration(using: transitionContext)
+//		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+//			transitionContext.viewController(forKey: .to)!.view.alpha = 1
+////			viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width, y: -viewToAnimate.frame.height/1.75).scaledBy(x: 0.5, y: 0.5).rotated(by: -.pi/5)
+//			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.width*2).scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/5)
+//		}) { (_) in
+//			transitionContext.completeTransition(true)
+//		}
+//
+//		UIViewPropertyAnimator(duration: duration/2, curve: .easeOut) {
+//			(transitionContext.viewController(forKey: .to) as! ViewController).blurEffectView.alpha = 0
+//		}.startAnimation()
+		
+		//guard let from = transitionContext.viewController(forKey: .from) as? PlayerController, let to = transitionContext.viewController(forKey: .to) as? ViewController else { return }
+		
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			transitionContext.viewController(forKey: .to)!.view.alpha = 1
-//			viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width, y: -viewToAnimate.frame.height/1.75).scaledBy(x: 0.5, y: 0.5).rotated(by: -.pi/5)
-			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.width*2).scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/5)
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+			viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.1, y: 0.1).rotated(by: .pi)
 		}) { (_) in
 			transitionContext.completeTransition(true)
 		}
-		
-		UIViewPropertyAnimator(duration: duration/2, curve: .easeOut) {
-			(transitionContext.viewController(forKey: .to) as! ViewController).blurEffectView.alpha = 0
-		}.startAnimation()
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {

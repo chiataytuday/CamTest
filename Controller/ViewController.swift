@@ -468,9 +468,9 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 			captureDevice.torchMode = .off
 			captureDevice.unlockForConfiguration()
 		} catch {}
+		
 		let playerController = PlayerController()
 		playerController.setupPlayer(outputFileURL) {
-			playerController.setupView()
 			playerController.modalPresentationStyle = .overFullScreen
 			self.present(playerController, animated: true)
 		}
