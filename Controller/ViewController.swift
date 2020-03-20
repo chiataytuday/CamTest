@@ -336,6 +336,7 @@ extension ViewController {
 			}, completion: nil)
 			
 			var sec = 15
+			timerLabel.text = "'\(sec)"
 			recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
 				if sec == 0 {
 					timer.invalidate()
@@ -348,22 +349,25 @@ extension ViewController {
 			videoFileOutput.stopRecording()
 			recordingTimer?.invalidate()
 			durationBarAnim?.stopAnimation(true)
-			recordButton.isUserInteractionEnabled = false
 			durationBarAnim = nil
 			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.durationBar.frame.size.width = 0
 			}, completion: nil)
-			UIView.animate(withDuration: 0.4, delay: 0.12, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.timerLabel.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 				self.timerLabel.alpha = 0
 			}, completion: nil)
-			UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-				self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-				self.lockButton.alpha = 0
-			}, completion: nil)
-			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-				self.blurEffectView.alpha = 1
-			}, completion: nil)
+			
+			if videoFileOutput.recordedDuration.seconds > 0.5 {
+				recordButton.isUserInteractionEnabled = false
+				UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+					self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+					self.lockButton.alpha = 0
+				}, completion: nil)
+				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+					self.blurEffectView.alpha = 1
+				}, completion: nil)
+			}
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
@@ -466,16 +470,18 @@ extension ViewController {
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.torchMode = .off
-			captureDevice.unlockForConfiguration()
-		} catch {}
-		
-		let playerController = PlayerController()
-		playerController.setupPlayer(outputFileURL) {
-			playerController.modalPresentationStyle = .overFullScreen
-			self.present(playerController, animated: true)
+		if videoFileOutput.recordedDuration.seconds > 0.5 {
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.torchMode = .off
+				captureDevice.unlockForConfiguration()
+			} catch {}
+			
+			let playerController = PlayerController()
+			playerController.setupPlayer(outputFileURL) {
+				playerController.modalPresentationStyle = .overFullScreen
+				self.present(playerController, animated: true)
+			}
 		}
 	}
 }
