@@ -14,6 +14,7 @@ class PlayerController: UIViewController {
 	var url: URL!
 	var looper: AVPlayerLooper?
 	var stackView: UIStackView!
+	var layer: AVPlayerLayer!
 	
 	let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -52,7 +53,7 @@ class PlayerController: UIViewController {
 	
 	let overlayView: UIView = {
 		let view = UIView()
-		view.backgroundColor = .systemYellow
+		view.backgroundColor = .systemRed
 		view.alpha = 0
 		return view
 	}()
@@ -72,6 +73,7 @@ class PlayerController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.clipsToBounds = true
+		view.layer.cornerRadius = 17.5
 		transitioningDelegate = self
 		view.backgroundColor = .black
 	}
@@ -118,7 +120,7 @@ class PlayerController: UIViewController {
 		let item = AVPlayerItem(url: url)
 		let queuePlayer = AVQueuePlayer(playerItem: item)
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
-		let layer = AVPlayerLayer(player: queuePlayer)
+		layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
 		layer.cornerRadius = 17.5
@@ -163,13 +165,17 @@ class PlayerController: UIViewController {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.backButton.backgroundColor = .systemRed
 			self.backButton.tintColor = .white
-			self.overlayView.alpha = 1
 		}, completion: nil)
+		
+		UIViewPropertyAnimator(duration: 1, curve: .easeInOut) {
+			self.layer.transform = CATransform3DTranslate(CATransform3DIdentity, 0, 10, 0)
+		}.startAnimation()
 	}
 	
 	@objc private func backTouchUp() {
 		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.stackView.transform  = CGAffineTransform.identity
+			self.blurEffectView.alpha = 1
 		}, completion: nil)
 		dismiss(animated: true, completion: nil)
 	}
@@ -181,7 +187,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.3, .dismiss)
+		return AnimationController(0.4, .dismiss)
 	}
 }
 

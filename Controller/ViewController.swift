@@ -222,6 +222,8 @@ extension ViewController {
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		
 		captureSession.startRunning()
+		
+		print(exposurePointView.frame.size)
 	}
 	
 	private func setupBottomMenu() {
@@ -282,8 +284,6 @@ extension ViewController {
 		lockButton.transform = CGAffineTransform.identity
 		lockButton.alpha = 1
 		recordButton.isUserInteractionEnabled = true
-		blurEffectView.alpha = 0
-		view.alpha = 1
 	}
 	
 	private func setupControls() {
@@ -361,9 +361,9 @@ extension ViewController {
 				self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 				self.lockButton.alpha = 0
 			}, completion: nil)
-//			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-//				self.blurEffectView.alpha = 1
-//			}, completion: nil)
+			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+				self.blurEffectView.alpha = 1
+			}, completion: nil)
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
