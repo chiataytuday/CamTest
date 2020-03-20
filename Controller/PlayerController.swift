@@ -66,8 +66,8 @@ class PlayerController: UIViewController {
 	}()
 
 	override func viewDidLayoutSubviews() {
-		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 17.5)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 17.5)
+		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 15.5)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 15.5)
 	}
 	
 	override func viewDidLoad() {
@@ -147,7 +147,7 @@ class PlayerController: UIViewController {
 //	}
 	
 	@objc private func exportTouchDown() {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.exportButton.backgroundColor = .systemGray6
 		}, completion: nil)
@@ -161,10 +161,10 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func backTouchDown() {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.backButton.backgroundColor = .systemRed
-			self.backButton.tintColor = .white
+			self.backButton.backgroundColor = .systemGray6
+//			self.backButton.tintColor = .white
 		}, completion: nil)
 		
 		UIViewPropertyAnimator(duration: 1, curve: .easeInOut) {
