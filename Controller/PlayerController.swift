@@ -50,6 +50,13 @@ class PlayerController: UIViewController {
 		return view
 	}()
 	
+	let overlayView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .systemYellow
+		view.alpha = 0
+		return view
+	}()
+	
 	private let progressView: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
 		bar.backgroundColor = .systemGray2
@@ -102,6 +109,9 @@ class PlayerController: UIViewController {
 		
     blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
+		
+		view.addSubview(overlayView)
+		overlayView.frame = view.frame
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping () -> ()) {
@@ -153,6 +163,7 @@ class PlayerController: UIViewController {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.backButton.backgroundColor = .systemRed
 			self.backButton.tintColor = .white
+			self.overlayView.alpha = 1
 		}, completion: nil)
 	}
 	
@@ -170,7 +181,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(2, .dismiss)
+		return AnimationController(0.3, .dismiss)
 	}
 }
 

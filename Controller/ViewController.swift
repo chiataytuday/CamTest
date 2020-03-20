@@ -55,7 +55,7 @@ class ViewController: UIViewController {
 	
 	private var torchButton, lockButton: UIButton!
 	
-	private let exposurePointView: UIImageView = {
+	let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
 		imageView.tintColor = .systemYellow
@@ -282,6 +282,8 @@ extension ViewController {
 		lockButton.transform = CGAffineTransform.identity
 		lockButton.alpha = 1
 		recordButton.isUserInteractionEnabled = true
+		blurEffectView.alpha = 0
+		view.alpha = 1
 	}
 	
 	private func setupControls() {
@@ -304,6 +306,7 @@ extension ViewController {
 		
 		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
+		print(exposurePointView.frame)
 	}
 	
 	// MARK: - TouchUp & TouchDown
@@ -358,9 +361,9 @@ extension ViewController {
 				self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 				self.lockButton.alpha = 0
 			}, completion: nil)
-			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-				self.blurEffectView.alpha = 1
-			}, completion: nil)
+//			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+//				self.blurEffectView.alpha = 1
+//			}, completion: nil)
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
