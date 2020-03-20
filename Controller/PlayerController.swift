@@ -164,11 +164,10 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.backButton.backgroundColor = .systemGray6
-//			self.backButton.tintColor = .white
 		}, completion: nil)
 		
-		UIViewPropertyAnimator(duration: 1, curve: .easeInOut) {
-			self.layer.transform = CATransform3DTranslate(CATransform3DIdentity, 0, 10, 0)
+		UIViewPropertyAnimator(duration: 0.75, curve: .easeOut) {
+			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
 		}.startAnimation()
 	}
 	
