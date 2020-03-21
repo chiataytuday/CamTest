@@ -50,7 +50,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		viewController.resetControls()
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
-			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
+			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: viewToAnimate.frame.height)
 		}, completion: nil)
 		
 		UIView.animate(withDuration: duration * 0.8, delay: 0.01, options: .curveEaseOut, animations: {

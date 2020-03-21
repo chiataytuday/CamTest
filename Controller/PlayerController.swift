@@ -157,6 +157,10 @@ class PlayerController: UIViewController {
 			UIViewPropertyAnimator(duration: 0.75, curve: .easeOut) {
 				self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
 			}.startAnimation()
+		} else {
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+				sender.imageView?.transform = CGAffineTransform(translationX: 0, y: -50)
+			}, completion: nil)
 		}
 	}
 	
@@ -185,6 +189,15 @@ class PlayerController: UIViewController {
 	
 	@objc private func exportTouchUpInside(sender: UIButton) {
 		buttonTouchUpOutside(sender: sender)
+		
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			sender.imageView?.transform = CGAffineTransform(translationX: 0, y: 50)
+		}, completion: nil)
+//		UIView.transition(with: sender, duration: 0.08, options: .transitionCrossDissolve, animations: {
+//			sender.setTitle("Saved", for: .normal)
+//			sender.setImage(UIImage(systemName: "checkmark"), for: .normal)
+//		}, completion: nil)
+		
 		let status = PHPhotoLibrary.authorizationStatus()
 		if status == .notDetermined {
 			PHPhotoLibrary.requestAuthorization { (status) in

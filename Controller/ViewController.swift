@@ -180,7 +180,7 @@ extension ViewController {
 	private func setupCamera() {
 		// Session
 		captureSession = AVCaptureSession()
-		captureSession.sessionPreset = .hd1920x1080
+		captureSession.sessionPreset = .hd4K3840x2160
 		
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
