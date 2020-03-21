@@ -11,15 +11,6 @@ import Photos
 
 class PermissionsController: UIViewController {
 	
-	var nextViewController: ViewController!
-	
-	let circleLogo: UIImageView = {
-		let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
-		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemGray
-		return imageView
-	}()
-	
 	let buttonNext: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -29,98 +20,51 @@ class PermissionsController: UIViewController {
 		return button
 	}()
 	
-	let cameraButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5, weight: .light), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "camera.fill"), for: .normal)
-		button.tintColor = .systemGray2
-		button.layer.borderWidth = 1
-		button.layer.borderColor = UIColor.systemGray5.cgColor
-		button.layer.cornerRadius = 17.5
-		button.alpha = 0
-		return button
+	let circleLogo: UIImageView = {
+		let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
+		let imageView = UIImageView(image: image)
+		imageView.tintColor = .systemGray
+		return imageView
 	}()
 	
-	let libraryButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5, weight: .light), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "photo.fill"), for: .normal)
-		button.tintColor = .systemGray2
-		button.layer.borderWidth = 1
-		button.layer.borderColor = UIColor.systemGray5.cgColor
-		button.layer.cornerRadius = 17.5
-		button.alpha = 0
-		return button
-	}()
-	
-	let micButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5, weight: .light), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "mic.fill"), for: .normal)
-		button.tintColor = .systemGray2
-		button.layer.borderWidth = 1
-		button.layer.borderColor = UIColor.systemGray5.cgColor
-		button.layer.cornerRadius = 17.5
-		button.alpha = 0
-		return button
-	}()
-	
-	var grantedCount = 0
+	var nextViewController: ViewController!
+	var cameraButton, libraryButton, micButton: UIButton!
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		// MARK: - Circle
-		circleLogo.center = CGPoint(x: view.center.x, y: view.center.y)
-		view.addSubview(circleLogo)
-		
-		UIView.animate(withDuration: 0.6, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-			self.circleLogo.center.y = 80
-			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-			self.circleLogo.tintColor = .systemGray3
-		}, completion: nil)
-		
-		// MARK: - Buttons
-		
-		view.addSubview(libraryButton)
+		setupCircle()
+		setupButtons()
+	}
+	
+	private func setupButtons() {
+		libraryButton = grantButton("photo.fill")
+		buttonAppearance(libraryButton, PHPhotoLibrary.authorizationStatus() == .authorized)
 		libraryButton.addTarget(self, action: #selector(libraryButtonAction), for: .touchDown)
+		view.addSubview(libraryButton)
 		NSLayoutConstraint.activate([
-			libraryButton.widthAnchor.constraint(equalToConstant: 70),
-			libraryButton.heightAnchor.constraint(equalToConstant: 70),
+			libraryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			libraryButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-			libraryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
-
-		view.addSubview(cameraButton)
+		
+		cameraButton = grantButton("camera.fill")
+		buttonAppearance(cameraButton, AVCaptureDevice.authorizationStatus(for: .video) == .authorized)
 		cameraButton.addTarget(self, action: #selector(cameraButtonAction), for: .touchDown)
+		view.addSubview(cameraButton)
 		NSLayoutConstraint.activate([
-			cameraButton.widthAnchor.constraint(equalToConstant: 70),
-			cameraButton.heightAnchor.constraint(equalToConstant: 70),
 			cameraButton.trailingAnchor.constraint(equalTo: libraryButton.leadingAnchor, constant: -15),
 			cameraButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 		])
-
-		view.addSubview(micButton)
+		
+		micButton = grantButton("mic.fill")
+		buttonAppearance(micButton, AVAudioSession.sharedInstance().recordPermission == .granted)
 		micButton.addTarget(self, action: #selector(micButtonAction), for: .touchDown)
+		view.addSubview(micButton)
 		NSLayoutConstraint.activate([
-			micButton.widthAnchor.constraint(equalToConstant: 70),
-			micButton.heightAnchor.constraint(equalToConstant: 70),
-			micButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-			micButton.leadingAnchor.constraint(equalTo: libraryButton.trailingAnchor, constant: 15)
+			micButton.leadingAnchor.constraint(equalTo: libraryButton.trailingAnchor, constant: 15),
+			micButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 		])
 		
-		UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
-			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
-			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
-			self.libraryButton.alpha = 1
-			self.cameraButton.alpha = 1
-			self.micButton.alpha = 1
-		}, completion: nil)
-
 		view.addSubview(buttonNext)
 		NSLayoutConstraint.activate([
 			buttonNext.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -129,45 +73,81 @@ class PermissionsController: UIViewController {
 			buttonNext.heightAnchor.constraint(equalToConstant: 115)
 		])
 		
-		checkPermissions()
+		// MARK: - Animation
+		
+		UIView.animate(withDuration: 0.6, delay: 0.27, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.libraryButton.alpha = 1
+			self.cameraButton.alpha = 1
+			self.micButton.alpha = 1
+		}, completion: nil)
 	}
 	
-	@objc func libraryButtonAction() {
+	private func setupCircle() {
+		circleLogo.center = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+		view.addSubview(circleLogo)
+		UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+			self.circleLogo.center.y = 80
+			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+			self.circleLogo.tintColor = .systemGray3
+		}, completion: nil)
+	}
+	
+	
+	@objc private func libraryButtonAction() {
 		if PHPhotoLibrary.authorizationStatus() == .denied {
 			showAlert("Photo Library Access Denied", "Photo Library access was previously denied. You must grant it through system settings")
 		} else {
 			PHPhotoLibrary.requestAuthorization { (status) in
-				if status == .authorized {
-					self.buttonAppearance(self.libraryButton, true)
-				}
+				if status != .authorized { return }
+				self.buttonAppearance(self.libraryButton, true)
 			}
 		}
 	}
 	
-	@objc func cameraButtonAction() {
+	@objc private func cameraButtonAction() {
 		if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
 			showAlert("Camera Access Denied", "Camera access was previously denied. You must grant it through system settings")
 		} else {
-			AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
-				if response {
-					self.buttonAppearance(self.cameraButton, response)
-				}
+			AVCaptureDevice.requestAccess(for: .video) { (granted) in
+				if !granted { return }
+				self.buttonAppearance(self.cameraButton, true)
 			}
 		}
 	}
 	
-	@objc func micButtonAction() {
+	@objc private func micButtonAction() {
 		if AVAudioSession.sharedInstance().recordPermission == .denied {
 			showAlert("Microphone Access Denied", "Microphone access was previously denied. You must grant it through system settings")
 		} else {
-			AVAudioSession.sharedInstance().requestRecordPermission { (response) in
-				if response {
-					self.buttonAppearance(self.micButton, response)
-				}
+			AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
+				if !granted { return }
+				self.buttonAppearance(self.micButton, true)
 			}
 		}
 	}
 	
+	
+	private func grantButton(_ imageName: String) -> UIButton {
+		let button = UIButton(type: .custom)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5, weight: .light), forImageIn: .normal)
+		button.setImage(UIImage(systemName: imageName), for: .normal)
+		button.tintColor = .systemGray2
+		button.layer.borderWidth = 1
+		button.layer.borderColor = UIColor.systemGray5.cgColor
+		button.layer.cornerRadius = 17.5
+		button.alpha = 0
+		
+		button.transform = CGAffineTransform(translationX: 0, y: 25)
+		NSLayoutConstraint.activate([
+			button.widthAnchor.constraint(equalToConstant: 70),
+			button.heightAnchor.constraint(equalToConstant: 70)
+		])
+		return button
+	}
 	
 	private func showAlert(_ title: String, _ message: String) {
 		let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
@@ -182,22 +162,21 @@ class PermissionsController: UIViewController {
 		self.present(alert, animated: true)
 	}
 	
-	func checkPermissions() {
-		let libraryGranted = PHPhotoLibrary.authorizationStatus() == .authorized
-		buttonAppearance(libraryButton, libraryGranted)
-		
-		let cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
-		buttonAppearance(cameraButton, cameraGranted)
-		
-		let micGranted = AVAudioSession.sharedInstance().recordPermission == .granted
-		buttonAppearance(micButton, micGranted)
+	static func grantedCount() -> Int {
+		var granted = 0
+		if PHPhotoLibrary.authorizationStatus() == .authorized {
+			granted += 1
+		}
+		if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
+			granted += 1
+		}
+		if AVAudioSession.sharedInstance().recordPermission == .granted {
+			granted += 1
+		}
+		return granted
 	}
 	
 	private func buttonAppearance(_ button: UIButton, _ accessGranted: Bool) {
-		if accessGranted {
-			grantedCount += 1
-		}
-		
 		DispatchQueue.main.async {
 			if accessGranted {
 				button.backgroundColor = .systemGray2
@@ -209,17 +188,9 @@ class PermissionsController: UIViewController {
 				button.tintColor = .systemGray2
 			}
 			
-			guard let vc = self.nextViewController, self.grantedCount == 3 else { return }
-			// Circle animation
-			UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-				self.circleLogo.center = self.view.center
-				self.circleLogo.transform = CGAffineTransform.identity
-				self.circleLogo.tintColor = .systemYellow
-			}) { (_) in
-				self.present(vc, animated: true)
-			}
+			guard let vc = self.nextViewController, PermissionsController.grantedCount() == 3 else { return }
 			
-			// Buttons
+			// MARK: - Buttons
 			UIView.animate(withDuration: 0.6, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 				self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
 				self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
@@ -229,6 +200,15 @@ class PermissionsController: UIViewController {
 				self.micButton.alpha = 0
 				self.buttonNext.alpha = 0
 			}, completion: nil)
+			
+			// MARK: - Circle
+			UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+				self.circleLogo.center = self.view.center
+				self.circleLogo.transform = CGAffineTransform.identity
+				self.circleLogo.tintColor = .systemYellow
+			}) { (_) in
+				self.present(vc, animated: true)
+			}
 		}
 	}
 }

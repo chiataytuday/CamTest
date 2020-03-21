@@ -23,7 +23,7 @@ class ViewController: UIViewController {
 		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
 		let effectView = UIVisualEffectView(effect: blurEffect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		effectView.alpha = 0
+		effectView.alpha = 1
 		return effectView
 	}()
 	
@@ -79,6 +79,12 @@ class ViewController: UIViewController {
 		return label
 	}()
 	
+	private let overlayView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .black
+		return view
+	}()
+	
 	// MARK: - Touch functions
 	
 	override func viewDidLoad() {
@@ -89,8 +95,10 @@ class ViewController: UIViewController {
 		setupGrid()
 		setupControls()
 		
-    blurEffectView.frame = view.bounds
-    view.addSubview(blurEffectView)
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+			self.overlayView.alpha = 0
+			self.blurEffectView.alpha = 0
+		}, completion: nil)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -189,7 +197,7 @@ extension ViewController {
 		
 		do {
 			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
+			captureDevice.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
 			captureDevice.setExposureTargetBias(-1, completionHandler: nil)
 			captureDevice.unlockForConfiguration()
 		} catch {}
@@ -222,8 +230,6 @@ extension ViewController {
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		
 		captureSession.startRunning()
-		
-		print(exposurePointView.frame.size)
 	}
 	
 	private func setupBottomMenu() {
@@ -299,14 +305,20 @@ extension ViewController {
 		
 		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0.5)
+		focusSlider.customRange(0, 1, 0.3)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
 		
 		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
-		print(exposurePointView.frame)
+		
+		overlayView.frame = view.frame
+		view.insertSubview(overlayView, belowSubview: exposurePointView)
+		
+    blurEffectView.frame = view.bounds
+		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
+//    view.addSubview(blurEffectView)
 	}
 	
 	// MARK: - TouchUp & TouchDown
