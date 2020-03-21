@@ -92,7 +92,8 @@ class PlayerController: UIViewController {
 		stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.alignment = .center
-		stackView.distribution = .equalSpacing
+		stackView.distribution = .fillProportionally
+		stackView.spacing = -1
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -132,7 +133,7 @@ class PlayerController: UIViewController {
 			sender.backgroundColor = .systemGray6
 		}, completion: nil)
 		
-		UIViewPropertyAnimator(duration: 0.75, curve: .easeOut) {
+		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {
 			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
 		}.startAnimation()
 	}
