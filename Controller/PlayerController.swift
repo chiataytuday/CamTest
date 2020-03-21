@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import Photos
 
 class PlayerController: UIViewController {
 	
@@ -79,15 +80,17 @@ class PlayerController: UIViewController {
 	
 	private func setupInterface() {
 		// Buttons
-		exportButton.addTarget(self, action: #selector(exportTouchDown), for: .touchDown)
-		exportButton.addTarget(self, action: #selector(exportTouchUp), for: [.touchUpInside, .touchUpOutside])
+		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
+		exportButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
+		exportButton.addTarget(self, action: #selector(exportTouchUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
 			exportButton.widthAnchor.constraint(equalToConstant: 110),
 			exportButton.heightAnchor.constraint(equalToConstant: 50),
 		])
 		
-		backButton.addTarget(self, action: #selector(backTouchDown), for: .touchDown)
-		backButton.addTarget(self, action: #selector(backTouchUp), for: [.touchUpInside, .touchUpOutside])
+		backButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
+		backButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
+		backButton.addTarget(self, action: #selector(backTouchUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
 			backButton.widthAnchor.constraint(equalToConstant: 50),
 			backButton.heightAnchor.constraint(equalToConstant: 50)
@@ -97,7 +100,6 @@ class PlayerController: UIViewController {
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.alignment = .center
 		stackView.distribution = .equalSpacing
-		stackView.spacing = -5
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -145,34 +147,57 @@ class PlayerController: UIViewController {
 //		}
 //	}
 	
-	@objc private func exportTouchDown() {
-		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+	@objc private func buttonTouchDown(sender: UIButton) {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.exportButton.backgroundColor = .systemGray6
-		}, completion: nil)
-	}
-	
-	@objc private func exportTouchUp() {
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.stackView.transform  = CGAffineTransform.identity
-			self.exportButton.backgroundColor = .black
-		}, completion: nil)
-	}
-	
-	@objc private func backTouchDown() {
-		UIView.animate(withDuration: 0.75, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.backButton.backgroundColor = .systemGray6
+			sender.backgroundColor = .systemGray6
 		}, completion: nil)
 		
-		UIViewPropertyAnimator(duration: 0.75, curve: .easeOut) {
-			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
-		}.startAnimation()
+		if sender == backButton {
+			UIViewPropertyAnimator(duration: 0.75, curve: .easeOut) {
+				self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
+			}.startAnimation()
+		}
 	}
 	
-	@objc private func backTouchUp() {
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.stackView.transform  = CGAffineTransform.identity
+	@objc private func buttonTouchUpOutside(sender: UIButton) {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.stackView.transform = CGAffineTransform.identity
+			self.layer.transform = CATransform3DIdentity
+			sender.backgroundColor = .black
+		}, completion: nil)
+	}
+	
+	private func exportAction(_ status: PHAuthorizationStatus) {
+		switch status {
+			case .denied:
+				if let url = URL(string: UIApplication.openSettingsURLString) {
+					if UIApplication.shared.canOpenURL(url) {
+						UIApplication.shared.open(url, options: [:], completionHandler: nil)
+					}
+				}
+			case .authorized:
+				print("ok")
+			default:
+				print("idk")
+		}
+	}
+	
+	@objc private func exportTouchUpInside(sender: UIButton) {
+		buttonTouchUpOutside(sender: sender)
+		let status = PHPhotoLibrary.authorizationStatus()
+		if status == .notDetermined {
+			PHPhotoLibrary.requestAuthorization { (status) in
+				self.exportAction(status)
+			}
+		} else {
+			exportAction(status)
+		}
+	}
+	
+	@objc private func backTouchUpInside(sender: UIButton) {
+		buttonTouchUpOutside(sender: sender)
+		UIView.animate(withDuration: 0.45, delay: 0, options: .curveEaseOut, animations: {
 			self.blurEffectView.alpha = 1
 		}, completion: nil)
 		dismiss(animated: true, completion: nil)
@@ -185,7 +210,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.3, .dismiss)
+		return AnimationController(0.32, .dismiss)
 	}
 }
 

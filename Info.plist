@@ -20,12 +20,12 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To export captured videos</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To capture</string>
+	<string>To record video</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>To record audio</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>To save</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
