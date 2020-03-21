@@ -224,7 +224,7 @@ extension ViewController {
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
 		previewLayer.frame.size.height -= 81.5
-		previewLayer.cornerRadius = 17.5
+		previewLayer.cornerRadius = 16
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		
@@ -444,20 +444,10 @@ extension ViewController {
 	
 	private func updateExposureValue() {
 		captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
-//		do {
-//			try captureDevice.lockForConfiguration()
-//			captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
-//			captureDevice.unlockForConfiguration()
-//		} catch {}
 	}
 	
 	private func updateLensPosition() {
 		captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-//		do {
-//			try captureDevice.lockForConfiguration()
-//			captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-//			captureDevice.unlockForConfiguration()
-//		} catch {}
 	}
 	
 	private func secondaryMenuButton(_ imageName: String) -> UIButton {
@@ -467,7 +457,7 @@ extension ViewController {
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.backgroundColor = .black
 		button.tintColor = .systemGray
-		button.layer.cornerRadius = 20
+		button.layer.cornerRadius = 18
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.adjustsImageWhenHighlighted = false
@@ -483,14 +473,17 @@ extension ViewController {
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-		if videoFileOutput.recordedDuration.seconds > 0.5 {
-			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.torchMode = .off
-				captureDevice.unlockForConfiguration()
-			} catch {}
-			
+		if videoFileOutput.recordedDuration.seconds > 0.25 {
 			let playerController = PlayerController()
+			playerController.torchWasEnabled = captureDevice.isTorchActive
+			if captureDevice.isTorchActive {
+				do {
+					try captureDevice.lockForConfiguration()
+					captureDevice.torchMode = .off
+					captureDevice.unlockForConfiguration()
+				} catch {}
+			}
+			
 			playerController.setupPlayer(outputFileURL) {
 				playerController.modalPresentationStyle = .overFullScreen
 				self.present(playerController, animated: true)

@@ -17,6 +17,8 @@ class PlayerController: UIViewController {
 	var looper: AVPlayerLooper?
 	var layer: AVPlayerLayer!
 	
+	var torchWasEnabled: Bool!
+	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -70,6 +72,8 @@ class PlayerController: UIViewController {
 		view.clipsToBounds = true
 		view.layer.cornerRadius = 17.5
 		transitioningDelegate = self
+		
+		
 	}
 	
 	private func setupInterface() {

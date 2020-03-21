@@ -45,9 +45,16 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		guard let viewController = transitionContext.viewController(forKey: .to) as? ViewController else { return }
+		guard let viewController = transitionContext.viewController(forKey: .to) as? ViewController, let playerController = transitionContext.viewController(forKey: .from) as? PlayerController else { return }
 		
 		viewController.resetControls()
+		if playerController.torchWasEnabled {
+			do {
+				try viewController.captureDevice.lockForConfiguration()
+				viewController.captureDevice.torchMode = .on
+				viewController.captureDevice.unlockForConfiguration()
+			} catch {}
+		}
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
