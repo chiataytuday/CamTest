@@ -11,10 +11,12 @@ import Photos
 
 class PermissionsController: UIViewController {
 	
+	var nextViewController: ViewController!
+	
 	let circleLogo: UIImageView = {
 		let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemGray3
+		imageView.tintColor = .systemGray
 		return imageView
 	}()
 	
@@ -36,6 +38,7 @@ class PermissionsController: UIViewController {
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.layer.cornerRadius = 17.5
+		button.alpha = 0
 		return button
 	}()
 	
@@ -48,6 +51,7 @@ class PermissionsController: UIViewController {
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.layer.cornerRadius = 17.5
+		button.alpha = 0
 		return button
 	}()
 	
@@ -60,16 +64,26 @@ class PermissionsController: UIViewController {
 		button.layer.borderWidth = 1
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.layer.cornerRadius = 17.5
+		button.alpha = 0
 		return button
 	}()
+	
+	var grantedCount = 0
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		circleLogo.center = CGPoint(x: view.center.x, y: 80)
-		circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+		// MARK: - Circle
+		circleLogo.center = CGPoint(x: view.center.x, y: view.center.y)
 		view.addSubview(circleLogo)
+		
+		UIView.animate(withDuration: 0.6, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+			self.circleLogo.center.y = 80
+			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+			self.circleLogo.tintColor = .systemGray3
+		}, completion: nil)
+		
+		// MARK: - Buttons
 		
 		view.addSubview(libraryButton)
 		libraryButton.addTarget(self, action: #selector(libraryButtonAction), for: .touchDown)
@@ -79,7 +93,7 @@ class PermissionsController: UIViewController {
 			libraryButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 			libraryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
-		
+
 		view.addSubview(cameraButton)
 		cameraButton.addTarget(self, action: #selector(cameraButtonAction), for: .touchDown)
 		NSLayoutConstraint.activate([
@@ -88,7 +102,7 @@ class PermissionsController: UIViewController {
 			cameraButton.trailingAnchor.constraint(equalTo: libraryButton.leadingAnchor, constant: -15),
 			cameraButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 		])
-		
+
 		view.addSubview(micButton)
 		micButton.addTarget(self, action: #selector(micButtonAction), for: .touchDown)
 		NSLayoutConstraint.activate([
@@ -98,6 +112,15 @@ class PermissionsController: UIViewController {
 			micButton.leadingAnchor.constraint(equalTo: libraryButton.trailingAnchor, constant: 15)
 		])
 		
+		UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.libraryButton.alpha = 1
+			self.cameraButton.alpha = 1
+			self.micButton.alpha = 1
+		}, completion: nil)
+
 		view.addSubview(buttonNext)
 		NSLayoutConstraint.activate([
 			buttonNext.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -145,6 +168,7 @@ class PermissionsController: UIViewController {
 		}
 	}
 	
+	
 	private func showAlert(_ title: String, _ message: String) {
 		let alert = UIAlertController(title: title, message: message, preferredStyle: UIAlertController.Style.alert)
 		alert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: nil))
@@ -158,16 +182,22 @@ class PermissionsController: UIViewController {
 		self.present(alert, animated: true)
 	}
 	
-	private func checkPermissions() {
+	func checkPermissions() {
 		let libraryGranted = PHPhotoLibrary.authorizationStatus() == .authorized
 		buttonAppearance(libraryButton, libraryGranted)
+		
 		let cameraGranted = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
 		buttonAppearance(cameraButton, cameraGranted)
+		
 		let micGranted = AVAudioSession.sharedInstance().recordPermission == .granted
 		buttonAppearance(micButton, micGranted)
 	}
 	
 	private func buttonAppearance(_ button: UIButton, _ accessGranted: Bool) {
+		if accessGranted {
+			grantedCount += 1
+		}
+		
 		DispatchQueue.main.async {
 			if accessGranted {
 				button.backgroundColor = .systemGray2
@@ -178,6 +208,27 @@ class PermissionsController: UIViewController {
 				button.layer.borderColor = UIColor.systemGray5.cgColor
 				button.tintColor = .systemGray2
 			}
+			
+			guard let vc = self.nextViewController, self.grantedCount == 3 else { return }
+			// Circle animation
+			UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+				self.circleLogo.center = self.view.center
+				self.circleLogo.transform = CGAffineTransform.identity
+				self.circleLogo.tintColor = .systemYellow
+			}) { (_) in
+				self.present(vc, animated: true)
+			}
+			
+			// Buttons
+			UIView.animate(withDuration: 0.6, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+				self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
+				self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
+				self.micButton.transform = CGAffineTransform(translationX: 0, y: 20)
+				self.libraryButton.alpha = 0
+				self.cameraButton.alpha = 0
+				self.micButton.alpha = 0
+				self.buttonNext.alpha = 0
+			}, completion: nil)
 		}
 	}
 }
