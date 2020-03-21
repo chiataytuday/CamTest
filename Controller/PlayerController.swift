@@ -44,7 +44,7 @@ class PlayerController: UIViewController {
 	}()
 	
 	let blurEffectView: UIVisualEffectView = {
-		let effect = UIBlurEffect(style: UIBlurEffect.Style.regular)
+		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		view.alpha = 1
@@ -75,7 +75,6 @@ class PlayerController: UIViewController {
 		view.clipsToBounds = true
 		view.layer.cornerRadius = 17.5
 		transitioningDelegate = self
-		view.backgroundColor = .black
 	}
 	
 	private func setupInterface() {
@@ -186,7 +185,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.4, .dismiss)
+		return AnimationController(0.3, .dismiss)
 	}
 }
 
