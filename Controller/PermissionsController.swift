@@ -162,20 +162,6 @@ class PermissionsController: UIViewController {
 		self.present(alert, animated: true)
 	}
 	
-	static func grantedCount() -> Int {
-		var granted = 0
-		if PHPhotoLibrary.authorizationStatus() == .authorized {
-			granted += 1
-		}
-		if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
-			granted += 1
-		}
-		if AVAudioSession.sharedInstance().recordPermission == .granted {
-			granted += 1
-		}
-		return granted
-	}
-	
 	private func buttonAppearance(_ button: UIButton, _ accessGranted: Bool) {
 		DispatchQueue.main.async {
 			if accessGranted {
@@ -210,5 +196,19 @@ class PermissionsController: UIViewController {
 				self.present(vc, animated: true)
 			}
 		}
+	}
+	
+	static func grantedCount() -> Int {
+		var granted = 0
+		if PHPhotoLibrary.authorizationStatus() == .authorized {
+			granted += 1
+		}
+		if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
+			granted += 1
+		}
+		if AVAudioSession.sharedInstance().recordPermission == .granted {
+			granted += 1
+		}
+		return granted
 	}
 }

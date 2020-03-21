@@ -96,7 +96,7 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -35)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -15)
 		])
 		
 		view.addSubview(durationBar)

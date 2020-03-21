@@ -23,7 +23,7 @@ class ViewController: UIViewController {
 		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
 		let effectView = UIVisualEffectView(effect: blurEffect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		effectView.alpha = 1
+		effectView.alpha = 0
 		return effectView
 	}()
 	
@@ -82,6 +82,7 @@ class ViewController: UIViewController {
 	private let overlayView: UIView = {
 		let view = UIView()
 		view.backgroundColor = .black
+		view.alpha = 0
 		return view
 	}()
 	
@@ -95,10 +96,10 @@ class ViewController: UIViewController {
 		setupGrid()
 		setupControls()
 		
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-			self.overlayView.alpha = 0
-			self.blurEffectView.alpha = 0
-		}, completion: nil)
+//		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveLinear, animations: {
+//			self.overlayView.alpha = 0
+//			self.blurEffectView.alpha = 0
+//		}, completion: nil)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -188,7 +189,7 @@ extension ViewController {
 	private func setupCamera() {
 		// Session
 		captureSession = AVCaptureSession()
-		captureSession.sessionPreset = .hd4K3840x2160
+		captureSession.sessionPreset = .hd1920x1080
 		
 		// Devices
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
@@ -224,7 +225,7 @@ extension ViewController {
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
-		previewLayer.frame.size.height -= 100
+		previewLayer.frame.size.height -= 80
 		previewLayer.cornerRadius = 17.5
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
@@ -238,7 +239,7 @@ extension ViewController {
 			recordButton.widthAnchor.constraint(equalToConstant: 60),
 			recordButton.heightAnchor.constraint(equalToConstant: 60),
 			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
+			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
