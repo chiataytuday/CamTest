@@ -21,11 +21,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To export captured videos</string>
+	<string>Enable photo library access so you can save videos</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To record video</string>
+	<string>Enable camera access so you can record a video</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>To record audio</string>
+	<string>Enable microphone access to record video with sound</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
