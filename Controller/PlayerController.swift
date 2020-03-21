@@ -61,8 +61,8 @@ class PlayerController: UIViewController {
 	
 
 	override func viewDidLayoutSubviews() {
-		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 15.5)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 15.5)
+		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
 	}
 	
 	override func viewDidLoad() {
@@ -96,7 +96,7 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -15)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
 		])
 		
 		view.addSubview(durationBar)
@@ -127,7 +127,7 @@ class PlayerController: UIViewController {
 	
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			sender.backgroundColor = .systemGray6
 		}, completion: nil)
@@ -138,7 +138,7 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func buttonTouchUpOutside(sender: UIButton) {
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform.identity
 			self.layer.transform = CATransform3DIdentity
 			sender.backgroundColor = .black
@@ -152,7 +152,7 @@ class PlayerController: UIViewController {
 	
 	@objc private func backTouchUpInside(sender: UIButton) {
 		buttonTouchUpOutside(sender: sender)
-		UIView.animate(withDuration: 0.45, delay: 0, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurEffectView.alpha = 1
 		}, completion: nil)
 		dismiss(animated: true, completion: nil)
@@ -161,7 +161,7 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.4, .present)
+		return AnimationController(0.35, .present)
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {

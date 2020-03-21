@@ -75,7 +75,7 @@ class PermissionsController: UIViewController {
 		
 		// MARK: - Animation
 		
-		UIView.animate(withDuration: 0.6, delay: 0.27, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0.27, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
@@ -88,7 +88,7 @@ class PermissionsController: UIViewController {
 	private func setupCircle() {
 		circleLogo.center = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
 		view.addSubview(circleLogo)
-		UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+		UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
 			self.circleLogo.center.y = 80
 			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
 			self.circleLogo.tintColor = .systemGray3
@@ -140,6 +140,7 @@ class PermissionsController: UIViewController {
 		button.layer.borderColor = UIColor.systemGray5.cgColor
 		button.layer.cornerRadius = 17.5
 		button.alpha = 0
+		button.adjustsImageWhenHighlighted = false
 		
 		button.transform = CGAffineTransform(translationX: 0, y: 25)
 		NSLayoutConstraint.activate([
@@ -177,7 +178,7 @@ class PermissionsController: UIViewController {
 			guard let vc = self.nextViewController, PermissionsController.grantedCount() == 3 else { return }
 			
 			// MARK: - Buttons
-			UIView.animate(withDuration: 0.6, delay: 0.15, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.45, delay: 0.12, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 				self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
 				self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
 				self.micButton.transform = CGAffineTransform(translationX: 0, y: 20)
@@ -188,7 +189,7 @@ class PermissionsController: UIViewController {
 			}, completion: nil)
 			
 			// MARK: - Circle
-			UIView.animate(withDuration: 0.6, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+			UIView.animate(withDuration: 0.4, delay: 0.2, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
 				self.circleLogo.center = self.view.center
 				self.circleLogo.transform = CGAffineTransform.identity
 				self.circleLogo.tintColor = .systemYellow

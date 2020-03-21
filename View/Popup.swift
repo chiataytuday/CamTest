@@ -63,14 +63,14 @@ class Popup: UIView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: 0, y: 20)
 			self.alpha = 1
 		}, completion: nil)
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
 		}, completion: nil)

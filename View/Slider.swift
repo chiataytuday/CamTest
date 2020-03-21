@@ -64,7 +64,7 @@ class Slider: UIView {
 		offset = progressView.frame.height + touch.y
 		let x = sliderPosition == .left ? frame.width/2 : -frame.width/2
 
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		}, completion: nil)
 		popup?.setImage(imageView!.image!)
@@ -92,7 +92,7 @@ class Slider: UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveEaseIn, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveEaseIn, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 		})
 		popup?.hide()

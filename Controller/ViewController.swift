@@ -105,6 +105,9 @@ class ViewController: UIViewController {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard touchOffset == nil, let touch = touches.first?.location(in: view),
 			exposurePointView.frame.contains(touch) else { return }
+		do {
+			try captureDevice.lockForConfiguration()
+		} catch {}
 
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
@@ -116,24 +119,22 @@ class ViewController: UIViewController {
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: view) else { return }
 		if let offset = touchOffset {
-			UIViewPropertyAnimator(duration: 0.1, curve: .easeOut) {
+			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
 				self.exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			}.startAnimation()
 			let point = previewLayer.captureDevicePointConverted(fromLayerPoint: touch)
 			let mode = captureDevice.exposureMode
-			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.exposureMode = .custom
-				captureDevice.exposurePointOfInterest = point
-				captureDevice.exposureMode = mode
-				captureDevice.unlockForConfiguration()
-			} catch {}
-			
+			captureDevice.exposureMode = .custom
+			captureDevice.exposurePointOfInterest = point
+			captureDevice.exposureMode = mode
 		} else {
 			if let slider = activeSlider {
 				slider.touchesMoved(touches, with: event)
 			} else {
 				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
+				do {
+					try captureDevice.lockForConfiguration()
+				} catch {}
 				activeSlider?.touchesBegan(touches, with: event)
 			}
 		}
@@ -144,22 +145,19 @@ class ViewController: UIViewController {
 		activeSlider = nil
 		
 		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 100 {
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-				self.exposurePointView.center.y = self.view.frame.height - 100 - self.exposurePointView.frame.height/2
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
+				self.exposurePointView.center.y = self.view.frame.height - 81.5 - self.exposurePointView.frame.height/2
 			}, completion: nil)
 			let point = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
 			let mode = captureDevice.exposureMode
-			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.exposureMode = .custom
-				captureDevice.exposurePointOfInterest = point
-				captureDevice.exposureMode = mode
-				captureDevice.unlockForConfiguration()
-			} catch {}
+			captureDevice.exposureMode = .custom
+			captureDevice.exposurePointOfInterest = point
+			captureDevice.exposureMode = mode
 		}
+		captureDevice.unlockForConfiguration()
 		touchOffset = nil
 		
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
 		}, completion: nil)
 	}
@@ -225,7 +223,7 @@ extension ViewController {
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
-		previewLayer.frame.size.height -= 80
+		previewLayer.frame.size.height -= 81.5
 		previewLayer.cornerRadius = 17.5
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
@@ -236,10 +234,10 @@ extension ViewController {
 	private func setupBottomMenu() {
 		view.addSubview(recordButton)
 		NSLayoutConstraint.activate([
-			recordButton.widthAnchor.constraint(equalToConstant: 60),
-			recordButton.heightAnchor.constraint(equalToConstant: 60),
+			recordButton.widthAnchor.constraint(equalToConstant: 57.5),
+			recordButton.heightAnchor.constraint(equalToConstant: 57.5),
 			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10)
+			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -12)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
@@ -326,7 +324,7 @@ extension ViewController {
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.recordButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
@@ -343,7 +341,7 @@ extension ViewController {
 			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
 			durationBarAnim?.startAnimation()
 			timerLabel.transform = CGAffineTransform(translationX: 5, y: 0)
-			UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
 				self.timerLabel.alpha = 1
 				self.timerLabel.transform = CGAffineTransform.identity
 			}, completion: nil)
@@ -363,17 +361,17 @@ extension ViewController {
 			recordingTimer?.invalidate()
 			durationBarAnim?.stopAnimation(true)
 			durationBarAnim = nil
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.durationBar.frame.size.width = 0
 			}, completion: nil)
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-				self.timerLabel.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
+			UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
+				self.timerLabel.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
 				self.timerLabel.alpha = 0
 			}, completion: nil)
 			
-			if videoFileOutput.recordedDuration.seconds > 0.5 {
+			if videoFileOutput.recordedDuration.seconds > 0.25 {
 				recordButton.isUserInteractionEnabled = false
-				UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+				UIView.animate(withDuration: 0.3, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 					self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
 					self.lockButton.alpha = 0
 				}, completion: nil)
@@ -384,7 +382,7 @@ extension ViewController {
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.recordButton.transform = CGAffineTransform.identity
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = radius
@@ -392,7 +390,7 @@ extension ViewController {
 	}
 	
 	@objc private func lockTouchDown() {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.lockButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.lockButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: -.pi/3)
 		}, completion: nil)
@@ -417,7 +415,7 @@ extension ViewController {
 	}
 	
 	@objc private func torchTouchDown() {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.torchButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.torchButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: .pi/4)
 		}, completion: nil)
@@ -445,19 +443,21 @@ extension ViewController {
 	// MARK: - Secondary
 	
 	private func updateExposureValue() {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
-			captureDevice.unlockForConfiguration()
-		} catch {}
+		captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+//		do {
+//			try captureDevice.lockForConfiguration()
+//			captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+//			captureDevice.unlockForConfiguration()
+//		} catch {}
 	}
 	
 	private func updateLensPosition() {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-			captureDevice.unlockForConfiguration()
-		} catch {}
+		captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+//		do {
+//			try captureDevice.lockForConfiguration()
+//			captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+//			captureDevice.unlockForConfiguration()
+//		} catch {}
 	}
 	
 	private func secondaryMenuButton(_ imageName: String) -> UIButton {

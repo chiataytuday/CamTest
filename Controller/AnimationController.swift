@@ -49,7 +49,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		
 		viewController.resetControls()
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
 		}, completion: nil)
 		
@@ -64,9 +64,9 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		guard let viewController = transitionContext.viewController(forKey: .from) as? ViewController, let playerController = transitionContext.viewController(forKey: .to) as? PlayerController else { return }
 		
-		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.1, y: 0.1).rotated(by: .pi/6)
+		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.2, y: 0.2).rotated(by: .pi/7)
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			viewController.view.alpha = 0.15
 			playerController.blurEffectView.alpha = 0
 			viewToAnimate.transform = CGAffineTransform.identity
