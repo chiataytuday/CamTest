@@ -122,16 +122,14 @@ class ViewController: UIViewController {
 			captureDevice.exposurePointOfInterest = point
 			captureDevice.exposureMode = mode
 		} else {
-			if let slider = activeSlider, slider.enabled {
+			if let slider = activeSlider {
 				slider.touchesMoved(touches, with: event)
 			} else {
 				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
-				if activeSlider!.enabled {
-					do {
-						try captureDevice.lockForConfiguration()
-					} catch {}
-					activeSlider?.touchesBegan(touches, with: event)
-				}
+				do {
+					try captureDevice.lockForConfiguration()
+				} catch {}
+				activeSlider?.touchesBegan(touches, with: event)
 			}
 		}
 	}
@@ -190,12 +188,12 @@ extension ViewController {
 		let devices = discoverySession.devices
 		captureDevice = devices.first { $0.position == .back }
 		
-//		do {
-//			try captureDevice.lockForConfiguration()
-//			captureDevice.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
-//			captureDevice.setExposureTargetBias(-1, completionHandler: nil)
-//			captureDevice.unlockForConfiguration()
-//		} catch {}
+		do {
+			try captureDevice.lockForConfiguration()
+			captureDevice.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
+			captureDevice.setExposureTargetBias(-0.5, completionHandler: nil)
+			captureDevice.unlockForConfiguration()
+		} catch {}
 		
 		// Input-output
 		do {
@@ -219,8 +217,6 @@ extension ViewController {
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
-//		previewLayer.frame.size.height -= 81.5
-//		previewLayer.cornerRadius = 17.5
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		
@@ -237,8 +233,6 @@ extension ViewController {
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
-		lensButton.addTarget(self, action: #selector(lensTouchDown), for: .touchDown)
-		exposureButton.addTarget(self, action: #selector(exposureTouchDown), for: .touchDown)
 	}
 	
 	private func layoutBottomBar() {
@@ -247,7 +241,7 @@ extension ViewController {
 		torchButton = secondaryMenuButton("bolt.fill")
 		lensButton = secondaryMenuButton("globe")
 
-		let buttons: [UIButton] = [exposureButton, lockButton, torchButton, recordButton, lensButton]
+		let buttons: [UIButton] = [torchButton, recordButton, lockButton]
 		for button in buttons {
 			NSLayoutConstraint.activate([
 				button.widthAnchor.constraint(equalToConstant: 57.5),
@@ -259,7 +253,7 @@ extension ViewController {
 		stackView.distribution = .fillProportionally
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
@@ -285,16 +279,16 @@ extension ViewController {
 		let popup = Popup(CGPoint(x: view.center.x, y: 20))
 		view.addSubview(popup)
 		
-		exposureSlider = Slider(CGSize(width: 40, height: 240), view.frame, .left)
+		exposureSlider = Slider(CGSize(width: 40, height: 320), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.customRange(-4, 4, 0)
+		exposureSlider.customRange(-4, 4, -0.5)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureValue
 		view.addSubview(exposureSlider)
 		
-		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
+		focusSlider = Slider(CGSize(width: 40, height: 320), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0)
+		focusSlider.customRange(0, 1, 0.3)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
@@ -310,42 +304,6 @@ extension ViewController {
 	}
 	
 	// MARK: - TouchUp & TouchDown
-	
-	@objc private func exposureTouchDown() {
-		exposureSlider.enabled = !exposureSlider.enabled
-		// offset, duration, .curve
-		let data: (CGFloat, Double, UIView.AnimationOptions) = exposureSlider.enabled ? (15, 0.35, .curveEaseInOut) : (-15, 0.2, .curveEaseOut)
-		UIView.animate(withDuration: data.1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: data.2, animations: {
-			self.exposureSlider.frame.origin.x += data.0
-		}, completion: nil)
-		
-		let targetBias = !exposureSlider.enabled ? 0 : Float(exposureSlider.value)
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setExposureTargetBias(targetBias, completionHandler: nil)
-			captureDevice.unlockForConfiguration()
-		} catch {}
-	}
-	
-	@objc private func lensTouchDown() {
-		focusSlider.enabled = !focusSlider.enabled
-		let data: (CGFloat, Double, UIView.AnimationOptions) = focusSlider.enabled ? (-15, 0.35, .curveEaseInOut) : (15, 0.2, .curveEaseOut)
-		UIView.animate(withDuration: data.1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: data.2, animations: {
-			self.focusSlider.frame.origin.x += data.0
-		}, completion: nil)
-		
-		do {
-			try captureDevice.lockForConfiguration()
-			if !focusSlider.enabled {
-				captureDevice.focusMode = .continuousAutoFocus
-			} else {
-				captureDevice.focusMode = .autoFocus
-				focusSlider.setValue(CGFloat(captureDevice.lensPosition))
-				captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-			}
-			captureDevice.unlockForConfiguration()
-		} catch {}
-	}
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
