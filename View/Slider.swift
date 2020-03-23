@@ -32,11 +32,12 @@ class Slider: UIView {
 		layer.cornerRadius = 20
 		clipsToBounds = true
 		backgroundColor = .black
-		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2, y: parentFrame.midY - 50)
+		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2, y: parentFrame.midY)
 		
 		progressView = UIView(frame: bounds)
 		progressView.backgroundColor = .white
 		addSubview(progressView)
+		isHidden = true
 	}
 	
 	func setImage(_ imageName: String) {

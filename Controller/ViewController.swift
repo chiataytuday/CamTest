@@ -38,9 +38,6 @@ class ViewController: UIViewController {
 		let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.backgroundColor = .black
-//		button.layer.cornerRadius = 20
-//		button.layer.borderColor = UIColor.systemGray5.cgColor
-//		button.layer.borderWidth = 1
 		return button
 	}()
 	
@@ -55,7 +52,6 @@ class ViewController: UIViewController {
 	
 	private var exposureButton, lockButton, torchButton, lensButton: UIButton!
 	var stackView: UIStackView!
-//	private var torchButton, lockButton: UIButton!
 	
 	let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
@@ -65,20 +61,10 @@ class ViewController: UIViewController {
 	}()
 	
 	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 1))
 		bar.backgroundColor = .systemRed
 		bar.layer.cornerRadius = 0.25
 		return bar
-	}()
-	
-	private let timerLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.text = "'15"
-		label.font = UIFont.systemFont(ofSize: 16, weight: .light)
-		label.textColor = .systemGray3
-		label.alpha = 0
-		return label
 	}()
 	
 	private let overlayView: UIView = {
@@ -136,14 +122,16 @@ class ViewController: UIViewController {
 			captureDevice.exposurePointOfInterest = point
 			captureDevice.exposureMode = mode
 		} else {
-			if let slider = activeSlider {
+			if let slider = activeSlider, !slider.isHidden {
 				slider.touchesMoved(touches, with: event)
 			} else {
 				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
-				do {
-					try captureDevice.lockForConfiguration()
-				} catch {}
-				activeSlider?.touchesBegan(touches, with: event)
+				if !activeSlider!.isHidden {
+					do {
+						try captureDevice.lockForConfiguration()
+					} catch {}
+					activeSlider?.touchesBegan(touches, with: event)
+				}
 			}
 		}
 	}
@@ -249,6 +237,8 @@ extension ViewController {
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
+		lensButton.addTarget(self, action: #selector(lensTouchDown), for: .touchDown)
+		exposureButton.addTarget(self, action: #selector(exposureTouchDown), for: .touchDown)
 	}
 	
 	private func layoutBottomBar() {
@@ -280,15 +270,9 @@ extension ViewController {
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
-		
-//		view.addSubview(timerLabel)
-//		NSLayoutConstraint.activate([
-//			timerLabel.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-//			timerLabel.centerXAnchor.constraint(equalTo: lockButton.centerXAnchor)
-//		])
-//
-//		view.addSubview(durationBar)
-//		durationBar.frame.origin.y = view.frame.height - 0.5
+
+		view.addSubview(durationBar)
+		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
 	}
 	
 	public func resetControls() {
@@ -303,14 +287,14 @@ extension ViewController {
 		
 		exposureSlider = Slider(CGSize(width: 40, height: 240), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.customRange(-4, 4, -1)
+		exposureSlider.customRange(-4, 4, 0)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureValue
 		view.addSubview(exposureSlider)
 		
 		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0.5)
+		focusSlider.customRange(0, 1, 0)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
@@ -323,15 +307,37 @@ extension ViewController {
 		
     blurEffectView.frame = view.bounds
 		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
-//    view.addSubview(blurEffectView)
 	}
 	
 	// MARK: - TouchUp & TouchDown
 	
+	@objc private func exposureTouchDown() {
+		exposureSlider.isHidden = !exposureSlider.isHidden
+		let targetBias = exposureSlider.isHidden ? 0 : Float(exposureSlider.value)
+		do {
+			try captureDevice.lockForConfiguration()
+			captureDevice.setExposureTargetBias(targetBias, completionHandler: nil)
+			captureDevice.unlockForConfiguration()
+		} catch {}
+	}
+	
+	@objc private func lensTouchDown() {
+		focusSlider.isHidden = !focusSlider.isHidden
+		do {
+			try captureDevice.lockForConfiguration()
+			if focusSlider.isHidden {
+				captureDevice.focusMode = .continuousAutoFocus
+			} else {
+				focusSlider.value = CGFloat(captureDevice.lensPosition)
+				captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+			}
+			captureDevice.unlockForConfiguration()
+		} catch {}
+	}
+	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.recordButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 		}, completion: nil)
@@ -346,21 +352,6 @@ extension ViewController {
 			})
 			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
 			durationBarAnim?.startAnimation()
-			timerLabel.transform = CGAffineTransform(translationX: 5, y: 0)
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
-				self.timerLabel.alpha = 1
-				self.timerLabel.transform = CGAffineTransform.identity
-			}, completion: nil)
-			
-			var sec = 15
-			timerLabel.text = "'\(sec)"
-			recordingTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { (timer) in
-				if sec == 0 {
-					timer.invalidate()
-				}
-				sec -= 1
-				self.timerLabel.text = "'\(sec)"
-			}
 			
 		} else {
 			videoFileOutput.stopRecording()
@@ -370,17 +361,9 @@ extension ViewController {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.durationBar.frame.size.width = 0
 			}, completion: nil)
-			UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
-				self.timerLabel.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-				self.timerLabel.alpha = 0
-			}, completion: nil)
 			
 			if videoFileOutput.recordedDuration.seconds > 0.25 {
 				recordButton.isUserInteractionEnabled = false
-				UIView.animate(withDuration: 0.3, delay: 0.24, usingSpringWithDamping: 0.75, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-					self.lockButton.transform = CGAffineTransform(scaleX: 0.6, y: 0.6)
-					self.lockButton.alpha = 0
-				}, completion: nil)
 				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 					self.blurEffectView.alpha = 1
 				}, completion: nil)
@@ -389,7 +372,6 @@ extension ViewController {
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.recordButton.transform = CGAffineTransform.identity
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = radius
 		}, completion: nil)
@@ -405,17 +387,15 @@ extension ViewController {
 	}
 	
 	@objc private func secondaryTouchDown(sender: UIButton) {
-		let color: UIColor
 		if sender.tag == 0 {
-			color = .systemGray
+			sender.tintColor = .systemGray
 			sender.tag = 1
 		} else {
-			color = .systemGray5
+			sender.tintColor = .systemGray5
 			sender.tag = 0
 		}
 		
 		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/3)
-		sender.tintColor = color
 		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			sender.imageView?.transform = CGAffineTransform.identity
 		}, completion: nil)
