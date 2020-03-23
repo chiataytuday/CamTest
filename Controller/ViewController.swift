@@ -247,7 +247,7 @@ extension ViewController {
 		torchButton = secondaryMenuButton("bolt.fill")
 		lensButton = secondaryMenuButton("globe")
 
-		let buttons: [UIButton] = [exposureButton, lockButton, recordButton, torchButton, lensButton]
+		let buttons: [UIButton] = [exposureButton, lockButton, torchButton, recordButton, lensButton]
 		for button in buttons {
 			NSLayoutConstraint.activate([
 				button.widthAnchor.constraint(equalToConstant: 57.5),
@@ -352,6 +352,7 @@ extension ViewController {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
+			self.recordButton.backgroundColor = UIColor(white: 0.075, alpha: 1)
 		}, completion: nil)
 	}
 	
@@ -359,6 +360,7 @@ extension ViewController {
 		isRecording = !isRecording
 		if isRecording {
 			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)
+			self.recordButton.backgroundColor = .systemGray6
 			durationBarAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 				self.durationBar.frame.size.width = self.view.frame.width
 			})
@@ -383,9 +385,13 @@ extension ViewController {
 		}
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
+		let color: UIColor = isRecording ? .systemGray6 : .black
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = radius
+			if !self.isRecording {
+				self.recordButton.backgroundColor = color
+			}
 		}, completion: nil)
 	}
 	
