@@ -12,11 +12,10 @@ import Photos
 
 class PlayerController: UIViewController {
 	
-	var url: URL!
-	var stackView: UIStackView!
-	var looper: AVPlayerLooper?
-	var layer: AVPlayerLayer!
-	
+	private var url: URL!
+	private var stackView: UIStackView!
+	private var looper: AVPlayerLooper?
+	private var layer: AVPlayerLayer!
 	var torchWasEnabled: Bool!
 	
 	private let exportButton: UIButton = {
@@ -53,6 +52,7 @@ class PlayerController: UIViewController {
 		view.alpha = 1
 		return view
 	}()
+	
 
 	override func viewDidLayoutSubviews() {
 		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16.5)
@@ -62,7 +62,6 @@ class PlayerController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.clipsToBounds = true
-//		view.layer.cornerRadius = 17.5
 		transitioningDelegate = self
 	}
 	
@@ -106,8 +105,6 @@ class PlayerController: UIViewController {
 		layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
-//		layer.cornerRadius = 17
-		layer.masksToBounds = true
 		view.layer.addSublayer(layer)
 		queuePlayer.play()
 

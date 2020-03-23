@@ -50,7 +50,7 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
-	private var exposureButton, lockButton, torchButton, lensButton: UIButton!
+	private var lockButton, torchButton: UIButton!
 	var stackView: UIStackView!
 	
 	let exposurePointView: UIImageView = {
@@ -67,13 +67,6 @@ class ViewController: UIViewController {
 		return bar
 	}()
 	
-	private let overlayView: UIView = {
-		let view = UIView()
-		view.backgroundColor = .black
-		view.alpha = 0
-		return view
-	}()
-	
 	// MARK: - Touch functions
 	
 	override func viewDidLoad() {
@@ -84,11 +77,6 @@ class ViewController: UIViewController {
 		layoutBottomBar()
 		attachBottomBarTargets()
 		setupControls()
-		
-//		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveLinear, animations: {
-//			self.overlayView.alpha = 0
-//			self.blurEffectView.alpha = 0
-//		}, completion: nil)
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -99,15 +87,11 @@ class ViewController: UIViewController {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard touchOffset == nil, let touch = touches.first?.location(in: view),
 			exposurePointView.frame.contains(touch) else { return }
-		do {
-			try captureDevice.lockForConfiguration()
-		} catch {}
-
+		
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-			self.touchOffset = CGPoint(x: touch.x - self.exposurePointView.frame.origin.x,
-															 y: touch.y - self.exposurePointView.frame.origin.y)
-		}, completion: nil)
+		})
+		touchOffset = CGPoint(x: touch.x - exposurePointView.frame.origin.x, y: touch.y - exposurePointView.frame.origin.y)
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -116,19 +100,18 @@ class ViewController: UIViewController {
 			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
 				self.exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			}.startAnimation()
-			let point = previewLayer.captureDevicePointConverted(fromLayerPoint: touch)
-			let mode = captureDevice.exposureMode
-			captureDevice.exposureMode = .custom
-			captureDevice.exposurePointOfInterest = point
-			captureDevice.exposureMode = mode
+			let pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: touch)
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.exposurePointOfInterest = pointOfInterest
+				captureDevice.unlockForConfiguration()
+			} catch {}
+			
 		} else {
 			if let slider = activeSlider {
 				slider.touchesMoved(touches, with: event)
 			} else {
 				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
-				do {
-					try captureDevice.lockForConfiguration()
-				} catch {}
 				activeSlider?.touchesBegan(touches, with: event)
 			}
 		}
@@ -138,22 +121,23 @@ class ViewController: UIViewController {
 		activeSlider?.touchesEnded(touches, with: event)
 		activeSlider = nil
 		
-		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 100 {
+		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
-				self.exposurePointView.center.y = self.view.frame.height - 81.5 - self.exposurePointView.frame.height/2
-			}, completion: nil)
-			let point = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
-			let mode = captureDevice.exposureMode
-			captureDevice.exposureMode = .custom
-			captureDevice.exposurePointOfInterest = point
-			captureDevice.exposureMode = mode
+				self.exposurePointView.center.y = self.view.frame.height - 80 - self.exposurePointView.frame.height/2
+			})
+			let pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.exposurePointOfInterest = pointOfInterest
+				captureDevice.unlockForConfiguration()
+			} catch {}
 		}
-		captureDevice.unlockForConfiguration()
+		
 		touchOffset = nil
 		
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
-		}, completion: nil)
+		})
 	}
 }
 
@@ -224,8 +208,8 @@ extension ViewController {
 	}
 	
 	private func attachBottomBarTargets() {
-		for button in [exposureButton, lockButton, torchButton, lensButton] {
-			button!.addTarget(self, action: #selector(secondaryTouchDown(sender:)), for: .touchDown)
+		for button in [lockButton, torchButton] {
+			button!.addTarget(self, action: #selector(menuButtonTouchDown(sender:)), for: .touchDown)
 		}
 		
 		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
@@ -236,10 +220,8 @@ extension ViewController {
 	}
 	
 	private func layoutBottomBar() {
-		exposureButton = secondaryMenuButton("sun.max.fill")
-		lockButton = secondaryMenuButton("lock.fill")
-		torchButton = secondaryMenuButton("bolt.fill")
-		lensButton = secondaryMenuButton("globe")
+		lockButton = menuButton("lock.fill")
+		torchButton = menuButton("bolt.fill")
 
 		let buttons: [UIButton] = [torchButton, recordButton, lockButton]
 		for button in buttons {
@@ -270,8 +252,6 @@ extension ViewController {
 	}
 	
 	public func resetControls() {
-		lockButton.transform = CGAffineTransform.identity
-		lockButton.alpha = 1
 		recordButton.isUserInteractionEnabled = true
 	}
 	
@@ -296,9 +276,6 @@ extension ViewController {
 		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
 		
-		overlayView.frame = view.frame
-		view.insertSubview(overlayView, belowSubview: exposurePointView)
-		
     blurEffectView.frame = view.bounds
 		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
 	}
@@ -311,7 +288,7 @@ extension ViewController {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 			self.recordButton.backgroundColor = UIColor(white: 0.075, alpha: 1)
-		}, completion: nil)
+		})
 	}
 	
 	@objc private func recordTouchUp() {
@@ -354,15 +331,15 @@ extension ViewController {
 	}
 	
 	@objc private func lockTouchDown() {
-		let isLocked = captureDevice.exposureMode == .locked
+		let isLocked = captureDevice.exposureMode == .autoExpose
 		do {
 			try captureDevice.lockForConfiguration()
-			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .locked
+			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .autoExpose
 			captureDevice.unlockForConfiguration()
 		} catch {}
 	}
 	
-	@objc private func secondaryTouchDown(sender: UIButton) {
+	@objc private func menuButtonTouchDown(sender: UIButton) {
 		if sender.tag == 0 {
 			sender.tintColor = .systemGray
 			sender.tag = 1
@@ -374,7 +351,7 @@ extension ViewController {
 		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/3)
 		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			sender.imageView?.transform = CGAffineTransform.identity
-		}, completion: nil)
+		})
 	}
 	
 	@objc private func torchTouchDown() {
@@ -390,14 +367,22 @@ extension ViewController {
 	// MARK: - Secondary
 	
 	private func updateExposureValue() {
-		captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+		do {
+			try captureDevice.lockForConfiguration()
+			captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+			captureDevice.unlockForConfiguration()
+		} catch {}
 	}
 	
 	private func updateLensPosition() {
-		captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+		do {
+			try captureDevice.lockForConfiguration()
+			captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+			captureDevice.unlockForConfiguration()
+		} catch {}
 	}
 	
-	private func secondaryMenuButton(_ imageName: String) -> UIButton {
+	private func menuButton(_ imageName: String) -> UIButton {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
