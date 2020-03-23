@@ -19,6 +19,7 @@ class Slider: UIView {
 	private var offset: CGFloat?
 	var min, max, value: CGFloat
 	let sliderPosition: SliderPosition
+	var enabled: Bool = false
 	
 	private var imageView: UIImageView?
 	var popup: Popup?
@@ -37,7 +38,6 @@ class Slider: UIView {
 		progressView = UIView(frame: bounds)
 		progressView.backgroundColor = .white
 		addSubview(progressView)
-		isHidden = true
 	}
 	
 	func setImage(_ imageName: String) {
@@ -54,6 +54,13 @@ class Slider: UIView {
 		self.min = min
 		self.max = max
 		
+		let height = (value-min)/(max-min)*frame.height
+		progressView.frame.size.height = height
+		progressView.frame.origin.y = frame.height - progressView.frame.height
+		self.value = value
+	}
+	
+	func setValue(_ value: CGFloat) {
 		let height = (value-min)/(max-min)*frame.height
 		progressView.frame.size.height = height
 		progressView.frame.origin.y = frame.height - progressView.frame.height

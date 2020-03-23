@@ -122,11 +122,11 @@ class ViewController: UIViewController {
 			captureDevice.exposurePointOfInterest = point
 			captureDevice.exposureMode = mode
 		} else {
-			if let slider = activeSlider, !slider.isHidden {
+			if let slider = activeSlider, slider.enabled {
 				slider.touchesMoved(touches, with: event)
 			} else {
 				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
-				if !activeSlider!.isHidden {
+				if activeSlider!.enabled {
 					do {
 						try captureDevice.lockForConfiguration()
 					} catch {}
@@ -312,8 +312,14 @@ extension ViewController {
 	// MARK: - TouchUp & TouchDown
 	
 	@objc private func exposureTouchDown() {
-		exposureSlider.isHidden = !exposureSlider.isHidden
-		let targetBias = exposureSlider.isHidden ? 0 : Float(exposureSlider.value)
+		exposureSlider.enabled = !exposureSlider.enabled
+		// offset, duration, .curve
+		let data: (CGFloat, Double, UIView.AnimationOptions) = exposureSlider.enabled ? (15, 0.35, .curveEaseInOut) : (-15, 0.2, .curveEaseOut)
+		UIView.animate(withDuration: data.1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: data.2, animations: {
+			self.exposureSlider.frame.origin.x += data.0
+		}, completion: nil)
+		
+		let targetBias = !exposureSlider.enabled ? 0 : Float(exposureSlider.value)
 		do {
 			try captureDevice.lockForConfiguration()
 			captureDevice.setExposureTargetBias(targetBias, completionHandler: nil)
@@ -322,13 +328,19 @@ extension ViewController {
 	}
 	
 	@objc private func lensTouchDown() {
-		focusSlider.isHidden = !focusSlider.isHidden
+		focusSlider.enabled = !focusSlider.enabled
+		let data: (CGFloat, Double, UIView.AnimationOptions) = focusSlider.enabled ? (-15, 0.35, .curveEaseInOut) : (15, 0.2, .curveEaseOut)
+		UIView.animate(withDuration: data.1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: data.2, animations: {
+			self.focusSlider.frame.origin.x += data.0
+		}, completion: nil)
+		
 		do {
 			try captureDevice.lockForConfiguration()
-			if focusSlider.isHidden {
+			if !focusSlider.enabled {
 				captureDevice.focusMode = .continuousAutoFocus
 			} else {
-				focusSlider.value = CGFloat(captureDevice.lensPosition)
+				captureDevice.focusMode = .autoFocus
+				focusSlider.setValue(CGFloat(captureDevice.lensPosition))
 				captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
 			}
 			captureDevice.unlockForConfiguration()
