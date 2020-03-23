@@ -244,11 +244,11 @@ extension ViewController {
 			button!.addTarget(self, action: #selector(secondaryTouchDown(sender:)), for: .touchDown)
 		}
 		
-		lockButton.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
+		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
-		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
+		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
 	}
 	
 	private func layoutBottomBar() {
@@ -395,7 +395,7 @@ extension ViewController {
 		}, completion: nil)
 	}
 	
-	@objc private func lockTouchUp() {
+	@objc private func lockTouchDown() {
 		let isLocked = captureDevice.exposureMode == .locked
 		do {
 			try captureDevice.lockForConfiguration()
@@ -405,16 +405,23 @@ extension ViewController {
 	}
 	
 	@objc private func secondaryTouchDown(sender: UIButton) {
-		let bgColor = sender.tintColor
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			sender.transform = CGAffineTransform.identity
+		let color: UIColor
+		if sender.tag == 0 {
+			color = .systemGray
+			sender.tag = 1
+		} else {
+			color = .systemGray5
+			sender.tag = 0
+		}
+		
+		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/3)
+		sender.tintColor = color
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			sender.imageView?.transform = CGAffineTransform.identity
-			sender.tintColor = sender.backgroundColor
-			sender.backgroundColor = bgColor
 		}, completion: nil)
 	}
 	
-	@objc private func torchTouchUp() {
+	@objc private func torchTouchDown() {
 		guard captureDevice.hasTorch else { return }
 		let torchEnabled = captureDevice.isTorchActive
 		do {
@@ -437,7 +444,7 @@ extension ViewController {
 	private func secondaryMenuButton(_ imageName: String) -> UIButton {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.backgroundColor = .black
 		button.tintColor = .systemGray5
