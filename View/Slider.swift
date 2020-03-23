@@ -59,18 +59,10 @@ class Slider: UIView {
 		self.value = value
 	}
 	
-	func setValue(_ value: CGFloat) {
-		let height = (value-min)/(max-min)*frame.height
-		progressView.frame.size.height = height
-		progressView.frame.origin.y = frame.height - progressView.frame.height
-		self.value = value
-	}
-	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: self) else { return }
 		offset = progressView.frame.height + touch.y
 		let x: CGFloat = sliderPosition == .left ? frame.width/2: -frame.width/2
-
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 			self.progressView.backgroundColor = .systemGray6
@@ -87,15 +79,13 @@ class Slider: UIView {
 		} else if height < -frame.height {
 			height = -frame.height
 		}
-
-		let coef = progressView.frame.size.height/frame.size.height
-		UIViewPropertyAnimator(duration: 0.025, curve: .easeOut) {
-			self.progressView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
-		}.startAnimation()
 		
-		value = coef * (max - min) + min
-		let roundedValue = floor(value*10)/10
-		popup?.update(roundedValue)
+		let ratio = progressView.frame.size.height/frame.size.height
+		progressView.frame = CGRect(origin: CGPoint(x: 0, y: frame.height), size: CGSize(width: frame.width, height: height))
+		
+		value = ratio*(max-min)+min
+		let rounded = floor(value*10)/10
+		popup?.update(rounded)
 		delegate?()
 	}
 	
