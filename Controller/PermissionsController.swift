@@ -23,7 +23,7 @@ class PermissionsController: UIViewController {
 	let circleLogo: UIImageView = {
 		let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemGray
+		imageView.tintColor = .systemGray6
 		return imageView
 	}()
 	
@@ -88,10 +88,10 @@ class PermissionsController: UIViewController {
 	private func setupCircle() {
 		circleLogo.center = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
 		view.addSubview(circleLogo)
-		UIView.animate(withDuration: 0.4, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
 			self.circleLogo.center.y = 80
 			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-			self.circleLogo.tintColor = .systemGray3
+			self.circleLogo.tintColor = .systemGray4
 		}, completion: nil)
 	}
 	
@@ -189,7 +189,7 @@ class PermissionsController: UIViewController {
 			}, completion: nil)
 			
 			// MARK: - Circle
-			UIView.animate(withDuration: 0.4, delay: 0.2, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+			UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
 				self.circleLogo.center = self.view.center
 				self.circleLogo.transform = CGAffineTransform.identity
 				self.circleLogo.tintColor = .systemYellow

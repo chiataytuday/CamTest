@@ -15,19 +15,26 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="0de-pZ-Htm">
-                                <rect key="frame" x="180" y="421.5" width="54" height="53"/>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Amble" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DkX-IE-kIG">
+                                <rect key="frame" x="180.5" y="842" width="53.5" height="24"/>
+                                <fontDescription key="fontDescription" type="system" weight="thin" pointSize="20"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splashscreen-icon" translatesAutoresizingMaskIntoConstraints="NO" id="6pM-2f-Q7L">
+                                <rect key="frame" x="183" y="424" width="48" height="48"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="54" id="QqG-xa-jdC"/>
-                                    <constraint firstAttribute="width" constant="54" id="tvd-OE-uMu"/>
+                                    <constraint firstAttribute="height" constant="48" id="ezY-Q6-NGB"/>
+                                    <constraint firstAttribute="width" constant="48" id="rc0-gd-wCC"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="0de-pZ-Htm" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="KBw-HI-NHe"/>
-                            <constraint firstItem="0de-pZ-Htm" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="kg6-iZ-fFv"/>
+                            <constraint firstItem="6pM-2f-Q7L" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="62C-QN-clO"/>
+                            <constraint firstItem="DkX-IE-kIG" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="68j-gm-sbg"/>
+                            <constraint firstItem="6pM-2f-Q7L" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="fOk-XD-UWY"/>
+                            <constraint firstAttribute="bottom" secondItem="DkX-IE-kIG" secondAttribute="bottom" constant="30" id="kv4-pV-ngC"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -38,6 +45,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="circle.fill" catalog="system" width="64" height="60"/>
+        <image name="splashscreen-icon" width="122" height="122"/>
     </resources>
 </document>

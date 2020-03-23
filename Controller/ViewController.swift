@@ -38,9 +38,9 @@ class ViewController: UIViewController {
 		let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.backgroundColor = .black
-		button.layer.cornerRadius = 20
-		button.layer.borderColor = UIColor.systemGray5.cgColor
-		button.layer.borderWidth = 1
+//		button.layer.cornerRadius = 20
+//		button.layer.borderColor = UIColor.systemGray5.cgColor
+//		button.layer.borderWidth = 1
 		return button
 	}()
 	
@@ -53,7 +53,9 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
-	private var torchButton, lockButton: UIButton!
+	private var exposureButton, lockButton, torchButton, lensButton: UIButton!
+	var stackView: UIStackView!
+//	private var torchButton, lockButton: UIButton!
 	
 	let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
@@ -92,14 +94,20 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		
 		setupCamera()
-		setupBottomMenu()
 		setupGrid()
+		layoutBottomBar()
+		attachBottomBarTargets()
 		setupControls()
 		
 //		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveLinear, animations: {
 //			self.overlayView.alpha = 0
 //			self.blurEffectView.alpha = 0
 //		}, completion: nil)
+	}
+	
+	override func viewDidLayoutSubviews() {
+		stackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18.5)
+		stackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18.5)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -194,12 +202,12 @@ extension ViewController {
 		let devices = discoverySession.devices
 		captureDevice = devices.first { $0.position == .back }
 		
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
-			captureDevice.setExposureTargetBias(-1, completionHandler: nil)
-			captureDevice.unlockForConfiguration()
-		} catch {}
+//		do {
+//			try captureDevice.lockForConfiguration()
+//			captureDevice.setFocusModeLocked(lensPosition: 0.5, completionHandler: nil)
+//			captureDevice.setExposureTargetBias(-1, completionHandler: nil)
+//			captureDevice.unlockForConfiguration()
+//		} catch {}
 		
 		// Input-output
 		do {
@@ -223,21 +231,46 @@ extension ViewController {
 		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
-		previewLayer.frame.size.height -= 81.5
-		previewLayer.cornerRadius = 16
+//		previewLayer.frame.size.height -= 81.5
+//		previewLayer.cornerRadius = 17.5
 		previewLayer.connection?.videoOrientation = .portrait
 		self.view.layer.insertSublayer(previewLayer, at: 0)
 		
 		captureSession.startRunning()
 	}
 	
-	private func setupBottomMenu() {
-		view.addSubview(recordButton)
+	private func attachBottomBarTargets() {
+		for button in [exposureButton, lockButton, torchButton, lensButton] {
+			button!.addTarget(self, action: #selector(secondaryTouchDown(sender:)), for: .touchDown)
+		}
+		
+		lockButton.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
+		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
+		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
+	}
+	
+	private func layoutBottomBar() {
+		exposureButton = secondaryMenuButton("sun.max.fill")
+		lockButton = secondaryMenuButton("lock.fill")
+		torchButton = secondaryMenuButton("bolt.fill")
+		lensButton = secondaryMenuButton("globe")
+
+		let buttons: [UIButton] = [exposureButton, lockButton, recordButton, torchButton, lensButton]
+		for button in buttons {
+			NSLayoutConstraint.activate([
+				button.widthAnchor.constraint(equalToConstant: 57.5),
+				button.heightAnchor.constraint(equalToConstant: 55)
+			])
+		}
+		stackView = UIStackView(arrangedSubviews: buttons)
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		stackView.distribution = .fillProportionally
+		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
-			recordButton.widthAnchor.constraint(equalToConstant: 57.5),
-			recordButton.heightAnchor.constraint(equalToConstant: 57.5),
-			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -12)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
@@ -247,42 +280,15 @@ extension ViewController {
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
-		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		
-		
-		let offset: CGFloat = 80
-		torchButton = secondaryMenuButton("bolt.fill")
-		view.addSubview(torchButton)
-		NSLayoutConstraint.activate([
-			torchButton.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-			torchButton.widthAnchor.constraint(equalToConstant: 49),
-			torchButton.heightAnchor.constraint(equalToConstant: 47.5),
-			torchButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: offset)
-		])
-		torchButton.addTarget(self, action: #selector(torchTouchDown), for: [.touchDown])
-		torchButton.addTarget(self, action: #selector(torchTouchUp), for: [.touchUpInside, .touchUpOutside])
-		
-		lockButton = secondaryMenuButton("lock.fill")
-		view.addSubview(lockButton)
-		NSLayoutConstraint.activate([
-			lockButton.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-			lockButton.widthAnchor.constraint(equalToConstant: 49),
-			lockButton.heightAnchor.constraint(equalToConstant: 47.5),
-			lockButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -offset)
-		])
-		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
-		lockButton.addTarget(self, action: #selector(lockTouchUp), for: [.touchUpInside, .touchUpOutside])
-		
-		view.addSubview(timerLabel)
-		NSLayoutConstraint.activate([
-			timerLabel.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-			timerLabel.centerXAnchor.constraint(equalTo: lockButton.centerXAnchor, constant: -offset/1.25)
-		])
-		
-		view.addSubview(durationBar)
-		durationBar.frame.origin.y = view.frame.height - 0.5
+//		view.addSubview(timerLabel)
+//		NSLayoutConstraint.activate([
+//			timerLabel.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
+//			timerLabel.centerXAnchor.constraint(equalTo: lockButton.centerXAnchor)
+//		])
+//
+//		view.addSubview(durationBar)
+//		durationBar.frame.origin.y = view.frame.height - 0.5
 	}
 	
 	public func resetControls() {
@@ -304,7 +310,7 @@ extension ViewController {
 		
 		focusSlider = Slider(CGSize(width: 40, height: 240), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0.3)
+		focusSlider.customRange(0, 1, 0.5)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
@@ -389,13 +395,6 @@ extension ViewController {
 		}, completion: nil)
 	}
 	
-	@objc private func lockTouchDown() {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.lockButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-			self.lockButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: -.pi/3)
-		}, completion: nil)
-	}
-	
 	@objc private func lockTouchUp() {
 		let isLocked = captureDevice.exposureMode == .locked
 		do {
@@ -403,21 +402,15 @@ extension ViewController {
 			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .locked
 			captureDevice.unlockForConfiguration()
 		} catch {}
-		
-		let args: (UIColor, UIColor) = isLocked ? (.black, .systemGray) : (.systemGray, .black)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.lockButton.transform = CGAffineTransform.identity
-			self.lockButton.imageView!.transform = CGAffineTransform.identity
-			self.lockButton.layer.borderColor = isLocked ? UIColor.systemGray5.cgColor : UIColor.systemGray.cgColor
-			self.lockButton.backgroundColor = args.0
-			self.lockButton.tintColor = args.1
-		}, completion: nil)
 	}
 	
-	@objc private func torchTouchDown() {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.torchButton.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-			self.torchButton.imageView!.transform = CGAffineTransform(scaleX: 0.8, y: 0.8).rotated(by: .pi/4)
+	@objc private func secondaryTouchDown(sender: UIButton) {
+		let bgColor = sender.tintColor
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			sender.transform = CGAffineTransform.identity
+			sender.imageView?.transform = CGAffineTransform.identity
+			sender.tintColor = sender.backgroundColor
+			sender.backgroundColor = bgColor
 		}, completion: nil)
 	}
 	
@@ -429,15 +422,6 @@ extension ViewController {
 			captureDevice.torchMode = torchEnabled ? .off : .on
 			captureDevice.unlockForConfiguration()
 		} catch {}
-		
-		let args: (UIColor, UIColor) = torchEnabled ? (.black, .systemGray2) : (.systemGray2, .black)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.torchButton.transform = CGAffineTransform.identity
-			self.torchButton.imageView!.transform = CGAffineTransform.identity
-			self.torchButton.layer.borderColor = torchEnabled ? UIColor.systemGray5.cgColor : UIColor.systemGray2.cgColor
-			self.torchButton.backgroundColor = args.0
-			self.torchButton.tintColor = args.1
-		}, completion: nil)
 	}
 	
 	// MARK: - Secondary
@@ -456,10 +440,7 @@ extension ViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 20), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.backgroundColor = .black
-		button.tintColor = .systemGray
-		button.layer.cornerRadius = 18
-		button.layer.borderWidth = 1
-		button.layer.borderColor = UIColor.systemGray5.cgColor
+		button.tintColor = .systemGray5
 		button.adjustsImageWhenHighlighted = false
 		button.imageView?.clipsToBounds = false
 		button.imageView?.contentMode = .center

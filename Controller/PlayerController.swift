@@ -25,7 +25,7 @@ class PlayerController: UIViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
 		button.setTitle("Export", for: .normal)
-		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+		button.titleLabel?.font = UIFont.systemFont(ofSize: 16.5, weight: .regular)
 		button.setTitleColor(.systemGray, for: .normal)
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
@@ -53,27 +53,17 @@ class PlayerController: UIViewController {
 		view.alpha = 1
 		return view
 	}()
-	
-	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0.5))
-		bar.backgroundColor = .systemGray2
-		bar.layer.cornerRadius = 0.25
-		return bar
-	}()
-	
 
 	override func viewDidLayoutSubviews() {
-		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
+		exportButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16.5)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16.5)
 	}
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.clipsToBounds = true
-		view.layer.cornerRadius = 17.5
+//		view.layer.cornerRadius = 17.5
 		transitioningDelegate = self
-		
-		
 	}
 	
 	private func setupInterface() {
@@ -101,11 +91,8 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
-		
-		view.addSubview(durationBar)
-		durationBar.frame.origin.y = view.frame.height - 0.5
 		
     blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
@@ -119,14 +106,14 @@ class PlayerController: UIViewController {
 		layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
-		layer.cornerRadius = 17.5
+//		layer.cornerRadius = 17
 		layer.masksToBounds = true
 		view.layer.addSublayer(layer)
 		queuePlayer.play()
-		
+
+		self.setupInterface()
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
 			handler()
-			self.setupInterface()
 		}
 	}
 	
@@ -151,7 +138,9 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func exportTouchUpInside(sender: UIButton) {
-//		UISaveVideoAtPathToSavedPhotosAlbum(url.path, nil, nil, nil)
+		DispatchQueue.global(qos: .background).async {
+			UISaveVideoAtPathToSavedPhotosAlbum(self.url.path, nil, nil, nil)
+		}
 		backTouchUpInside(sender: sender)
 	}
 	
