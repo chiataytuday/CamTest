@@ -35,14 +35,14 @@ class Slider: UIView {
 		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2, y: parentFrame.midY)
 		
 		progressView = UIView(frame: bounds)
-		progressView.backgroundColor = .systemGray6
+		progressView.backgroundColor = Colors.sliderRange
 		addSubview(progressView)
 	}
 	
 	func setImage(_ imageName: String) {
 		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
 		imageView = UIImageView(image: image)
-		imageView?.tintColor = .systemGray2
+		imageView?.tintColor = Colors.sliderIcon
 		
 		imageView?.center = CGPoint(x: progressView.frame.midX,
 																y: progressView.frame.maxY - imageView!.frame.height/2 - 8)
@@ -65,7 +65,6 @@ class Slider: UIView {
 		let x: CGFloat = sliderPosition == .left ? frame.width/2: -frame.width/2
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
-			self.progressView.backgroundColor = .systemGray6
 		})
 		popup?.setImage(imageView!.image!)
 		popup?.show()
@@ -92,7 +91,6 @@ class Slider: UIView {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [.curveEaseIn, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
-			self.progressView.backgroundColor = .systemGray6
 		})
 		popup?.hide()
 	}

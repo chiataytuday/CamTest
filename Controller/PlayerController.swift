@@ -30,7 +30,7 @@ class PlayerController: UIViewController {
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
 		button.backgroundColor = .black
-		button.tintColor = .systemGray
+		button.tintColor = Colors.exportLabel
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -40,7 +40,7 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = .systemGray3
+		button.tintColor = Colors.backIcon
 		button.backgroundColor = .black
 		button.adjustsImageWhenHighlighted = false
 		return button
@@ -119,7 +119,7 @@ class PlayerController: UIViewController {
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			sender.backgroundColor = .systemGray6
+			sender.backgroundColor = Colors.recordButtonUp
 		})
 		
 		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {

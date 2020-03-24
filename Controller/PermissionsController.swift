@@ -15,7 +15,7 @@ class PermissionsController: UIViewController {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
-		label.textColor = .systemGray4
+		label.textColor = .systemGray5
 		label.font = UIFont.systemFont(ofSize: 19, weight: .light)
 		return label
 	}()
@@ -61,7 +61,7 @@ class PermissionsController: UIViewController {
 		view.addSubview(captionLabel)
 		NSLayoutConstraint.activate([
 			captionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			captionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
+			captionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
 		// MARK: - Animation

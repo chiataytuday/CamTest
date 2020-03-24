@@ -10,6 +10,24 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
+class Colors {
+	static let sliderRange = colorByRGB(30, 30, 30)
+	static let sliderIcon = colorByRGB(95, 95, 95)
+	static let popupContent = colorByRGB(132, 132, 132)
+	static let disabledButton = colorByRGB(45, 45, 45)
+	static let enabledButton = colorByRGB(142, 142, 142)
+	static let recordButtonDown = colorByRGB(20, 20, 20)
+	static let recordButtonUp = colorByRGB(30, 30, 30)
+	static let red = colorByRGB(205, 52, 41)
+	static let yellow = colorByRGB(249, 202, 71)
+	static let exportLabel = colorByRGB(140, 140, 140)
+	static let backIcon = colorByRGB(72, 72, 72)
+	
+	private static func colorByRGB(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> UIColor {
+		return UIColor(red: r/255, green: g/255, blue: b/255, alpha: 1)
+	}
+}
+
 class Settings {
 	var torchEnabled = false
 	var playerOpened = false
@@ -44,13 +62,13 @@ class ViewController: UIViewController {
 	private let exposurePointView: UIImageView = {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemYellow
+		imageView.tintColor = Colors.yellow
 		return imageView
 	}()
 	
 	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 1.5))
-		bar.backgroundColor = .systemRed
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
+		bar.backgroundColor = Colors.red
 		bar.layer.cornerRadius = 0.25
 		return bar
 	}()
@@ -66,7 +84,7 @@ class ViewController: UIViewController {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
 		view.isUserInteractionEnabled = false
-		view.backgroundColor = .systemRed
+		view.backgroundColor = Colors.red
 		view.layer.cornerRadius = 10
 		return view
 	}()
@@ -81,6 +99,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		view.backgroundColor = .black
 		
 		setupCamera()
 		setupSecondary()
@@ -322,7 +341,7 @@ extension ViewController {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
-			self.recordButton.backgroundColor = UIColor(white: 0.075, alpha: 1)
+			self.recordButton.backgroundColor = Colors.recordButtonDown
 		})
 	}
 	
@@ -330,7 +349,7 @@ extension ViewController {
 		isRecording = !isRecording
 		if isRecording {
 			output.startRecording(to: path, recordingDelegate: self)
-			self.recordButton.backgroundColor = .systemGray6
+			self.recordButton.backgroundColor = Colors.recordButtonUp
 			durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 				self.durationBar.frame.size.width = self.view.frame.width
 			})
@@ -377,10 +396,10 @@ extension ViewController {
 	
 	@objc private func menuButtonTouchDown(sender: UIButton) {
 		if sender.tag == 0 {
-			sender.tintColor = .systemGray
+			sender.tintColor = Colors.enabledButton
 			sender.tag = 1
 		} else {
-			sender.tintColor = .systemGray5
+			sender.tintColor = Colors.disabledButton
 			sender.tag = 0
 		}
 		
@@ -429,7 +448,7 @@ extension ViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.backgroundColor = .black
-		button.tintColor = .systemGray5
+		button.tintColor = Colors.disabledButton
 		button.adjustsImageWhenHighlighted = false
 		button.imageView?.clipsToBounds = false
 		button.imageView?.contentMode = .center
