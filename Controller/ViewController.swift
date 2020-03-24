@@ -403,8 +403,8 @@ extension ViewController {
 			sender.tag = 0
 		}
 		
-		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/3)
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
+		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/4)
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			sender.imageView?.transform = CGAffineTransform.identity
 		})
 	}
