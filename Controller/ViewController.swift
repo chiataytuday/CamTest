@@ -13,6 +13,7 @@ import AudioToolbox
 class Settings {
 	var torchEnabled = false
 	var playedOpened = false
+	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
 	
 	static let shared = Settings()
 }
@@ -113,6 +114,7 @@ class ViewController: UIViewController {
 			do {
 				try captureDevice.lockForConfiguration()
 				captureDevice.exposurePointOfInterest = pointOfInterest
+				captureDevice.exposureMode = .autoExpose
 				captureDevice.unlockForConfiguration()
 			} catch {}
 			
@@ -130,19 +132,29 @@ class ViewController: UIViewController {
 		activeSlider?.touchesEnded(touches, with: event)
 		activeSlider = nil
 		
+		var pointOfInterest: CGPoint?
+		
 		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
 				self.exposurePointView.center.y = self.view.frame.height - 80 - self.exposurePointView.frame.height/2
 			})
-			let pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
-			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.exposurePointOfInterest = pointOfInterest
-				captureDevice.unlockForConfiguration()
-			} catch {}
+			pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
+//			do {
+//				try captureDevice.lockForConfiguration()
+//				captureDevice.exposurePointOfInterest = pointOfInterest
+//				captureDevice.unlockForConfiguration()
+//			} catch {}
 		}
 		
 		touchOffset = nil
+		do {
+			try captureDevice.lockForConfiguration()
+			if let point = pointOfInterest {
+				captureDevice.exposurePointOfInterest = point
+			}
+			captureDevice.exposureMode = Settings.shared.exposureMode
+			captureDevice.unlockForConfiguration()
+		} catch {}
 		
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
@@ -370,10 +382,11 @@ extension ViewController {
 	}
 	
 	@objc private func lockTouchDown() {
-		let isLocked = captureDevice.exposureMode == .autoExpose
+		let isLocked = captureDevice.exposureMode == .locked
 		do {
 			try captureDevice.lockForConfiguration()
-			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .autoExpose
+			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .locked
+			Settings.shared.exposureMode = captureDevice.exposureMode
 			captureDevice.unlockForConfiguration()
 		} catch {}
 	}
