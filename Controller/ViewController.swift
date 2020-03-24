@@ -180,6 +180,7 @@ extension ViewController {
 	
 	private func setupCamera() {
 		let session = AVCaptureSession()
+		session.beginConfiguration()
 		session.automaticallyConfiguresApplicationAudioSession = false
 		session.sessionPreset = .hd1920x1080
 		
@@ -212,7 +213,7 @@ extension ViewController {
 		previewLayer.frame = view.frame
 		previewLayer.connection?.videoOrientation = .portrait
 		view.layer.insertSublayer(previewLayer, at: 0)
-		
+		session.commitConfiguration()
 		session.startRunning()
 	}
 	
@@ -340,7 +341,7 @@ extension ViewController {
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 			self.recordButton.backgroundColor = Colors.recordButtonDown
@@ -377,7 +378,7 @@ extension ViewController {
 		
 		let radius: CGFloat = isRecording ? 3.5 : 10
 		let color: UIColor = isRecording ? .systemGray6 : .black
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = radius
 			if !self.isRecording {
