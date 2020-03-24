@@ -20,20 +20,13 @@ class PermissionsController: UIViewController {
 		return button
 	}()
 	
-	let circleLogo: UIImageView = {
-		let image = UIImage(systemName: "circle.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
-		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemGray6
-		return imageView
-	}()
-	
 	var nextViewController: ViewController!
 	var cameraButton, libraryButton, micButton: UIButton!
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		setupCircle()
+		view.backgroundColor = UIColor(red: 12/255, green: 12/255, blue: 12/255, alpha: 1)
 		setupButtons()
 	}
 	
@@ -75,23 +68,13 @@ class PermissionsController: UIViewController {
 		
 		// MARK: - Animation
 		
-		UIView.animate(withDuration: 0.5, delay: 0.27, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0.12, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.libraryButton.alpha = 1
 			self.cameraButton.alpha = 1
 			self.micButton.alpha = 1
-		}, completion: nil)
-	}
-	
-	private func setupCircle() {
-		circleLogo.center = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
-		view.addSubview(circleLogo)
-		UIView.animate(withDuration: 0.5, delay: 0.24, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-			self.circleLogo.center.y = 80
-			self.circleLogo.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
-			self.circleLogo.tintColor = .systemGray4
 		}, completion: nil)
 	}
 	
@@ -133,7 +116,7 @@ class PermissionsController: UIViewController {
 	private func grantButton(_ imageName: String) -> UIButton {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27.5, weight: .light), forImageIn: .normal)
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27, weight: .light), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.tintColor = .systemGray2
 		button.layer.borderWidth = 1
@@ -142,7 +125,6 @@ class PermissionsController: UIViewController {
 		button.alpha = 0
 		button.adjustsImageWhenHighlighted = false
 		
-		button.transform = CGAffineTransform(translationX: 0, y: 25)
 		NSLayoutConstraint.activate([
 			button.widthAnchor.constraint(equalToConstant: 70),
 			button.heightAnchor.constraint(equalToConstant: 70)
@@ -170,7 +152,7 @@ class PermissionsController: UIViewController {
 				button.layer.borderColor = UIColor.systemGray2.cgColor
 				button.tintColor = .black
 			} else {
-				button.backgroundColor = .black
+				button.backgroundColor = UIColor(red: 12/255, green: 12/255, blue: 12/255, alpha: 1)
 				button.layer.borderColor = UIColor.systemGray5.cgColor
 				button.tintColor = .systemGray2
 			}
@@ -190,9 +172,9 @@ class PermissionsController: UIViewController {
 			
 			// MARK: - Circle
 			UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-				self.circleLogo.center = self.view.center
-				self.circleLogo.transform = CGAffineTransform.identity
-				self.circleLogo.tintColor = .systemYellow
+//				self.circleLogo.center = self.view.center
+//				self.circleLogo.transform = CGAffineTransform.identity
+//				self.circleLogo.tintColor = .systemYellow
 			}) { (_) in
 				self.present(vc, animated: true)
 			}
