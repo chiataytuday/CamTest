@@ -64,6 +64,7 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 		view.clipsToBounds = true
 		transitioningDelegate = self
+		view.backgroundColor = .black
 	}
 	
 	private func setupInterface() {

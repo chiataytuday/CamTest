@@ -22,6 +22,9 @@ class Colors {
 	static let yellow = colorByRGB(249, 202, 71)
 	static let exportLabel = colorByRGB(140, 140, 140)
 	static let backIcon = colorByRGB(72, 72, 72)
+	static let permissionIcon = colorByRGB(100, 100, 100)
+	static let permissionBorder = colorByRGB(45, 45, 45)
+	static let permissionBackground = colorByRGB(12, 12, 12)
 	
 	private static func colorByRGB(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> UIColor {
 		return UIColor(red: r/255, green: g/255, blue: b/255, alpha: 1)
@@ -38,6 +41,7 @@ class Settings {
 
 class ViewController: UIViewController {
 	
+	var session: AVCaptureSession!
 	var device: AVCaptureDevice!
 	var previewLayer: AVCaptureVideoPreviewLayer!
 	var output: AVCaptureMovieFileOutput!
@@ -179,7 +183,7 @@ class ViewController: UIViewController {
 extension ViewController {
 	
 	private func setupCamera() {
-		let session = AVCaptureSession()
+		session = AVCaptureSession()
 		session.beginConfiguration()
 		session.automaticallyConfiguresApplicationAudioSession = false
 		session.sessionPreset = .hd1920x1080
@@ -314,6 +318,7 @@ extension ViewController {
 	
 	
 	@objc private func didEnterBackground() {
+		session.stopRunning()
 		if Settings.shared.playerOpened {
 			playerController.queuePlayer.pause()
 		} else if isRecording {
@@ -322,6 +327,7 @@ extension ViewController {
 	}
 	
 	@objc private func didBecomeActive() {
+		session.startRunning()
 		if Settings.shared.playerOpened {
 			playerController.queuePlayer.play()
 		} else if !Settings.shared.playerOpened && Settings.shared.torchEnabled {

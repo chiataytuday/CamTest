@@ -15,7 +15,7 @@ class PermissionsController: UIViewController {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
-		label.textColor = .systemGray5
+		label.textColor = Colors.permissionBorder
 		label.font = UIFont.systemFont(ofSize: 19, weight: .light)
 		return label
 	}()
@@ -26,7 +26,7 @@ class PermissionsController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = UIColor(red: 12/255, green: 12/255, blue: 12/255, alpha: 1)
+		view.backgroundColor = Colors.permissionBackground
 		setupView()
 	}
 	
@@ -116,9 +116,9 @@ class PermissionsController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27, weight: .light), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
-		button.tintColor = .systemGray2
+		button.tintColor = Colors.permissionIcon
 		button.layer.borderWidth = 1
-		button.layer.borderColor = UIColor.systemGray5.cgColor
+		button.layer.borderColor = Colors.permissionBorder.cgColor
 		button.layer.cornerRadius = 17.5
 		button.alpha = 0
 		button.adjustsImageWhenHighlighted = false
@@ -146,13 +146,13 @@ class PermissionsController: UIViewController {
 	private func setButtonAppearance(_ button: UIButton, _ accessGranted: Bool) {
 		DispatchQueue.main.async {
 			if accessGranted {
-				button.backgroundColor = .systemGray2
-				button.layer.borderColor = UIColor.systemGray2.cgColor
-				button.tintColor = .black
+				button.backgroundColor = Colors.permissionIcon
+				button.layer.borderColor = Colors.permissionIcon.cgColor
+				button.tintColor = Colors.permissionBackground
 			} else {
-				button.backgroundColor = UIColor(red: 12/255, green: 12/255, blue: 12/255, alpha: 1)
-				button.layer.borderColor = UIColor.systemGray5.cgColor
-				button.tintColor = .systemGray2
+				button.backgroundColor = Colors.permissionBackground
+				button.layer.borderColor = Colors.permissionBorder.cgColor
+				button.tintColor = Colors.permissionIcon
 			}
 			
 			guard let vc = self.nextViewController, PermissionsController.grantedCount() == 3 else { return }
