@@ -158,26 +158,7 @@ class PermissionsController: UIViewController {
 			}
 			
 			guard let vc = self.nextViewController, PermissionsController.grantedCount() == 3 else { return }
-			
-			// MARK: - Buttons
-			UIView.animate(withDuration: 0.45, delay: 0.12, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-				self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
-				self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
-				self.micButton.transform = CGAffineTransform(translationX: 0, y: 20)
-				self.libraryButton.alpha = 0
-				self.cameraButton.alpha = 0
-				self.micButton.alpha = 0
-				self.buttonNext.alpha = 0
-			}, completion: nil)
-			
-			// MARK: - Circle
-			UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-//				self.circleLogo.center = self.view.center
-//				self.circleLogo.transform = CGAffineTransform.identity
-//				self.circleLogo.tintColor = .systemYellow
-			}) { (_) in
-				self.present(vc, animated: true)
-			}
+			self.present(vc, animated: true)
 		}
 	}
 	
