@@ -77,6 +77,11 @@ class ViewController: UIViewController {
 		layoutBottomBar()
 		attachBottomBarTargets()
 		setupControls()
+		
+		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
+		UIView.animate(withDuration: 0.5, delay: 0.03, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			self.exposurePointView.transform = CGAffineTransform.identity
+		})
 	}
 	
 	override func viewDidLayoutSubviews() {
