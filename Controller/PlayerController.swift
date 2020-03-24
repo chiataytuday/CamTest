@@ -46,7 +46,7 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	let blurEffectView: UIVisualEffectView = {
+	let blurView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -94,8 +94,8 @@ class PlayerController: UIViewController {
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-    blurEffectView.frame = view.bounds
-		view.addSubview(blurEffectView)
+    blurView.frame = view.bounds
+		view.addSubview(blurView)
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping () -> ()) {
@@ -120,7 +120,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			sender.backgroundColor = .systemGray6
-		}, completion: nil)
+		})
 		
 		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {
 			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
@@ -132,7 +132,7 @@ class PlayerController: UIViewController {
 			self.stackView.transform = CGAffineTransform.identity
 			self.layer.transform = CATransform3DIdentity
 			sender.backgroundColor = .black
-		}, completion: nil)
+		})
 	}
 	
 	@objc private func exportTouchUpInside(sender: UIButton) {
@@ -145,9 +145,9 @@ class PlayerController: UIViewController {
 	@objc private func backTouchUpInside(sender: UIButton) {
 		buttonTouchUpOutside(sender: sender)
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
-			self.blurEffectView.alpha = 1
-		}, completion: nil)
-		Settings.shared.playedOpened = false
+			self.blurView.alpha = 1
+		})
+		Settings.shared.playerOpened = false
 		queuePlayer.pause()
 		dismiss(animated: true, completion: nil)
 	}

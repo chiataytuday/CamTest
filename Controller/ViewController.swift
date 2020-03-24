@@ -12,7 +12,7 @@ import AudioToolbox
 
 class Settings {
 	var torchEnabled = false
-	var playedOpened = false
+	var playerOpened = false
 	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
 	
 	static let shared = Settings()
@@ -20,29 +20,40 @@ class Settings {
 
 class ViewController: UIViewController {
 	
-	var playerController: PlayerController!
+	var device: AVCaptureDevice!
+	var previewLayer: AVCaptureVideoPreviewLayer!
+	var output: AVCaptureMovieFileOutput!
+	var path: URL!
 	
 	var isRecording = false
 	var exposureSlider, focusSlider: Slider!
 	var activeSlider: Slider?
 	var touchOffset: CGPoint?
-	var durationBarAnim: UIViewPropertyAnimator?
-	private var recordingTimer: Timer?
+	var durationAnim: UIViewPropertyAnimator?
+	var recordingTimer: Timer?
+
 	
-	let blurEffectView: UIVisualEffectView = {
-		let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.regular)
-		let effectView = UIVisualEffectView(effect: blurEffect)
+	let blurView: UIVisualEffectView = {
+		let effect = UIBlurEffect(style: .regular)
+		let effectView = UIVisualEffectView(effect: effect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		effectView.alpha = 0
 		return effectView
 	}()
 	
-	var captureSession: AVCaptureSession!
-	var captureDevice: AVCaptureDevice!
-	var previewLayer: AVCaptureVideoPreviewLayer!
-	var videoFileOutput: AVCaptureMovieFileOutput!
-	var filePath: URL!
+	private let exposurePointView: UIImageView = {
+		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
+		let imageView = UIImageView(image: image)
+		imageView.tintColor = .systemYellow
+		return imageView
+	}()
 	
+	private let durationBar: UIView = {
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 1.5))
+		bar.backgroundColor = .systemRed
+		bar.layer.cornerRadius = 0.25
+		return bar
+	}()
 	
 	private let recordButton: UIButton = {
 		let button = UIButton()
@@ -50,7 +61,7 @@ class ViewController: UIViewController {
 		button.backgroundColor = .black
 		return button
 	}()
-	
+
 	private let redCircle: UIView = {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
@@ -60,22 +71,11 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
+	
+	var playerController: PlayerController!
 	private var lockButton, torchButton: UIButton!
 	var stackView: UIStackView!
 	
-	let exposurePointView: UIImageView = {
-		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
-		let imageView = UIImageView(image: image)
-		imageView.tintColor = .systemYellow
-		return imageView
-	}()
-	
-	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 1))
-		bar.backgroundColor = .systemRed
-		bar.layer.cornerRadius = 0.25
-		return bar
-	}()
 	
 	// MARK: - Touch functions
 	
@@ -83,10 +83,10 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		
 		setupCamera()
-		setupGrid()
-		layoutBottomBar()
-		attachBottomBarTargets()
-		setupControls()
+		setupSecondary()
+		setupBottomButtons()
+		setupSliders()
+		attachActions()
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -112,10 +112,10 @@ class ViewController: UIViewController {
 			}.startAnimation()
 			let pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: touch)
 			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.exposurePointOfInterest = pointOfInterest
-				captureDevice.exposureMode = .autoExpose
-				captureDevice.unlockForConfiguration()
+				try device.lockForConfiguration()
+				device.exposurePointOfInterest = pointOfInterest
+				device.exposureMode = .autoExpose
+				device.unlockForConfiguration()
 			} catch {}
 			
 		} else {
@@ -133,27 +133,21 @@ class ViewController: UIViewController {
 		activeSlider = nil
 		
 		var pointOfInterest: CGPoint?
-		
 		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
 				self.exposurePointView.center.y = self.view.frame.height - 80 - self.exposurePointView.frame.height/2
 			})
 			pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: exposurePointView.center)
-//			do {
-//				try captureDevice.lockForConfiguration()
-//				captureDevice.exposurePointOfInterest = pointOfInterest
-//				captureDevice.unlockForConfiguration()
-//			} catch {}
 		}
 		
 		touchOffset = nil
 		do {
-			try captureDevice.lockForConfiguration()
+			try device.lockForConfiguration()
 			if let point = pointOfInterest {
-				captureDevice.exposurePointOfInterest = point
+				device.exposurePointOfInterest = point
 			}
-			captureDevice.exposureMode = Settings.shared.exposureMode
-			captureDevice.unlockForConfiguration()
+			device.exposureMode = Settings.shared.exposureMode
+			device.unlockForConfiguration()
 		} catch {}
 		
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
@@ -165,85 +159,45 @@ class ViewController: UIViewController {
 
 extension ViewController {
 	
-	private func setupGrid() {
-		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
-		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
-		let h1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,	width: view.frame.width, height: 1))
-		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
-
-		for line in [v1, v2, h1, h2] {
-			line.alpha = 0.2
-			line.backgroundColor = .white
-			line.layer.shadowColor = UIColor.black.cgColor
-			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			line.layer.shadowOpacity = 0.6
-			line.layer.shadowRadius = 1
-			line.clipsToBounds = false
-			view.addSubview(line)
-		}
-	}
-	
 	private func setupCamera() {
-		// Session
-		captureSession = AVCaptureSession()
-		captureSession.sessionPreset = .hd1920x1080
+		let session = AVCaptureSession()
+		session.sessionPreset = .hd1920x1080
 		
-		// Devices
-		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
-		let devices = discoverySession.devices
-		captureDevice = devices.first { $0.position == .back }
-		
+		device = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first
 		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
-			captureDevice.setExposureTargetBias(-0.5, completionHandler: nil)
-			captureDevice.unlockForConfiguration()
+			try device.lockForConfiguration()
+			device.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
+			device.setExposureTargetBias(-0.5, completionHandler: nil)
+			device.unlockForConfiguration()
 		} catch {}
 		
-		// Input-output
 		do {
-			let deviceInput = try AVCaptureDeviceInput(device: captureDevice)
-			captureSession.addInput(deviceInput)
-			
+			let deviceInput = try AVCaptureDeviceInput(device: device)
+			session.addInput(deviceInput)
 			let audioDevice = AVCaptureDevice.default(for: .audio)
 			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
-			captureSession.addInput(audioInput)
+			session.addInput(audioInput)
 			
-			videoFileOutput = AVCaptureMovieFileOutput()
-			videoFileOutput.movieFragmentInterval = CMTime.invalid
-			captureSession.addOutput(videoFileOutput)
-			videoFileOutput.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
+			output = AVCaptureMovieFileOutput()
+			session.addOutput(output)
+			output.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
 		} catch {}
 		
-		let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		filePath = documentsURL.appendingPathComponent("output").appendingPathExtension("mp4")
+		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+		path = url.appendingPathComponent("output").appendingPathExtension("mp4")
 		
-		// Preview layer
-		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
+		previewLayer = AVCaptureVideoPreviewLayer(session: session)
 		previewLayer.videoGravity = .resizeAspectFill
 		previewLayer.frame = view.frame
 		previewLayer.connection?.videoOrientation = .portrait
-		self.view.layer.insertSublayer(previewLayer, at: 0)
+		view.layer.insertSublayer(previewLayer, at: 0)
 		
-		captureSession.startRunning()
+		session.startRunning()
 	}
 	
-	private func attachBottomBarTargets() {
-		for button in [lockButton, torchButton] {
-			button!.addTarget(self, action: #selector(menuButtonTouchDown(sender:)), for: .touchDown)
-		}
-		
-		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
-		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
-		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
-	}
-	
-	private func layoutBottomBar() {
+	private func setupBottomButtons() {
 		lockButton = menuButton("lock.fill")
 		torchButton = menuButton("bolt.fill")
-
 		let buttons: [UIButton] = [torchButton, recordButton, lockButton]
 		for button in buttons {
 			NSLayoutConstraint.activate([
@@ -251,6 +205,7 @@ extension ViewController {
 				button.heightAnchor.constraint(equalToConstant: 55)
 			])
 		}
+		
 		stackView = UIStackView(arrangedSubviews: buttons)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.distribution = .fillProportionally
@@ -267,16 +222,12 @@ extension ViewController {
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
-
+		
 		view.addSubview(durationBar)
 		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
 	}
 	
-	public func resetControls() {
-		recordButton.isUserInteractionEnabled = true
-	}
-	
-	private func setupControls() {
+	private func setupSliders() {
 		let popup = Popup(CGPoint(x: view.center.x, y: 20))
 		view.addSubview(popup)
 		
@@ -284,7 +235,7 @@ extension ViewController {
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.customRange(-4, 4, -0.5)
 		exposureSlider.popup = popup
-		exposureSlider.delegate = updateExposureValue
+		exposureSlider.delegate = updateExposureTargetBias
 		view.addSubview(exposureSlider)
 		
 		focusSlider = Slider(CGSize(width: 40, height: 320), view.frame, .right)
@@ -293,42 +244,75 @@ extension ViewController {
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
+	}
+	
+	private func setupSecondary() {
+		// MARK:- Grid
+		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
+		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: previewLayer!.frame.height))
+		let h1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,	width: view.frame.width, height: 1))
+		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
+		for line in [v1, v2, h1, h2] {
+			line.alpha = 0.2
+			line.backgroundColor = .white
+			line.layer.shadowColor = UIColor.black.cgColor
+			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
+			line.layer.shadowOpacity = 0.6
+			line.layer.shadowRadius = 1
+			line.clipsToBounds = false
+			view.addSubview(line)
+		}
 		
+		// MARK:- Exposure point & blur
 		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
 		
-    blurEffectView.frame = view.bounds
-		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
+    blurView.frame = view.bounds
+		view.insertSubview(blurView, belowSubview: exposurePointView)
 		
 		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
 		UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
 		})
-		
-		NotificationCenter.default.addObserver(self, selector: #selector(becomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
-		NotificationCenter.default.addObserver(self, selector: #selector(becomeBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
 	}
 	
-	@objc func becomeActive() {
-		if Settings.shared.torchEnabled && !Settings.shared.playedOpened {
-			do {
-				try captureDevice.lockForConfiguration()
-				captureDevice.torchMode = .on
-				captureDevice.unlockForConfiguration()
-			} catch {}
+	private func attachActions() {
+		for button in [lockButton, torchButton] {
+			button!.addTarget(self, action: #selector(menuButtonTouchDown(sender:)), for: .touchDown)
 		}
+		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
+		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
+		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
 		
-		if Settings.shared.playedOpened {
-			playerController.queuePlayer.play()
-		}
+		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
 	}
 	
-	@objc func becomeBackground() {
-		if Settings.shared.playedOpened {
+	
+	@objc private func didEnterBackground() {
+		if Settings.shared.playerOpened {
 			playerController.queuePlayer.pause()
 		} else if isRecording {
 			recordTouchUp()
 		}
+	}
+	
+	@objc private func didBecomeActive() {
+		if Settings.shared.playerOpened {
+			playerController.queuePlayer.play()
+		} else if !Settings.shared.playerOpened && Settings.shared.torchEnabled {
+			do {
+				try device.lockForConfiguration()
+				device.torchMode = .on
+				device.unlockForConfiguration()
+			} catch {}
+		}
+	}
+	
+	public func resetControls() {
+		recordButton.isUserInteractionEnabled = true
 	}
 	
 	// MARK: - TouchUp & TouchDown
@@ -345,28 +329,28 @@ extension ViewController {
 	@objc private func recordTouchUp() {
 		isRecording = !isRecording
 		if isRecording {
-			videoFileOutput!.startRecording(to: filePath!, recordingDelegate: self)
+			output.startRecording(to: path, recordingDelegate: self)
 			self.recordButton.backgroundColor = .systemGray6
-			durationBarAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
+			durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 				self.durationBar.frame.size.width = self.view.frame.width
 			})
-			durationBarAnim?.addCompletion({ (_) in self.recordTouchUp() })
-			durationBarAnim?.startAnimation()
+			durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
+			durationAnim?.startAnimation()
 			
 		} else {
-			videoFileOutput.stopRecording()
+			output.stopRecording()
 			recordingTimer?.invalidate()
-			durationBarAnim?.stopAnimation(true)
-			durationBarAnim = nil
+			durationAnim?.stopAnimation(true)
+			durationAnim = nil
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 				self.durationBar.frame.size.width = 0
-			}, completion: nil)
+			})
 			
-			if videoFileOutput.recordedDuration.seconds > 0.25 {
+			if output.recordedDuration.seconds > 0.25 {
 				recordButton.isUserInteractionEnabled = false
 				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-					self.blurEffectView.alpha = 1
-				}, completion: nil)
+					self.blurView.alpha = 1
+				})
 			}
 		}
 		
@@ -378,16 +362,16 @@ extension ViewController {
 			if !self.isRecording {
 				self.recordButton.backgroundColor = color
 			}
-		}, completion: nil)
+		})
 	}
 	
 	@objc private func lockTouchDown() {
-		let isLocked = captureDevice.exposureMode == .locked
+		let isLocked = device.exposureMode == .locked
 		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.exposureMode = isLocked ? .continuousAutoExposure : .locked
-			Settings.shared.exposureMode = captureDevice.exposureMode
-			captureDevice.unlockForConfiguration()
+			try device.lockForConfiguration()
+			device.exposureMode = isLocked ? .continuousAutoExposure : .locked
+			Settings.shared.exposureMode = device.exposureMode
+			device.unlockForConfiguration()
 		} catch {}
 	}
 	
@@ -407,32 +391,36 @@ extension ViewController {
 	}
 	
 	@objc private func torchTouchDown() {
-		guard captureDevice.hasTorch else { return }
-		let torchEnabled = captureDevice.isTorchActive
+		guard device.hasTorch else { return }
+		let torchEnabled = device.isTorchActive
 		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.torchMode = torchEnabled ? .off : .on
+			try device.lockForConfiguration()
+			device.torchMode = torchEnabled ? .off : .on
 			Settings.shared.torchEnabled = !torchEnabled
-			captureDevice.unlockForConfiguration()
+			device.unlockForConfiguration()
 		} catch {}
 	}
 	
 	// MARK: - Secondary
 	
-	private func updateExposureValue() {
+	private func updateExposureTargetBias() {
 		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
-			captureDevice.unlockForConfiguration()
+			try device.lockForConfiguration()
+			device.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+			device.unlockForConfiguration()
 		} catch {}
 	}
 	
 	private func updateLensPosition() {
 		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-			captureDevice.unlockForConfiguration()
+			try device.lockForConfiguration()
+			device.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+			device.unlockForConfiguration()
 		} catch {}
+	}
+	
+	override var prefersStatusBarHidden: Bool {
+		return true
 	}
 	
 	private func menuButton(_ imageName: String) -> UIButton {
@@ -447,27 +435,24 @@ extension ViewController {
 		button.imageView?.contentMode = .center
 		return button
 	}
-	
-	override var prefersStatusBarHidden: Bool {
-		return true
-	}
 }
+
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
-		if videoFileOutput.recordedDuration.seconds > 0.25 {
+		if output.recordedDuration.seconds > 0.25 {
 			playerController = PlayerController()
 			if Settings.shared.torchEnabled {
 				do {
-					try captureDevice.lockForConfiguration()
-					captureDevice.torchMode = .off
-					captureDevice.unlockForConfiguration()
+					try device.lockForConfiguration()
+					device.torchMode = .off
+					device.unlockForConfiguration()
 				} catch {}
 			}
 			
 			playerController.setupPlayer(outputFileURL) {
 				self.playerController.modalPresentationStyle = .overFullScreen
-				Settings.shared.playedOpened = true
+				Settings.shared.playerOpened = true
 				self.present(self.playerController, animated: true)
 			}
 		}

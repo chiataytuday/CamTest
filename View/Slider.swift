@@ -66,7 +66,7 @@ class Slider: UIView {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 			self.progressView.backgroundColor = .systemGray6
-		}, completion: nil)
+		})
 		popup?.setImage(imageView!.image!)
 		popup?.show()
 	}

@@ -50,19 +50,19 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		viewController.resetControls()
 		if Settings.shared.torchEnabled {
 			do {
-				try viewController.captureDevice.lockForConfiguration()
-				viewController.captureDevice.torchMode = .on
-				viewController.captureDevice.unlockForConfiguration()
+				try viewController.device.lockForConfiguration()
+				viewController.device.torchMode = .on
+				viewController.device.unlockForConfiguration()
 			} catch {}
 		}
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
-		}, completion: nil)
+		})
 		
 		UIView.animate(withDuration: duration * 0.8, delay: 0.01, options: .curveEaseOut, animations: {
 			viewController.view.alpha = 1
-			viewController.blurEffectView.alpha = 0
+			viewController.blurView.alpha = 0
 		}) { _ in
 			transitionContext.completeTransition(true)
 		}
@@ -75,7 +75,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			viewController.view.alpha = 0.15
-			playerController.blurEffectView.alpha = 0
+			playerController.blurView.alpha = 0
 			viewToAnimate.transform = CGAffineTransform.identity
 		}) { _ in
 			transitionContext.completeTransition(true)

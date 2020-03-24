@@ -11,29 +11,29 @@ import Photos
 
 class PermissionsController: UIViewController {
 	
-	let buttonNext: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setTitle("Grant to start", for: .normal)
-		button.setTitleColor(.systemGray4, for: .normal)
-		button.titleLabel?.font = UIFont.systemFont(ofSize: 19, weight: .light)
-		return button
+	let captionLabel: UILabel = {
+		let label = UILabel()
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.text = "Grant to start"
+		label.textColor = .systemGray4
+		label.font = UIFont.systemFont(ofSize: 19, weight: .light)
+		return label
 	}()
 	
-	var nextViewController: ViewController!
 	var cameraButton, libraryButton, micButton: UIButton!
+	var nextViewController: ViewController!
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = UIColor(red: 12/255, green: 12/255, blue: 12/255, alpha: 1)
-		setupButtons()
+		setupView()
 	}
 	
-	private func setupButtons() {
+	private func setupView() {
 		libraryButton = grantButton("photo.fill")
-		buttonAppearance(libraryButton, PHPhotoLibrary.authorizationStatus() == .authorized)
-		libraryButton.addTarget(self, action: #selector(libraryButtonAction), for: .touchDown)
+		setButtonAppearance(libraryButton, PHPhotoLibrary.authorizationStatus() == .authorized)
+		libraryButton.addTarget(self, action: #selector(libraryButtonTouchDown), for: .touchDown)
 		view.addSubview(libraryButton)
 		NSLayoutConstraint.activate([
 			libraryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -41,8 +41,8 @@ class PermissionsController: UIViewController {
 		])
 		
 		cameraButton = grantButton("camera.fill")
-		buttonAppearance(cameraButton, AVCaptureDevice.authorizationStatus(for: .video) == .authorized)
-		cameraButton.addTarget(self, action: #selector(cameraButtonAction), for: .touchDown)
+		setButtonAppearance(cameraButton, AVCaptureDevice.authorizationStatus(for: .video) == .authorized)
+		cameraButton.addTarget(self, action: #selector(cameraButtonTouchDown), for: .touchDown)
 		view.addSubview(cameraButton)
 		NSLayoutConstraint.activate([
 			cameraButton.trailingAnchor.constraint(equalTo: libraryButton.leadingAnchor, constant: -15),
@@ -50,20 +50,18 @@ class PermissionsController: UIViewController {
 		])
 		
 		micButton = grantButton("mic.fill")
-		buttonAppearance(micButton, AVAudioSession.sharedInstance().recordPermission == .granted)
-		micButton.addTarget(self, action: #selector(micButtonAction), for: .touchDown)
+		setButtonAppearance(micButton, AVAudioSession.sharedInstance().recordPermission == .granted)
+		micButton.addTarget(self, action: #selector(micButtonTouchDown), for: .touchDown)
 		view.addSubview(micButton)
 		NSLayoutConstraint.activate([
 			micButton.leadingAnchor.constraint(equalTo: libraryButton.trailingAnchor, constant: 15),
 			micButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
 		])
 		
-		view.addSubview(buttonNext)
+		view.addSubview(captionLabel)
 		NSLayoutConstraint.activate([
-			buttonNext.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			buttonNext.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			buttonNext.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-			buttonNext.heightAnchor.constraint(equalToConstant: 115)
+			captionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			captionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -40)
 		])
 		
 		// MARK: - Animation
@@ -75,39 +73,39 @@ class PermissionsController: UIViewController {
 			self.libraryButton.alpha = 1
 			self.cameraButton.alpha = 1
 			self.micButton.alpha = 1
-		}, completion: nil)
+		})
 	}
 	
 	
-	@objc private func libraryButtonAction() {
+	@objc private func libraryButtonTouchDown() {
 		if PHPhotoLibrary.authorizationStatus() == .denied {
 			showAlert("Photo Library Access Denied", "Photo Library access was previously denied. You must grant it through system settings")
 		} else {
 			PHPhotoLibrary.requestAuthorization { (status) in
 				if status != .authorized { return }
-				self.buttonAppearance(self.libraryButton, true)
+				self.setButtonAppearance(self.libraryButton, true)
 			}
 		}
 	}
 	
-	@objc private func cameraButtonAction() {
+	@objc private func cameraButtonTouchDown() {
 		if AVCaptureDevice.authorizationStatus(for: .video) == .denied {
 			showAlert("Camera Access Denied", "Camera access was previously denied. You must grant it through system settings")
 		} else {
 			AVCaptureDevice.requestAccess(for: .video) { (granted) in
 				if !granted { return }
-				self.buttonAppearance(self.cameraButton, true)
+				self.setButtonAppearance(self.cameraButton, true)
 			}
 		}
 	}
 	
-	@objc private func micButtonAction() {
+	@objc private func micButtonTouchDown() {
 		if AVAudioSession.sharedInstance().recordPermission == .denied {
 			showAlert("Microphone Access Denied", "Microphone access was previously denied. You must grant it through system settings")
 		} else {
 			AVAudioSession.sharedInstance().requestRecordPermission { (granted) in
 				if !granted { return }
-				self.buttonAppearance(self.micButton, true)
+				self.setButtonAppearance(self.micButton, true)
 			}
 		}
 	}
@@ -142,10 +140,10 @@ class PermissionsController: UIViewController {
 				}
 			}
 		}))
-		self.present(alert, animated: true)
+		present(alert, animated: true)
 	}
 	
-	private func buttonAppearance(_ button: UIButton, _ accessGranted: Bool) {
+	private func setButtonAppearance(_ button: UIButton, _ accessGranted: Bool) {
 		DispatchQueue.main.async {
 			if accessGranted {
 				button.backgroundColor = .systemGray2
