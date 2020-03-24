@@ -11,7 +11,7 @@ import AVFoundation
 import AudioToolbox
 
 class Colors {
-	static let sliderRange = colorByRGB(30, 30, 30)
+	static let sliderRange = colorByRGB(34, 34, 34)
 	static let sliderIcon = colorByRGB(95, 95, 95)
 	static let popupContent = colorByRGB(132, 132, 132)
 	static let disabledButton = colorByRGB(45, 45, 45)
@@ -185,7 +185,7 @@ extension ViewController {
 		device = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first
 		do {
 			try device.lockForConfiguration()
-			device.setFocusModeLocked(lensPosition: 0.3, completionHandler: nil)
+			device.setFocusModeLocked(lensPosition: 0.4, completionHandler: nil)
 			device.setExposureTargetBias(-0.5, completionHandler: nil)
 			device.unlockForConfiguration()
 		} catch {}
@@ -198,6 +198,7 @@ extension ViewController {
 			session.addInput(audioInput)
 			
 			output = AVCaptureMovieFileOutput()
+			output.movieFragmentInterval = CMTime.invalid
 			session.addOutput(output)
 			output.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
 		} catch {}
@@ -250,16 +251,16 @@ extension ViewController {
 		let popup = Popup(CGPoint(x: view.center.x, y: 20))
 		view.addSubview(popup)
 		
-		exposureSlider = Slider(CGSize(width: 40, height: 320), view.frame, .left)
+		exposureSlider = Slider(CGSize(width: 40, height: 280), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.customRange(-4, 4, -0.5)
+		exposureSlider.customRange(-3, 3, -0.5)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureTargetBias
 		view.addSubview(exposureSlider)
 		
-		focusSlider = Slider(CGSize(width: 40, height: 320), view.frame, .right)
+		focusSlider = Slider(CGSize(width: 40, height: 280), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0.3)
+		focusSlider.customRange(0, 1, 0.4)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
