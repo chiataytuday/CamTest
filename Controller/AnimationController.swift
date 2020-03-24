@@ -45,10 +45,10 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		guard let viewController = transitionContext.viewController(forKey: .to) as? ViewController, let playerController = transitionContext.viewController(forKey: .from) as? PlayerController else { return }
+		guard let viewController = transitionContext.viewController(forKey: .to) as? ViewController else { return }
 		
 		viewController.resetControls()
-		if playerController.torchWasEnabled {
+		if Settings.shared.torchEnabled {
 			do {
 				try viewController.captureDevice.lockForConfiguration()
 				viewController.captureDevice.torchMode = .on

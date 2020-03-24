@@ -10,7 +10,16 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
+class Settings {
+	var torchEnabled = false
+	var playedOpened = false
+	
+	static let shared = Settings()
+}
+
 class ViewController: UIViewController {
+	
+	var playerController: PlayerController!
 	
 	var isRecording = false
 	var exposureSlider, focusSlider: Slider!
@@ -280,9 +289,34 @@ extension ViewController {
 		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
 		
 		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
-		UIView.animate(withDuration: 0.5, delay: 0.02, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
 		})
+		
+		NotificationCenter.default.addObserver(self, selector: #selector(becomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(becomeBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+	}
+	
+	@objc func becomeActive() {
+		if Settings.shared.torchEnabled && !Settings.shared.playedOpened {
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.torchMode = .on
+				captureDevice.unlockForConfiguration()
+			} catch {}
+		}
+		
+		if Settings.shared.playedOpened {
+			playerController.queuePlayer.play()
+		}
+	}
+	
+	@objc func becomeBackground() {
+		if Settings.shared.playedOpened {
+			playerController.queuePlayer.pause()
+		} else if isRecording {
+			recordTouchUp()
+		}
 	}
 	
 	// MARK: - TouchUp & TouchDown
@@ -365,6 +399,7 @@ extension ViewController {
 		do {
 			try captureDevice.lockForConfiguration()
 			captureDevice.torchMode = torchEnabled ? .off : .on
+			Settings.shared.torchEnabled = !torchEnabled
 			captureDevice.unlockForConfiguration()
 		} catch {}
 	}
@@ -408,9 +443,8 @@ extension ViewController {
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		if videoFileOutput.recordedDuration.seconds > 0.25 {
-			let playerController = PlayerController()
-			playerController.torchWasEnabled = captureDevice.isTorchActive
-			if captureDevice.isTorchActive {
+			playerController = PlayerController()
+			if Settings.shared.torchEnabled {
 				do {
 					try captureDevice.lockForConfiguration()
 					captureDevice.torchMode = .off
@@ -419,8 +453,9 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 			}
 			
 			playerController.setupPlayer(outputFileURL) {
-				playerController.modalPresentationStyle = .overFullScreen
-				self.present(playerController, animated: true)
+				self.playerController.modalPresentationStyle = .overFullScreen
+				Settings.shared.playedOpened = true
+				self.present(self.playerController, animated: true)
 			}
 		}
 	}

@@ -16,7 +16,8 @@ class PlayerController: UIViewController {
 	private var stackView: UIStackView!
 	private var looper: AVPlayerLooper?
 	private var layer: AVPlayerLayer!
-	var torchWasEnabled: Bool!
+	private var item: AVPlayerItem!
+	var queuePlayer: AVQueuePlayer!
 	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -99,8 +100,8 @@ class PlayerController: UIViewController {
 	
 	public func setupPlayer(_ url: URL, handler: @escaping () -> ()) {
 		self.url = url
-		let item = AVPlayerItem(url: url)
-		let queuePlayer = AVQueuePlayer(playerItem: item)
+		item = AVPlayerItem(url: url)
+		queuePlayer = AVQueuePlayer(playerItem: item)
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
 		layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
@@ -146,6 +147,8 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurEffectView.alpha = 1
 		}, completion: nil)
+		Settings.shared.playedOpened = false
+		queuePlayer.pause()
 		dismiss(animated: true, completion: nil)
 	}
 }
