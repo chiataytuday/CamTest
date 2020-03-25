@@ -89,7 +89,6 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
-	
 	var playerController: PlayerController!
 	private var lockButton, torchButton: UIButton!
 	var stackView: UIStackView!
@@ -108,6 +107,13 @@ class ViewController: UIViewController {
 		setupBottomButtons()
 		setupSliders()
 		attachActions()
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
+		UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			self.exposurePointView.transform = CGAffineTransform.identity
+		})
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -243,13 +249,8 @@ extension ViewController {
 		exposurePointView.center = view.center
 		view.addSubview(exposurePointView)
 		
-    blurView.frame = view.bounds
+		blurView.frame = view.bounds
 		view.insertSubview(blurView, belowSubview: exposurePointView)
-		
-		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
-		UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-			self.exposurePointView.transform = CGAffineTransform.identity
-		})
 	}
 	
 	private func attachActions() {
