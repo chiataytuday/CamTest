@@ -32,14 +32,15 @@ class Camera {
 		
 		output = AVCaptureMovieFileOutput()
 		output.movieFragmentInterval = .invalid
-		output.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
 		do {
-			session.addOutput(output)
 			let deviceInput = try AVCaptureDeviceInput(device: device)
 			session.addInput(deviceInput)
 			let audioDevice = AVCaptureDevice.default(for: .audio)
 			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
 			session.addInput(audioInput)
+			
+			session.addOutput(output)
+			output.connection(with: .video)?.preferredVideoStabilizationMode = .auto
 		} catch {}
 		
 		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

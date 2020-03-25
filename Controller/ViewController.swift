@@ -33,7 +33,6 @@ class Colors {
 
 class Settings {
 	var torchEnabled = false
-	var playerOpened = false
 	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
 	
 	static let shared = Settings()
@@ -89,7 +88,6 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
-	var playerController: PlayerController!
 	private var lockButton, torchButton: UIButton!
 	var stackView: UIStackView!
 	
@@ -269,19 +267,19 @@ extension ViewController {
 	
 	
 	@objc private func didEnterBackground() {
-		cam.stopSession()
-		if Settings.shared.playerOpened {
-			playerController.queuePlayer.pause()
+		if let pc = presentedViewController as? PlayerController {
+			pc.queuePlayer.pause()
 		} else if isRecording {
 			recordTouchUp()
 		}
+		cam.stopSession()
 	}
 	
 	@objc private func didBecomeActive() {
 		cam.startSession()
-		if Settings.shared.playerOpened {
-			playerController.queuePlayer.play()
-		} else if !Settings.shared.playerOpened && Settings.shared.torchEnabled {
+		if let pc = presentedViewController as? PlayerController {
+			pc.queuePlayer.play()
+		} else if Settings.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
 	}
@@ -400,15 +398,14 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 				self.blurView.alpha = 1
 			})
 			
-			playerController = PlayerController()
+			let playerController = PlayerController()
 			if Settings.shared.torchEnabled {
 				cam.setTorch(.off)
 			}
 			playerController.setupPlayer(outputFileURL) { [weak self] (ready) in
 				guard let vc = self else { return }
 				if ready {
-					Settings.shared.playerOpened = true
-					vc.present(vc.playerController, animated: true)
+					vc.present(playerController, animated: true)
 				} else {
 					vc.resetControls()
 					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
@@ -420,36 +417,5 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 				}
 			}
 		}
-		
-//		if duration > 0.25 {
-//			view.isUserInteractionEnabled = false
-//			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-//				self.blurView.alpha = 1
-//			})
-//		}
-		
-		
-//		if output.recordedDuration.seconds > 0.25 {
-//			playerController = PlayerController()
-//			if Settings.shared.torchEnabled {
-//				cam.setTorch(.off)
-//			}
-//
-//			playerController.setupPlayer(outputFileURL) { (fileLoaded) in
-//				if fileLoaded {
-//					self.playerController.modalPresentationStyle = .overFullScreen
-//					Settings.shared.playerOpened = true
-//					self.present(self.playerController, animated: true)
-//				} else {
-//					self.resetControls()
-//					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-//						self.blurView.alpha = 0
-//					})
-//					let error = Notification("Something went wrong", CGPoint(x: self.view.center.x, y: self.view.frame.height - 130))
-//					self.view.addSubview(error)
-//					error.animate()
-//				}
-//			}
-//		}
 	}
 }

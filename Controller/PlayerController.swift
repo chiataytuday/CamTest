@@ -100,7 +100,7 @@ class PlayerController: UIViewController {
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-    blurView.frame = view.bounds
+		blurView.frame = view.bounds
 		view.addSubview(blurView)
 	}
 	
@@ -113,9 +113,9 @@ class PlayerController: UIViewController {
 		layer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(layer)
 		setupInterface()
-		observer = item.observe(\.status, options: [.new], changeHandler: { (item, change) in
+		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
-				self.queuePlayer.play()
+				self?.queuePlayer.play()
 			}
 			handler(item.status == .readyToPlay)
 		})
@@ -154,7 +154,6 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurView.alpha = 1
 		})
-		Settings.shared.playerOpened = false
 		queuePlayer.pause()
 		observer?.invalidate()
 		dismiss(animated: true, completion: nil)
