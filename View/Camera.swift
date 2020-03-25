@@ -57,4 +57,37 @@ class Camera {
 		layer.frame = view.frame
 		view.layer.insertSublayer(layer, at: 0)
 	}
+	
+	func setExposure(_ point: CGPoint, _ mode: AVCaptureDevice.ExposureMode) {
+		do {
+			try device.lockForConfiguration()
+			device.exposurePointOfInterest = point
+			device.exposureMode = mode
+			device.unlockForConfiguration()
+		} catch {}
+	}
+	
+	func setTargetBias(_ bias: Float) {
+		do {
+			try device.lockForConfiguration()
+			device.setExposureTargetBias(bias, completionHandler: nil)
+			device.unlockForConfiguration()
+		} catch {}
+	}
+	
+	func setLensPosition(_ pos: Float) {
+		do {
+			try device.lockForConfiguration()
+			device.setFocusModeLocked(lensPosition: pos, completionHandler: nil)
+			device.unlockForConfiguration()
+		} catch {}
+	}
+	
+	func setTorch(_ mode: AVCaptureDevice.TorchMode) {
+		do {
+			try device.lockForConfiguration()
+			device.torchMode = mode
+			device.unlockForConfiguration()
+		} catch {}
+	}
 }

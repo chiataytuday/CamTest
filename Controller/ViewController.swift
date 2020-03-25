@@ -41,11 +41,11 @@ class Settings {
 
 class ViewController: UIViewController {
 	
-	var session: AVCaptureSession!
-	var device: AVCaptureDevice!
-	var previewLayer: AVCaptureVideoPreviewLayer!
-	var output: AVCaptureMovieFileOutput!
-	var path: URL!
+//	var session: AVCaptureSession!
+//	var device: AVCaptureDevice!
+//	var previewLayer: AVCaptureVideoPreviewLayer!
+//	var output: AVCaptureMovieFileOutput!
+//	var path: URL!
 	
 	var isRecording = false
 	var exposureSlider, focusSlider: Slider!
@@ -105,7 +105,7 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
-		setupCamera()
+//		setupCamera()
 		setupSecondary()
 		setupBottomButtons()
 		setupSliders()
@@ -134,12 +134,12 @@ class ViewController: UIViewController {
 				self.exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
 			}.startAnimation()
 			let pointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: touch)
-			do {
-				try device.lockForConfiguration()
-				device.exposurePointOfInterest = pointOfInterest
-				device.exposureMode = .autoExpose
-				device.unlockForConfiguration()
-			} catch {}
+//			do {
+//				try device.lockForConfiguration()
+//				device.exposurePointOfInterest = pointOfInterest
+//				device.exposureMode = .autoExpose
+//				device.unlockForConfiguration()
+//			} catch {}
 			
 		} else {
 			if let slider = activeSlider {
@@ -164,14 +164,14 @@ class ViewController: UIViewController {
 		}
 		
 		touchOffset = nil
-		do {
-			try device.lockForConfiguration()
-			if let point = pointOfInterest {
-				device.exposurePointOfInterest = point
-			}
-			device.exposureMode = Settings.shared.exposureMode
-			device.unlockForConfiguration()
-		} catch {}
+//		do {
+//			try device.lockForConfiguration()
+//			if let point = pointOfInterest {
+//				device.exposurePointOfInterest = point
+//			}
+//			device.exposureMode = Settings.shared.exposureMode
+//			device.unlockForConfiguration()
+//		} catch {}
 		
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			self.exposurePointView.transform = CGAffineTransform.identity
@@ -182,44 +182,44 @@ class ViewController: UIViewController {
 
 extension ViewController {
 	
-	private func setupCamera() {
-		session = AVCaptureSession()
-		session.beginConfiguration()
-		session.automaticallyConfiguresApplicationAudioSession = false
-		session.sessionPreset = .hd1920x1080
-		
-		device = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first
-		do {
-			try device.lockForConfiguration()
-			device.setFocusModeLocked(lensPosition: 0.4, completionHandler: nil)
-			device.setExposureTargetBias(-0.5, completionHandler: nil)
-			device.unlockForConfiguration()
-		} catch {}
-		
-		do {
-			let deviceInput = try AVCaptureDeviceInput(device: device)
-			session.addInput(deviceInput)
-			let audioDevice = AVCaptureDevice.default(for: .audio)
-			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
-			session.addInput(audioInput)
-			
-			output = AVCaptureMovieFileOutput()
-			output.movieFragmentInterval = CMTime.invalid
-			session.addOutput(output)
-			output.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
-		} catch {}
-		
-		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		path = url.appendingPathComponent("output").appendingPathExtension("mp4")
-		
-		previewLayer = AVCaptureVideoPreviewLayer(session: session)
-		previewLayer.videoGravity = .resizeAspectFill
-		previewLayer.frame = view.frame
-		previewLayer.connection?.videoOrientation = .portrait
-		view.layer.insertSublayer(previewLayer, at: 0)
-		session.commitConfiguration()
-		session.startRunning()
-	}
+//	private func setupCamera() {
+//		session = AVCaptureSession()
+//		session.beginConfiguration()
+//		session.automaticallyConfiguresApplicationAudioSession = false
+//		session.sessionPreset = .hd1920x1080
+//
+//		device = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first
+//		do {
+//			try device.lockForConfiguration()
+//			device.setFocusModeLocked(lensPosition: 0.4, completionHandler: nil)
+//			device.setExposureTargetBias(-0.5, completionHandler: nil)
+//			device.unlockForConfiguration()
+//		} catch {}
+//
+//		do {
+//			let deviceInput = try AVCaptureDeviceInput(device: device)
+//			session.addInput(deviceInput)
+//			let audioDevice = AVCaptureDevice.default(for: .audio)
+//			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
+//			session.addInput(audioInput)
+//
+//			output = AVCaptureMovieFileOutput()
+//			output.movieFragmentInterval = CMTime.invalid
+//			session.addOutput(output)
+//			output.connection(with: .video)?.preferredVideoStabilizationMode = .cinematic
+//		} catch {}
+//
+//		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//		path = url.appendingPathComponent("output").appendingPathExtension("mp4")
+//
+//		previewLayer = AVCaptureVideoPreviewLayer(session: session)
+//		previewLayer.videoGravity = .resizeAspectFill
+//		previewLayer.frame = view.frame
+//		previewLayer.connection?.videoOrientation = .portrait
+//		view.layer.insertSublayer(previewLayer, at: 0)
+//		session.commitConfiguration()
+//		session.startRunning()
+//	}
 	
 	private func setupBottomButtons() {
 		lockButton = menuButton("lock.fill")
@@ -331,11 +331,11 @@ extension ViewController {
 		if Settings.shared.playerOpened {
 			playerController.queuePlayer.play()
 		} else if !Settings.shared.playerOpened && Settings.shared.torchEnabled {
-			do {
-				try device.lockForConfiguration()
-				device.torchMode = .on
-				device.unlockForConfiguration()
-			} catch {}
+//			do {
+//				try device.lockForConfiguration()
+//				device.torchMode = .on
+//				device.unlockForConfiguration()
+//			} catch {}
 		}
 	}
 	
@@ -432,19 +432,19 @@ extension ViewController {
 	// MARK: - Secondary
 	
 	private func updateExposureTargetBias() {
-		do {
-			try device.lockForConfiguration()
-			device.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
-			device.unlockForConfiguration()
-		} catch {}
+//		do {
+//			try device.lockForConfiguration()
+//			device.setExposureTargetBias(Float(exposureSlider.value), completionHandler: nil)
+//			device.unlockForConfiguration()
+//		} catch {}
 	}
 	
 	private func updateLensPosition() {
-		do {
-			try device.lockForConfiguration()
-			device.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
-			device.unlockForConfiguration()
-		} catch {}
+//		do {
+//			try device.lockForConfiguration()
+//			device.setFocusModeLocked(lensPosition: Float(focusSlider.value), completionHandler: nil)
+//			device.unlockForConfiguration()
+//		} catch {}
 	}
 	
 	override var prefersStatusBarHidden: Bool {
