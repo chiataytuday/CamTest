@@ -19,7 +19,7 @@ class Colors {
 	static let recordButtonDown = colorByRGB(20, 20, 20)
 	static let recordButtonUp = colorByRGB(30, 30, 30)
 	static let red = colorByRGB(205, 52, 41)
-	static let yellow = colorByRGB(249, 202, 71)
+	static let yellow = colorByRGB(254, 199, 32)
 	static let exportLabel = colorByRGB(140, 140, 140)
 	static let backIcon = colorByRGB(72, 72, 72)
 	static let permissionIcon = colorByRGB(100, 100, 100)
@@ -340,7 +340,7 @@ extension ViewController {
 	}
 	
 	public func resetControls() {
-		recordButton.isUserInteractionEnabled = true
+		view.isUserInteractionEnabled = true
 	}
 	
 	// MARK: - TouchUp & TouchDown
@@ -375,7 +375,7 @@ extension ViewController {
 			})
 			
 			if output.recordedDuration.seconds > 0.25 {
-				recordButton.isUserInteractionEnabled = false
+				view.isUserInteractionEnabled = false
 				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 					self.blurView.alpha = 1
 				})
@@ -478,10 +478,20 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 				} catch {}
 			}
 			
-			playerController.setupPlayer(outputFileURL) {
-				self.playerController.modalPresentationStyle = .overFullScreen
-				Settings.shared.playerOpened = true
-				self.present(self.playerController, animated: true)
+			playerController.setupPlayer(outputFileURL) { (fileLoaded) in
+				if fileLoaded {
+					self.playerController.modalPresentationStyle = .overFullScreen
+					Settings.shared.playerOpened = true
+					self.present(self.playerController, animated: true)
+				} else {
+					self.resetControls()
+					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+						self.blurView.alpha = 0
+					})
+					let error = Notification("Something went wrong", CGPoint(x: self.view.center.x, y: self.view.frame.height - 130))
+					self.view.addSubview(error)
+					error.animate()
+				}
 			}
 		}
 	}

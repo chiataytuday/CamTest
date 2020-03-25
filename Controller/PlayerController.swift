@@ -99,7 +99,7 @@ class PlayerController: UIViewController {
 		view.addSubview(blurView)
 	}
 	
-	public func setupPlayer(_ url: URL, handler: @escaping () -> ()) {
+	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		self.url = url
 		item = AVPlayerItem(url: url)
 		queuePlayer = AVQueuePlayer(playerItem: item)
@@ -108,14 +108,16 @@ class PlayerController: UIViewController {
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(layer)
-		queuePlayer.play()
-
 		self.setupInterface()
-		DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-			handler()
-		}
+		self.observer = item.observe(\.status, options: [.new], changeHandler: { (item, change) in
+			if item.status == .readyToPlay {
+				self.queuePlayer.play()
+			}
+			handler(item.status == .readyToPlay)
+		})
 	}
 	
+	var observer: NSKeyValueObservation?
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
@@ -150,6 +152,7 @@ class PlayerController: UIViewController {
 		})
 		Settings.shared.playerOpened = false
 		queuePlayer.pause()
+		observer?.invalidate()
 		dismiss(animated: true, completion: nil)
 	}
 }
