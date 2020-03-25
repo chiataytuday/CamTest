@@ -125,6 +125,7 @@ class PlayerController: UIViewController {
 				self?.queuePlayer.play()
 			}
 			self?.timer?.invalidate()
+			self?.observer?.invalidate()
 			handler(item.status == .readyToPlay)
 		})
 	}
