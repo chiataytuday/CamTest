@@ -88,6 +88,7 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
+	var pc: PlayerController?
 	private var lockButton, torchButton: UIButton!
 	var stackView: UIStackView!
 	
@@ -401,21 +402,21 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		if output.recordedDuration.seconds > 0.25 {
-			let playerController = PlayerController()
+			pc = PlayerController()
 			if Settings.shared.torchEnabled {
 				cam.setTorch(.off)
 			}
 			
-			playerController.setupPlayer(outputFileURL) { (ready) in
+			pc!.setupPlayer(outputFileURL) { [weak self, weak pc] (ready) in
 				if ready {
-					self.present(playerController, animated: true)
+					self?.present(pc!, animated: true)
 				} else {
-					self.resetControls()
+					self?.resetControls()
 					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-						self.blurView.alpha = 0
+						self?.blurView.alpha = 0
 					})
-					let error = Notification("Something went wrong", CGPoint(x: self.view.center.x, y: self.view.frame.height - 130))
-					self.view.addSubview(error)
+					let error = Notification("Something went wrong", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
+					self?.view.addSubview(error)
 					error.animate()
 				}
 			}
