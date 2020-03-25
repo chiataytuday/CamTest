@@ -32,10 +32,10 @@ class Colors {
 }
 
 class Settings {
-	var torchEnabled = false
-	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
-	
 	static let shared = Settings()
+	
+	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
+	var torchEnabled = false
 }
 
 class ViewController: UIViewController {
@@ -97,6 +97,8 @@ class ViewController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .black
+		modalTransitionStyle = .crossDissolve
+		modalPresentationStyle = .fullScreen
 		
 		cam = Camera()
 		cam.attachLayer(to: view)

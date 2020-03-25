@@ -16,17 +16,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
 		window = self.window ?? UIWindow()
 		window?.windowScene = scene as? UIWindowScene
-
-		let viewController = ViewController()
 		
 		if PermissionsController.grantedCount() < 3 {
-			let permissionsController = PermissionsController()
-			viewController.modalPresentationStyle = .fullScreen
-			viewController.modalTransitionStyle = .crossDissolve
-			permissionsController.nextViewController = viewController
-			window?.rootViewController = permissionsController
+			window?.rootViewController = PermissionsController()
 		} else {
-			window?.rootViewController = viewController
+			window?.rootViewController = ViewController()
 		}
 		window?.makeKeyAndVisible()
 		

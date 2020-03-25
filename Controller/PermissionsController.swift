@@ -21,7 +21,6 @@ class PermissionsController: UIViewController {
 	}()
 	
 	var cameraButton, libraryButton, micButton: UIButton!
-	var nextViewController: ViewController!
 	
 	
 	override func viewDidLoad() {
@@ -155,8 +154,9 @@ class PermissionsController: UIViewController {
 				button.tintColor = Colors.permissionIcon
 			}
 			
-			guard let vc = self.nextViewController, PermissionsController.grantedCount() == 3 else { return }
-			self.present(vc, animated: true)
+			if PermissionsController.grantedCount() == 3 {
+				self.present(ViewController(), animated: true)
+			}
 		}
 	}
 	
