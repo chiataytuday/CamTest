@@ -18,6 +18,7 @@ class PlayerController: UIViewController {
 	private var layer: AVPlayerLayer!
 	private var item: AVPlayerItem!
 	var queuePlayer: AVQueuePlayer!
+	var timer: Timer?
 	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -114,10 +115,16 @@ class PlayerController: UIViewController {
 		layer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(layer)
 		setupInterface()
+		timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { [weak self] (t) in
+			self?.observer?.invalidate()
+			t.invalidate()
+			handler(false)
+		})
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
 				self?.queuePlayer.play()
 			}
+			self?.timer?.invalidate()
 			handler(item.status == .readyToPlay)
 		})
 	}

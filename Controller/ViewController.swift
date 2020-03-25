@@ -96,10 +96,10 @@ class ViewController: UIViewController {
 	// MARK: - Touch functions
 	
 	override func viewDidLoad() {
-		super.viewDidLoad()
-		view.backgroundColor = .black
 		modalTransitionStyle = .crossDissolve
 		modalPresentationStyle = .fullScreen
+		super.viewDidLoad()
+		view.backgroundColor = .black
 		
 		cam = Camera()
 		cam.attachLayer(to: view)
@@ -412,10 +412,10 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 					self?.present(pc!, animated: true)
 				} else {
 					self?.resetControls()
-					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+					UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 						self?.blurView.alpha = 0
 					})
-					let error = Notification("Something went wrong", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
+					let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
 					self?.view.addSubview(error)
 					error.animate()
 				}
