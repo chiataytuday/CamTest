@@ -67,6 +67,10 @@ class PlayerController: UIViewController {
 		view.backgroundColor = .black
 	}
 	
+	deinit {
+		print("OS deinits PlayerController: NO memory leaks/retain cycles")
+	}
+	
 	private func setupInterface() {
 		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
 		exportButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
@@ -100,7 +104,6 @@ class PlayerController: UIViewController {
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
-		self.url = url
 		item = AVPlayerItem(url: url)
 		queuePlayer = AVQueuePlayer(playerItem: item)
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
@@ -108,8 +111,8 @@ class PlayerController: UIViewController {
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(layer)
-		self.setupInterface()
-		self.observer = item.observe(\.status, options: [.new], changeHandler: { (item, change) in
+		setupInterface()
+		observer = item.observe(\.status, options: [.new], changeHandler: { (item, change) in
 			if item.status == .readyToPlay {
 				self.queuePlayer.play()
 			}
