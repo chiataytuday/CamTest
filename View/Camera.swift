@@ -13,7 +13,7 @@ class Camera {
 	private let session: AVCaptureSession
 	let device: AVCaptureDevice
 	private let layer: AVCaptureVideoPreviewLayer
-	private let output: AVCaptureMovieFileOutput
+	let output: AVCaptureMovieFileOutput
 	private let path: URL
 	
 	init() {

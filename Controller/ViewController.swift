@@ -314,6 +314,12 @@ extension ViewController {
 			
 		} else {
 			cam.stopRecording()
+			if cam.output.recordedDuration.seconds > 0.25 {
+				view.isUserInteractionEnabled = false
+				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+					self.blurView.alpha = 1
+				})
+			}
 			recordingTimer?.invalidate()
 			durationAnim?.stopAnimation(true)
 			durationAnim = nil
@@ -395,26 +401,21 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		if output.recordedDuration.seconds > 0.25 {
-			view.isUserInteractionEnabled = false
-			UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-				self.blurView.alpha = 1
-			})
-			
 			let playerController = PlayerController()
 			if Settings.shared.torchEnabled {
 				cam.setTorch(.off)
 			}
-			playerController.setupPlayer(outputFileURL) { [weak self] (ready) in
-				guard let vc = self else { return }
+			
+			playerController.setupPlayer(outputFileURL) { (ready) in
 				if ready {
-					vc.present(playerController, animated: true)
+					self.present(playerController, animated: true)
 				} else {
-					vc.resetControls()
+					self.resetControls()
 					UIView.animate(withDuration: 0.5, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-						vc.blurView.alpha = 0
+						self.blurView.alpha = 0
 					})
-					let error = Notification("Something went wrong", CGPoint(x: vc.view.center.x, y: vc.view.frame.height - 130))
-					vc.view.addSubview(error)
+					let error = Notification("Something went wrong", CGPoint(x: self.view.center.x, y: self.view.frame.height - 130))
+					self.view.addSubview(error)
 					error.animate()
 				}
 			}
