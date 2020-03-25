@@ -105,6 +105,7 @@ class PlayerController: UIViewController {
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
+		self.url = url
 		item = AVPlayerItem(url: url)
 		queuePlayer = AVQueuePlayer(playerItem: item)
 		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
