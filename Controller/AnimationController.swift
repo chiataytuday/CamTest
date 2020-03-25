@@ -49,11 +49,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		
 		viewController.resetControls()
 		if Settings.shared.torchEnabled {
-			do {
-				try viewController.device.lockForConfiguration()
-				viewController.device.torchMode = .on
-				viewController.device.unlockForConfiguration()
-			} catch {}
+			viewController.cam.setTorch(.on)
 		}
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {

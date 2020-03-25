@@ -11,7 +11,7 @@ import AVFoundation
 
 class Camera {
 	private let session: AVCaptureSession
-	private let device: AVCaptureDevice
+	let device: AVCaptureDevice
 	private let layer: AVCaptureVideoPreviewLayer
 	private let output: AVCaptureMovieFileOutput
 	private let path: URL
@@ -58,10 +58,36 @@ class Camera {
 		view.layer.insertSublayer(layer, at: 0)
 	}
 	
+	func startSession() {
+		session.startRunning()
+	}
+	
+	func stopSession() {
+		session.stopRunning()
+	}
+	
+	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
+		output.startRecording(to: path, recordingDelegate: delegate)
+	}
+	
+	func stopRecording() -> Double {
+		output.stopRecording()
+		return output.recordedDuration.seconds
+	}
+	
+	
 	func setExposure(_ point: CGPoint, _ mode: AVCaptureDevice.ExposureMode) {
 		do {
 			try device.lockForConfiguration()
-			device.exposurePointOfInterest = point
+			device.exposurePointOfInterest = layer.captureDevicePointConverted(fromLayerPoint: point)
+			device.exposureMode = mode
+			device.unlockForConfiguration()
+		} catch {}
+	}
+	
+	func setExposure(_ mode: AVCaptureDevice.ExposureMode) {
+		do {
+			try device.lockForConfiguration()
 			device.exposureMode = mode
 			device.unlockForConfiguration()
 		} catch {}
