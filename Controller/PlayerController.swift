@@ -65,6 +65,7 @@ class PlayerController: UIViewController {
 		view.clipsToBounds = true
 		transitioningDelegate = self
 		view.backgroundColor = .black
+		modalPresentationStyle = .overFullScreen
 	}
 	
 	deinit {

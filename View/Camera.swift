@@ -70,9 +70,8 @@ class Camera {
 		output.startRecording(to: path, recordingDelegate: delegate)
 	}
 	
-	func stopRecording() -> Double {
+	func stopRecording() {
 		output.stopRecording()
-		return output.recordedDuration.seconds
 	}
 	
 	
