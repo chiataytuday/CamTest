@@ -66,11 +66,6 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 		view.clipsToBounds = true
 		view.backgroundColor = .black
-		
-		// TO REMOVE
-		view.backgroundColor = .red
-		blurView.alpha = 0
-		setupInterface()
 	}
 	
 	deinit {
@@ -143,14 +138,14 @@ class PlayerController: UIViewController {
 		})
 		
 		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {
-//			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
+			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
 		}.startAnimation()
 	}
 	
 	@objc private func buttonTouchUpOutside(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform.identity
-//			self.layer.transform = CATransform3DIdentity
+			self.layer.transform = CATransform3DIdentity
 			sender.backgroundColor = .black
 		})
 	}
@@ -167,7 +162,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurView.alpha = 1
 		})
-//		queuePlayer.pause()
+		queuePlayer.pause()
 		observer?.invalidate()
 		dismiss(animated: true, completion: nil)
 	}
