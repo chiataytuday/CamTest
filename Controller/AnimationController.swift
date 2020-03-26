@@ -52,16 +52,19 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 			viewController.cam.setTorch(.on)
 		}
 		let duration = transitionDuration(using: transitionContext)
+		DispatchQueue.main.async {
+			UIView.animate(withDuration: duration * 0.8, delay: 0.01, options: .curveEaseOut, animations: {
+				viewController.view.alpha = 1
+				viewController.blurView.alpha = 0
+			})
+		}
+		
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
-		})
-		
-		UIView.animate(withDuration: duration * 0.8, delay: 0.01, options: .curveEaseOut, animations: {
-			viewController.view.alpha = 1
-			viewController.blurView.alpha = 0
 		}) { _ in
 			transitionContext.completeTransition(true)
 		}
+		
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {

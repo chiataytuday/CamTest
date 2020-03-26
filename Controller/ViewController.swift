@@ -100,8 +100,8 @@ class ViewController: UIViewController {
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
-		cam = Camera()
-		cam.attachLayer(to: view)
+//		cam = Camera()
+//		cam.attachLayer(to: view)
 		
 		setupSecondary()
 		setupBottomButtons()
@@ -281,12 +281,12 @@ extension ViewController {
 	}
 	
 	@objc private func didBecomeActive() {
-		cam.startSession()
-		if let pc = presentedViewController as? PlayerController {
-			pc.queuePlayer.play()
-		} else if Settings.shared.torchEnabled {
-			cam.setTorch(.on)
-		}
+//		cam.startSession()
+//		if let pc = presentedViewController as? PlayerController {
+//			pc.queuePlayer.play()
+//		} else if Settings.shared.torchEnabled {
+//			cam.setTorch(.on)
+//		}
 	}
 	
 	public func resetControls() {
@@ -296,50 +296,54 @@ extension ViewController {
 	// MARK: - TouchUp & TouchDown
 	
 	@objc private func recordTouchDown() {
-		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
-				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
-			self.recordButton.backgroundColor = Colors.recordButtonDown
-		})
+		let pc = PlayerController()
+		pc.modalPresentationStyle = .overFullScreen
+		present(pc, animated: true)
+		
+//		redCircle.transform = CGAffineTransform.identity
+//		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+//			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
+//				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
+//			self.recordButton.backgroundColor = Colors.recordButtonDown
+//		})
 	}
 	
 	@objc private func recordTouchUp() {
-		isRecording = !isRecording
-		if isRecording {
-			cam.startRecording(self)
-			recordButton.backgroundColor = Colors.recordButtonUp
-			durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
-				self.durationBar.frame.size.width = self.view.frame.width
-			})
-			durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
-			durationAnim?.startAnimation()
-			
-		} else {
-			cam.stopRecording()
-			if cam.output.recordedDuration.seconds > 0.25 {
-				view.isUserInteractionEnabled = false
-				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-					self.blurView.alpha = 1
-				})
-			}
-			recordingTimer?.invalidate()
-			durationAnim?.stopAnimation(true)
-			durationAnim = nil
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-				self.durationBar.frame.size.width = 0
-			})
-		}
-		
-		let radius: CGFloat = isRecording ? 3.5 : 10
-		let color: UIColor = isRecording ? Colors.recordButtonUp : .black
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.redCircle.transform = CGAffineTransform.identity
-			self.redCircle.layer.cornerRadius = radius
-			if !self.isRecording {
-				self.recordButton.backgroundColor = color
-			}
-		})
+//		isRecording = !isRecording
+//		if isRecording {
+//			cam.startRecording(self)
+//			recordButton.backgroundColor = Colors.recordButtonUp
+//			durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
+//				self.durationBar.frame.size.width = self.view.frame.width
+//			})
+//			durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
+//			durationAnim?.startAnimation()
+//
+//		} else {
+//			cam.stopRecording()
+//			if cam.output.recordedDuration.seconds > 0.25 {
+//				view.isUserInteractionEnabled = false
+//				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+//					self.blurView.alpha = 1
+//				})
+//			}
+//			recordingTimer?.invalidate()
+//			durationAnim?.stopAnimation(true)
+//			durationAnim = nil
+//			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+//				self.durationBar.frame.size.width = 0
+//			})
+//		}
+//
+//		let radius: CGFloat = isRecording ? 3.5 : 10
+//		let color: UIColor = isRecording ? Colors.recordButtonUp : .black
+//		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
+//			self.redCircle.transform = CGAffineTransform.identity
+//			self.redCircle.layer.cornerRadius = radius
+//			if !self.isRecording {
+//				self.recordButton.backgroundColor = color
+//			}
+//		})
 	}
 	
 	@objc private func lockTouchDown() {
