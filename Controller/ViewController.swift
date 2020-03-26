@@ -97,7 +97,7 @@ class ViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		modalTransitionStyle = .crossDissolve
-		modalPresentationStyle = .fullScreen
+		modalPresentationStyle = .overFullScreen
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
@@ -157,7 +157,7 @@ class ViewController: UIViewController {
 		var pointOfInterest: CGPoint?
 		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
-				self.exposurePointView.center.y = self.view.frame.height - 80 - self.exposurePointView.frame.height/2
+				self.exposurePointView.center.y = self.view.frame.height - 85 - self.exposurePointView.frame.height/2
 			})
 			pointOfInterest = exposurePointView.center
 		}
@@ -194,7 +194,7 @@ extension ViewController {
 		stackView.distribution = .fillProportionally
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
@@ -208,10 +208,13 @@ extension ViewController {
 		
 		view.addSubview(durationBar)
 		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
+		
+		view.bringSubviewToFront(exposurePointView)
 	}
 	
 	private func setupSliders() {
-		let popup = Popup(CGPoint(x: view.center.x, y: 20))
+		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 5
+		let popup = Popup(CGPoint(x: view.center.x, y: y))
 		view.addSubview(popup)
 		
 		exposureSlider = Slider(CGSize(width: 40, height: 280), view.frame, .left)

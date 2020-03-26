@@ -62,11 +62,11 @@ class PlayerController: UIViewController {
 	}
 	
 	override func viewDidLoad() {
+		modalPresentationStyle = .overFullScreen
+		transitioningDelegate = self
 		super.viewDidLoad()
 		view.clipsToBounds = true
-		transitioningDelegate = self
 		view.backgroundColor = .black
-		modalPresentationStyle = .overFullScreen
 	}
 	
 	deinit {
