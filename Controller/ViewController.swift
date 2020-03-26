@@ -96,8 +96,7 @@ class ViewController: UIViewController {
 	// MARK: - Touch functions
 	
 	override func viewDidLoad() {
-		modalTransitionStyle = .crossDissolve
-		modalPresentationStyle = .overFullScreen
+		modalPresentationStyle = .fullScreen
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
@@ -406,6 +405,7 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 		
 		if output.recordedDuration.seconds > 0.25 {
 			pc = PlayerController()
+			pc?.modalPresentationStyle = .fullScreen
 			if Settings.shared.torchEnabled {
 				cam.setTorch(.off)
 			}
