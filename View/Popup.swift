@@ -34,16 +34,16 @@ class Popup: UIView {
 		let rect = CGRect(x: 0, y: 0, width: imageView.frame.width + valueLabel.frame.width + 5, height: imageView.frame.height)
 		super.init(frame: rect.insetBy(dx: -16, dy: -7.25))
 		
-		center = location
-		backgroundColor = .black
-		layer.cornerRadius = 17.5
-		alpha = 0
-		
 		valueLabel.frame.origin.x += imageView.frame.width + 5
 		for el in [imageView, valueLabel] {
 			el.frame.origin.x += 16
 			el.center.y = center.y + 7.25
 		}
+		
+		center = location
+		backgroundColor = .black
+		layer.cornerRadius = 17.5
+		alpha = 0
 		
 		addSubview(imageView)
 		addSubview(valueLabel)

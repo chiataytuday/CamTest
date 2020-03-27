@@ -14,10 +14,9 @@ import AudioToolbox
 class ViewController: UIViewController {
 	
 	var cam: Camera!
-	
 	var exposureSlider, focusSlider: Slider!
+	var exposurePointView: PointOfInterest!
 	var activeSlider: Slider?
-	var touchOffset: CGPoint?
 
 	
 	let blurView: UIVisualEffectView = {
@@ -26,13 +25,6 @@ class ViewController: UIViewController {
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		effectView.alpha = 0
 		return effectView
-	}()
-	
-	private let exposurePointView: UIImageView = {
-		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
-		let imageView = UIImageView(image: image)
-		imageView.tintColor = Colors.yellow
-		return imageView
 	}()
 	
 	private let recordButton: UIButton = {
@@ -84,56 +76,19 @@ class ViewController: UIViewController {
 		stackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18.5)
 	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard touchOffset == nil, let touch = touches.first?.location(in: view),
-			exposurePointView.frame.contains(touch) else { return }
-		
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			self.exposurePointView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-		})
-		touchOffset = CGPoint(x: touch.x - exposurePointView.frame.origin.x, y: touch.y - exposurePointView.frame.origin.y)
-	}
-	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: view) else { return }
-		if let offset = touchOffset {
-			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
-				self.exposurePointView.frame.origin = CGPoint(x: touch.x - offset.x, y: touch.y - offset.y)
-			}.startAnimation()
-			cam.setExposure(touch, .autoExpose)
-			
+		if let slider = activeSlider {
+			slider.touchesMoved(touches, with: event)
 		} else {
-			if let slider = activeSlider {
-				slider.touchesMoved(touches, with: event)
-			} else {
-				activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
-				activeSlider?.touchesBegan(touches, with: event)
-			}
+			activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
+			activeSlider?.touchesBegan(touches, with: event)
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		activeSlider?.touchesEnded(touches, with: event)
 		activeSlider = nil
-		
-		var pointOfInterest: CGPoint?
-		if let _ = touchOffset, exposurePointView.frame.maxY > view.frame.height - 80 {
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: .curveEaseOut, animations: {
-				self.exposurePointView.center.y = self.view.frame.height - 85 - self.exposurePointView.frame.height/2
-			})
-			pointOfInterest = exposurePointView.center
-		}
-		
-		touchOffset = nil
-		if let point = pointOfInterest {
-			cam.setExposure(point, Settings.shared.exposureMode)
-		} else {
-			cam.setExposure(Settings.shared.exposureMode)
-		}
-		
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			self.exposurePointView.transform = CGAffineTransform.identity
-		})
 	}
 }
 
@@ -209,7 +164,9 @@ extension ViewController {
 		}
 		
 		// MARK:- Exposure point & blur
+		exposurePointView = PointOfInterest()
 		exposurePointView.center = view.center
+		exposurePointView.cam = cam
 		view.addSubview(exposurePointView)
 		
 		blurView.frame = view.bounds
