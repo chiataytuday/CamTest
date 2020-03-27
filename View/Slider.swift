@@ -84,7 +84,7 @@ class Slider: UIView {
 		
 		value = ratio*(max-min)+min
 		let rounded = floor(value*10)/10
-		popup?.update(rounded)
+		popup?.setLabel(rounded)
 		delegate?()
 	}
 	

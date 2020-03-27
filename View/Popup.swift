@@ -9,8 +9,8 @@
 import UIKit
 
 class Popup: UIView {
-		
-	var expanded = false
+	
+	private var isExpanded = false
 	
 	private let imageView: UIImageView = {
 		let image = UIImage(systemName: "sun.max.fill")
@@ -30,9 +30,14 @@ class Popup: UIView {
 	}()
 
 	
-	init(_ origin: CGPoint) {
+	init(_ location: CGPoint) {
 		let rect = CGRect(x: 0, y: 0, width: imageView.frame.width + valueLabel.frame.width + 5, height: imageView.frame.height)
 		super.init(frame: rect.insetBy(dx: -16, dy: -7.25))
+		
+		center = location
+		backgroundColor = .black
+		layer.cornerRadius = 17.5
+		alpha = 0
 		
 		valueLabel.frame.origin.x += imageView.frame.width + 5
 		for el in [imageView, valueLabel] {
@@ -40,44 +45,40 @@ class Popup: UIView {
 			el.center.y = center.y + 7.25
 		}
 		
-		center = origin
-		backgroundColor = .black
-		layer.cornerRadius = 17.5
 		addSubview(imageView)
 		addSubview(valueLabel)
-		alpha = 0
 	}
 	
-	func update(_ value: CGFloat) {
+	func setLabel(_ value: CGFloat) {
 		valueLabel.text = "\(value)"
 		valueLabel.sizeToFit()
 		
-		if value < 0 && !expanded || value >= 0 && expanded {
-			let args: (CGFloat, CGFloat) = expanded ? (-10, 5) : (10, -5)
+		if value < 0 && !isExpanded || value >= 0 && isExpanded {
+			let args: (CGFloat, CGFloat) = isExpanded ? (-10, 5) : (10, -5)
 			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 				self.frame.size.width += args.0
 				self.frame.origin.x += args.1
-			}, completion: nil)
-			expanded = value < 0
+			})
+			isExpanded = value < 0
 		}
+	}
+	
+	func setImage(_ image: UIImage) {
+		imageView.image = image
 	}
 	
 	func show() {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: 0, y: 20)
 			self.alpha = 1
-		}, completion: nil)
+		})
 	}
 	
 	func hide() {
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
-		}, completion: nil)
-	}
-	
-	func setImage(_ image: UIImage) {
-		imageView.image = image
+		})
 	}
 	
 	required init?(coder: NSCoder) {

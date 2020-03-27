@@ -9,6 +9,7 @@
 import UIKit
 
 class Notification: UIView {
+	
 	private let errorLabel: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
@@ -16,21 +17,24 @@ class Notification: UIView {
 		return label
 	}()
 	
-	init(_ text: String, _ position: CGPoint) {
+	init(_ text: String, _ location: CGPoint) {
 		errorLabel.text = text
 		errorLabel.sizeToFit()
-		super.init(frame: errorLabel.frame.insetBy(dx: -16, dy: -8))
+		let inset = CGPoint(x: 16, y: 8)
+		super.init(frame: errorLabel.frame.insetBy(dx: -inset.x, dy: -inset.y))
+		
 		backgroundColor = Colors.red
 		layer.cornerRadius = frame.height/2
-		center.x = position.x
-		errorLabel.frame.origin.x += 16
-		errorLabel.frame.origin.y += 8
-		frame.origin.y = position.y
-		addSubview(errorLabel)
 		alpha = 0
+		
+		center.x = location.x
+		frame.origin.y = location.y
+		errorLabel.frame.origin.x += inset.x
+		errorLabel.frame.origin.y += inset.y
+		addSubview(errorLabel)
 	}
 	
-	func animate() {
+	func show() {
 		transform = CGAffineTransform(translationX: 0, y: 15)
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform.identity

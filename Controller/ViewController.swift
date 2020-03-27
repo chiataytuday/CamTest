@@ -10,33 +10,6 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
-class Colors {
-	static let sliderRange = colorByRGB(34, 34, 34)
-	static let sliderIcon = colorByRGB(95, 95, 95)
-	static let popupContent = colorByRGB(132, 132, 132)
-	static let disabledButton = colorByRGB(45, 45, 45)
-	static let enabledButton = colorByRGB(142, 142, 142)
-	static let recordButtonDown = colorByRGB(20, 20, 20)
-	static let recordButtonUp = colorByRGB(30, 30, 30)
-	static let red = colorByRGB(205, 52, 41)
-	static let yellow = colorByRGB(254, 199, 32)
-	static let exportLabel = colorByRGB(140, 140, 140)
-	static let backIcon = colorByRGB(72, 72, 72)
-	static let permissionIcon = colorByRGB(100, 100, 100)
-	static let permissionBorder = colorByRGB(45, 45, 45)
-	static let permissionBackground = colorByRGB(12, 12, 12)
-	
-	private static func colorByRGB(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> UIColor {
-		return UIColor(red: r/255, green: g/255, blue: b/255, alpha: 1)
-	}
-}
-
-class Settings {
-	static let shared = Settings()
-	
-	var exposureMode = AVCaptureDevice.ExposureMode.continuousAutoExposure
-	var torchEnabled = false
-}
 
 class ViewController: UIViewController {
 	
@@ -46,8 +19,8 @@ class ViewController: UIViewController {
 	var exposureSlider, focusSlider: Slider!
 	var activeSlider: Slider?
 	var touchOffset: CGPoint?
-	var durationAnim: UIViewPropertyAnimator?
-	var recordingTimer: Timer?
+//	var durationAnim: UIViewPropertyAnimator?
+//	var recordingTimer: Timer?
 
 	
 	let blurView: UIVisualEffectView = {
@@ -65,12 +38,12 @@ class ViewController: UIViewController {
 		return imageView
 	}()
 	
-	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
-		bar.backgroundColor = Colors.red
-		bar.layer.cornerRadius = 0.25
-		return bar
-	}()
+//	private let durationBar: UIView = {
+//		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
+//		bar.backgroundColor = Colors.red
+//		bar.layer.cornerRadius = 0.25
+//		return bar
+//	}()
 	
 	private let recordButton: UIButton = {
 		let button = UIButton()
@@ -101,7 +74,7 @@ class ViewController: UIViewController {
 		view.backgroundColor = .black
 		
 		cam = Camera()
-		cam.attachLayer(to: view)
+		cam.attach(to: view)
 		
 		setupSecondary()
 		setupBottomButtons()
@@ -205,8 +178,8 @@ extension ViewController {
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
 		
-		view.addSubview(durationBar)
-		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
+//		view.addSubview(durationBar)
+//		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
 		
 		view.bringSubviewToFront(exposurePointView)
 	}
@@ -309,11 +282,8 @@ extension ViewController {
 		if isRecording {
 			cam.startRecording(self)
 			recordButton.backgroundColor = Colors.recordButtonUp
-			durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
-				self.durationBar.frame.size.width = self.view.frame.width
-			})
-			durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
-			durationAnim?.startAnimation()
+			cam.durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
+			cam.durationAnim?.startAnimation()
 
 		} else {
 			cam.stopRecording()
@@ -323,12 +293,6 @@ extension ViewController {
 					self.blurView.alpha = 1
 				})
 			}
-			recordingTimer?.invalidate()
-			durationAnim?.stopAnimation(true)
-			durationAnim = nil
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-				self.durationBar.frame.size.width = 0
-			})
 		}
 
 		let radius: CGFloat = isRecording ? 3.5 : 10
@@ -420,7 +384,7 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 					})
 					let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
 					self?.view.addSubview(error)
-					error.animate()
+					error.show()
 				}
 			}
 		}

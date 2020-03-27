@@ -10,11 +10,22 @@ import UIKit
 import AVFoundation
 
 class Camera {
-	private let session: AVCaptureSession
 	let device: AVCaptureDevice
-	private let layer: AVCaptureVideoPreviewLayer
 	let output: AVCaptureMovieFileOutput
+	private let session: AVCaptureSession
+	private let layer: AVCaptureVideoPreviewLayer
 	private let path: URL
+	
+	private let durationBar: UIView = {
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
+		bar.backgroundColor = Colors.red
+		bar.layer.cornerRadius = 0.25
+		return bar
+	}()
+	
+	var durationAnim: UIViewPropertyAnimator?
+	private var timer: Timer?
+	
 	
 	init() {
 		session = AVCaptureSession()
@@ -54,9 +65,12 @@ class Camera {
 		session.startRunning()
 	}
 	
-	func attachLayer(to view: UIView) {
+	func attach(to view: UIView) {
 		layer.frame = view.frame
 		view.layer.insertSublayer(layer, at: 0)
+		
+		view.addSubview(durationBar)
+		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
 	}
 	
 	func startSession() {
@@ -69,10 +83,21 @@ class Camera {
 	
 	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
 		output.startRecording(to: path, recordingDelegate: delegate)
+		
+		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
+			self.durationBar.frame.size.width = self.layer.frame.width
+		})
 	}
 	
 	func stopRecording() {
 		output.stopRecording()
+		
+		timer?.invalidate()
+		durationAnim?.stopAnimation(true)
+		durationAnim = nil
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.durationBar.frame.size.width = 0
+		})
 	}
 	
 	
