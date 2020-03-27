@@ -13,25 +13,17 @@ import AudioToolbox
 
 class ViewController: UIViewController {
 	
-	var cam: Camera!
-	var exposureSlider, focusSlider: Slider!
-	var exposurePointView: PointOfInterest!
-	var activeSlider: Slider?
-
+	private var cam: Camera!
+	private var exposureSlider, focusSlider: Slider!
+	private var exposurePointView: PointOfInterest!
+	private var activeSlider: Slider?
 	
-	let blurView: UIVisualEffectView = {
+	private let blurView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
 		let effectView = UIVisualEffectView(effect: effect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		effectView.alpha = 0
 		return effectView
-	}()
-	
-	private let recordButton: UIButton = {
-		let button = UIButton()
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.backgroundColor = .black
-		return button
 	}()
 
 	private let redCircle: UIView = {
@@ -43,12 +35,10 @@ class ViewController: UIViewController {
 		return view
 	}()
 	
-	var pc: PlayerController?
-	private var lockButton, torchButton: UIButton!
-	var stackView: UIStackView!
+	private var playerController: PlayerController?
+	private var torchButton, recordButton, lockButton: MenuButton!
+	private var stackView: UIStackView!
 	
-	
-	// MARK: - Touch functions
 	
 	override func viewDidLoad() {
 		modalPresentationStyle = .fullScreen
@@ -58,17 +48,11 @@ class ViewController: UIViewController {
 		cam = Camera()
 		cam.attach(to: view)
 		
-		setupSecondary()
-		setupBottomButtons()
-		setupSliders()
+		setupGrid()
+		setupBottomMenu()
 		attachActions()
-	}
-	
-	override func viewDidAppear(_ animated: Bool) {
-		exposurePointView.transform = CGAffineTransform(scaleX: 1.4, y: 1.4)
-		UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-			self.exposurePointView.transform = CGAffineTransform.identity
-		})
+		setupSliders()
+		setupSecondary()
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -92,21 +76,13 @@ class ViewController: UIViewController {
 	}
 }
 
-
 extension ViewController {
 	
-	private func setupBottomButtons() {
-		lockButton = menuButton("lock.fill")
-		torchButton = menuButton("bolt.fill")
-		let buttons: [UIButton] = [torchButton, recordButton, lockButton]
-		for button in buttons {
-			NSLayoutConstraint.activate([
-				button.widthAnchor.constraint(equalToConstant: 57.5),
-				button.heightAnchor.constraint(equalToConstant: 55)
-			])
-		}
-		
-		stackView = UIStackView(arrangedSubviews: buttons)
+	private func setupBottomMenu() {
+		torchButton = MenuButton("bolt.fill")
+		recordButton = MenuButton(nil)
+		lockButton = MenuButton("lock.fill")
+		stackView = UIStackView(arrangedSubviews: [torchButton, recordButton, lockButton])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.distribution = .fillProportionally
 		view.addSubview(stackView)
@@ -122,8 +98,6 @@ extension ViewController {
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
-		
-		view.bringSubviewToFront(exposurePointView)
 	}
 	
 	private func setupSliders() {
@@ -146,13 +120,17 @@ extension ViewController {
 		view.addSubview(focusSlider)
 	}
 	
-	private func setupSecondary() {
-		// MARK:- Grid
-		let v1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let v2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5, y: 0, width: 1, height: view.frame.height))
-		let h1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,	width: view.frame.width, height: 1))
-		let h2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5, width: view.frame.width, height: 1))
-		for line in [v1, v2, h1, h2] {
+	private func setupGrid() {
+		let vert1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5,
+			y: 0, width: 1, height: view.frame.height))
+		let vert2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5,
+			y: 0, width: 1, height: view.frame.height))
+		let hor1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,
+			width: view.frame.width, height: 1))
+		let hor2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5,
+			width: view.frame.width, height: 1))
+		
+		for line in [vert1, vert2, hor1, hor2] {
 			line.alpha = 0.2
 			line.backgroundColor = .white
 			line.layer.shadowColor = UIColor.black.cgColor
@@ -162,8 +140,9 @@ extension ViewController {
 			line.clipsToBounds = false
 			view.addSubview(line)
 		}
-		
-		// MARK:- Exposure point & blur
+	}
+	
+	private func setupSecondary() {
 		exposurePointView = PointOfInterest()
 		exposurePointView.center = view.center
 		exposurePointView.cam = cam
@@ -187,30 +166,7 @@ extension ViewController {
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
 	}
 	
-	
-	@objc private func didEnterBackground() {
-		if let vc = presentedViewController as? PlayerController {
-			vc.queuePlayer.pause()
-		} else if cam.isRecording {
-			recordTouchUp()
-		}
-		cam.stopSession()
-	}
-	
-	@objc private func didBecomeActive() {
-		cam.startSession()
-		if let vc = presentedViewController as? PlayerController {
-			vc.queuePlayer.play()
-		} else if Settings.shared.torchEnabled {
-			cam.setTorch(.on)
-		}
-	}
-	
-	public func resetControls() {
-		view.isUserInteractionEnabled = true
-	}
-	
-	// MARK: - TouchUp & TouchDown
+	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
@@ -276,7 +232,7 @@ extension ViewController {
 		cam.setTorch(mode)
 	}
 	
-	// MARK: - Secondary
+	// MARK: - Sliders handlers & Secondary methods
 	
 	private func updateExposureTargetBias() {
 		cam.setTargetBias(Float(exposureSlider.value))
@@ -286,47 +242,63 @@ extension ViewController {
 		cam.setLensPosition(Float(focusSlider.value))
 	}
 	
+	@objc private func didEnterBackground() {
+		if let vc = presentedViewController as? PlayerController {
+			vc.queuePlayer.pause()
+		} else if cam.isRecording {
+			recordTouchUp()
+		}
+		cam.stopSession()
+	}
+	
+	@objc private func didBecomeActive() {
+		cam.startSession()
+		if let vc = presentedViewController as? PlayerController {
+			vc.queuePlayer.play()
+		} else if Settings.shared.torchEnabled {
+			cam.setTorch(.on)
+		}
+	}
+	
+	public func resetControls(_ duration: Double = 0) {
+		view.isUserInteractionEnabled = true
+		if Settings.shared.torchEnabled {
+			cam.setTorch(.on)
+		}
+		UIView.animate(withDuration: duration * 0.8, delay: 0, options: .curveEaseOut, animations: {
+			self.view.alpha = 1
+			self.blurView.alpha = 0
+		})
+	}
+	
 	override var prefersStatusBarHidden: Bool {
 		return true
 	}
 	
-	private func menuButton(_ imageName: String) -> UIButton {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-		button.setImage(UIImage(systemName: imageName), for: .normal)
-		button.backgroundColor = .black
-		button.tintColor = Colors.disabledButton
-		button.adjustsImageWhenHighlighted = false
-		button.imageView?.clipsToBounds = false
-		button.imageView?.contentMode = .center
-		return button
-	}
 }
 
 
 extension ViewController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
-		if output.recordedDuration.seconds > 0.25 {
-			pc = PlayerController()
-			pc?.modalPresentationStyle = .overFullScreen
-			if Settings.shared.torchEnabled {
-				cam.setTorch(.off)
-			}
-			
-			pc!.setupPlayer(outputFileURL) { [weak self, weak pc] (ready) in
-				if ready {
-					self?.present(pc!, animated: true)
-				} else {
-					self?.resetControls()
-					UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-						self?.blurView.alpha = 0
-					})
-					let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
-					self?.view.addSubview(error)
-					error.show()
-				}
+		guard output.recordedDuration.seconds > 0.25 else { return }
+		playerController = PlayerController()
+		playerController?.modalPresentationStyle = .overFullScreen
+		if Settings.shared.torchEnabled {
+			cam.setTorch(.off)
+		}
+		
+		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
+			if ready {
+				self?.present(playerController!, animated: true)
+			} else {
+				self?.resetControls()
+				UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+					self?.blurView.alpha = 0
+				})
+				let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
+				self?.view.addSubview(error)
+				error.show()
 			}
 		}
 	}

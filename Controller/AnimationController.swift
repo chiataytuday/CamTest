@@ -45,32 +45,22 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	}
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
-		guard let viewController = transitionContext.viewController(forKey: .to) as? ViewController else { return }
-		
-		viewController.resetControls()
-		if Settings.shared.torchEnabled {
-			viewController.cam.setTorch(.on)
-		}
 		let duration = transitionDuration(using: transitionContext)
-		DispatchQueue.main.async {
-			UIView.animate(withDuration: duration * 0.8, delay: 0.01, options: .curveEaseOut, animations: {
-				viewController.view.alpha = 1
-				viewController.blurView.alpha = 0
-			})
-		}
+		(transitionContext.viewController(forKey: .to) as? ViewController)?.resetControls(duration)
 		
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
 		}) { _ in
 			transitionContext.completeTransition(true)
 		}
-		
 	}
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
+		
 		guard let viewController = transitionContext.viewController(forKey: .from) as? ViewController, let playerController = transitionContext.viewController(forKey: .to) as? PlayerController else { return }
 		
 		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.2, y: 0.2).rotated(by: .pi/7)
+		
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			viewController.view.alpha = 0.15
