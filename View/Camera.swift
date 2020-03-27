@@ -23,6 +23,7 @@ class Camera {
 		return bar
 	}()
 	
+	private(set) var isRecording = false
 	var durationAnim: UIViewPropertyAnimator?
 	private var timer: Timer?
 	
@@ -82,6 +83,7 @@ class Camera {
 	}
 	
 	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
+		isRecording = true
 		output.startRecording(to: path, recordingDelegate: delegate)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
@@ -90,6 +92,7 @@ class Camera {
 	}
 	
 	func stopRecording() {
+		isRecording = false
 		output.stopRecording()
 		
 		timer?.invalidate()

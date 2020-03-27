@@ -15,12 +15,9 @@ class ViewController: UIViewController {
 	
 	var cam: Camera!
 	
-	var isRecording = false
 	var exposureSlider, focusSlider: Slider!
 	var activeSlider: Slider?
 	var touchOffset: CGPoint?
-//	var durationAnim: UIViewPropertyAnimator?
-//	var recordingTimer: Timer?
 
 	
 	let blurView: UIVisualEffectView = {
@@ -37,13 +34,6 @@ class ViewController: UIViewController {
 		imageView.tintColor = Colors.yellow
 		return imageView
 	}()
-	
-//	private let durationBar: UIView = {
-//		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
-//		bar.backgroundColor = Colors.red
-//		bar.layer.cornerRadius = 0.25
-//		return bar
-//	}()
 	
 	private let recordButton: UIButton = {
 		let button = UIButton()
@@ -178,9 +168,6 @@ extension ViewController {
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
 		
-//		view.addSubview(durationBar)
-//		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
-		
 		view.bringSubviewToFront(exposurePointView)
 	}
 	
@@ -245,9 +232,9 @@ extension ViewController {
 	
 	
 	@objc private func didEnterBackground() {
-		if let pc = presentedViewController as? PlayerController {
-			pc.queuePlayer.pause()
-		} else if isRecording {
+		if let vc = presentedViewController as? PlayerController {
+			vc.queuePlayer.pause()
+		} else if cam.isRecording {
 			recordTouchUp()
 		}
 		cam.stopSession()
@@ -255,8 +242,8 @@ extension ViewController {
 	
 	@objc private func didBecomeActive() {
 		cam.startSession()
-		if let pc = presentedViewController as? PlayerController {
-			pc.queuePlayer.play()
+		if let vc = presentedViewController as? PlayerController {
+			vc.queuePlayer.play()
 		} else if Settings.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
@@ -278,13 +265,11 @@ extension ViewController {
 	}
 	
 	@objc private func recordTouchUp() {
-		isRecording = !isRecording
-		if isRecording {
+		if !cam.isRecording {
 			cam.startRecording(self)
 			recordButton.backgroundColor = Colors.recordButtonUp
-			cam.durationAnim?.addCompletion({ (_) in self.recordTouchUp() })
+			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
 			cam.durationAnim?.startAnimation()
-
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
@@ -294,14 +279,13 @@ extension ViewController {
 				})
 			}
 		}
-
-		let radius: CGFloat = isRecording ? 3.5 : 10
-		let color: UIColor = isRecording ? Colors.recordButtonUp : .black
+		
+		let args: (CGFloat, UIColor) = cam.isRecording ? (3.5, Colors.recordButtonUp) : (10, .black)
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform.identity
-			self.redCircle.layer.cornerRadius = radius
-			if !self.isRecording {
-				self.recordButton.backgroundColor = color
+			self.redCircle.layer.cornerRadius = args.0
+			if !self.cam.isRecording {
+				self.recordButton.backgroundColor = args.1
 			}
 		})
 	}
