@@ -10,29 +10,30 @@ import UIKit
 
 class Slider: UIView {
 	
-	enum SliderPosition {
+	enum SliderAlignment {
 		case left
 		case right
 	}
 	
 	private var progressView: UIView!
 	private var offset: CGFloat?
-	var min, max, value: CGFloat
-	let sliderPosition: SliderPosition
+	private var min, max: CGFloat
+	private(set) var value: CGFloat
+	let alignment: SliderAlignment
 	
 	private var imageView: UIImageView?
-	var popup: Popup?
 	var delegate: (() -> ())?
+	var popup: Popup?
 	
 	
-	init(_ size: CGSize, _ parentFrame: CGRect, _ sliderPosition: SliderPosition) {
+	init(_ size: CGSize, _ superviewFrame: CGRect, _ alignment: SliderAlignment) {
 		min = 0; max = 1; value = max
-		self.sliderPosition = sliderPosition
+		self.alignment = alignment
 		super.init(frame: CGRect(origin: .zero, size: size))
 		layer.cornerRadius = frame.width/2
 		clipsToBounds = true
 		backgroundColor = .black
-		center = CGPoint(x: sliderPosition == .left ? -frame.width/2 : parentFrame.maxX + frame.width/2, y: parentFrame.midY)
+		center = CGPoint(x: alignment == .left ? -frame.width/2 : superviewFrame.maxX + frame.width/2, y: superviewFrame.midY)
 		
 		progressView = UIView(frame: bounds)
 		progressView.backgroundColor = Colors.sliderRange
@@ -44,12 +45,11 @@ class Slider: UIView {
 		imageView = UIImageView(image: image)
 		imageView?.tintColor = Colors.sliderIcon
 		
-		imageView?.center = CGPoint(x: progressView.frame.midX,
-																y: progressView.frame.maxY - imageView!.frame.height/2 - 8)
+		imageView?.center = CGPoint(x: progressView.frame.midX, y: progressView.frame.maxY - imageView!.frame.height/2 - 8)
 		insertSubview(imageView!, aboveSubview: progressView)
 	}
 	
-	func customRange(_ min: CGFloat, _ max: CGFloat, _ value: CGFloat) {
+	func setRange(_ min: CGFloat, _ max: CGFloat, _ value: CGFloat) {
 		self.min = min
 		self.max = max
 		
@@ -62,7 +62,7 @@ class Slider: UIView {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: self) else { return }
 		offset = progressView.frame.height + touch.y
-		let x: CGFloat = sliderPosition == .left ? frame.width/2: -frame.width/2
+		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		})

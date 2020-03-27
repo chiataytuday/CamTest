@@ -17,15 +17,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		window = self.window ?? UIWindow()
 		window?.windowScene = scene as? UIWindowScene
 		
+		let vc: UIViewController
 		if PermissionsController.grantedCount() < 3 {
-			let pc = PermissionsController()
-			pc.modalPresentationStyle = .fullScreen
-			window?.rootViewController = pc
+			vc = PermissionsController()
 		} else {
-			let vc = ViewController()
-			vc.modalPresentationStyle = .fullScreen
-			window?.rootViewController = vc
+			vc = ViewController()
 		}
+		vc.modalPresentationStyle = .fullScreen
+		window?.rootViewController = vc
 		window?.makeKeyAndVisible()
 		
 		guard let _ = (scene as? UIWindowScene) else { return }

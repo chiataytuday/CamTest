@@ -31,7 +31,7 @@ class PlayerController: UIViewController {
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
 		button.backgroundColor = .black
-		button.tintColor = Colors.exportLabel
+		button.tintColor = Colors.buttonLabel
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -134,7 +134,7 @@ class PlayerController: UIViewController {
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			sender.backgroundColor = Colors.recordButtonUp
+			sender.backgroundColor = Colors.buttonUp
 		})
 		
 		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {

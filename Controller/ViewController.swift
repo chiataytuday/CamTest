@@ -41,7 +41,6 @@ class ViewController: UIViewController {
 	
 	
 	override func viewDidLoad() {
-		modalPresentationStyle = .fullScreen
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
@@ -107,14 +106,14 @@ extension ViewController {
 		
 		exposureSlider = Slider(CGSize(width: 40, height: 280), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.customRange(-3, 3, -0.5)
+		exposureSlider.setRange(-3, 3, -0.5)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureTargetBias
 		view.addSubview(exposureSlider)
 		
 		focusSlider = Slider(CGSize(width: 40, height: 280), view.frame, .right)
 		focusSlider.setImage("globe")
-		focusSlider.customRange(0, 1, 0.4)
+		focusSlider.setRange(0, 1, 0.4)
 		focusSlider.popup = popup
 		focusSlider.delegate = updateLensPosition
 		view.addSubview(focusSlider)
@@ -173,14 +172,14 @@ extension ViewController {
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
-			self.recordButton.backgroundColor = Colors.recordButtonDown
+			self.recordButton.backgroundColor = Colors.buttonDown
 		})
 	}
 	
 	@objc private func recordTouchUp() {
 		if !cam.isRecording {
 			cam.startRecording(self)
-			recordButton.backgroundColor = Colors.recordButtonUp
+			recordButton.backgroundColor = Colors.buttonUp
 			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
 			cam.durationAnim?.startAnimation()
 		} else {
@@ -193,7 +192,7 @@ extension ViewController {
 			}
 		}
 		
-		let args: (CGFloat, UIColor) = cam.isRecording ? (3.5, Colors.recordButtonUp) : (10, .black)
+		let args: (CGFloat, UIColor) = cam.isRecording ? (3.5, Colors.buttonUp) : (10, .black)
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = args.0
