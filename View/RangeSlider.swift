@@ -80,7 +80,7 @@ class RangeSlider : UIView {
 		
 		UIViewPropertyAnimator(duration: 0.2, curve: .easeOut) {
 			self.unactive!.backgroundColor = .systemGray
-			self.range.backgroundColor = .systemGray
+			self.range.backgroundColor = Colors.buttonLabel
 		}.startAnimation()
 	}
 	
@@ -90,7 +90,6 @@ class RangeSlider : UIView {
 		resizeRange(pos)
 		let timescale = player?.currentItem?.asset.duration.timescale
 		player?.seek(to: CMTimeMakeWithSeconds(endTime, preferredTimescale: timescale!), toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: { (_) in
-			
 		})
 	}
 	

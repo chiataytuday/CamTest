@@ -74,6 +74,18 @@ class PlayerController: UIViewController {
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		rangeSlider.touchesBegan(touches, with: event)
+	}
+	
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		rangeSlider.touchesMoved(touches, with: event)
+	}
+	
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		rangeSlider.touchesEnded(touches, with: event)
+	}
+	
 	private func setupInterface() {
 		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
 		exportButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
@@ -102,8 +114,7 @@ class PlayerController: UIViewController {
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: 33.5), size: CGSize(width: view.frame.width - 60, height: 7)))
-//		rangeSlider.duration = 15
+		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: view.frame.height - 18), size: CGSize(width: view.frame.width - 60, height: 4)))
 		view.addSubview(rangeSlider)
 		
 		
