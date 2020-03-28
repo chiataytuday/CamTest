@@ -20,6 +20,8 @@ class PlayerController: UIViewController {
 	var queuePlayer: AVQueuePlayer!
 	var timer: Timer?
 	
+	var rangeSlider: RangeSlider!
+	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -100,6 +102,11 @@ class PlayerController: UIViewController {
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
+		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: 33.5), size: CGSize(width: view.frame.width - 60, height: 7)))
+//		rangeSlider.duration = 15
+		view.addSubview(rangeSlider)
+		
+		
 		blurView.frame = view.bounds
 		view.addSubview(blurView)
 	}
@@ -121,7 +128,10 @@ class PlayerController: UIViewController {
 		})
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
+				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
+				self?.rangeSlider.player = self?.queuePlayer
 				self?.queuePlayer.play()
+				self?.queuePlayer.pause()
 			}
 			self?.timer?.invalidate()
 			self?.observer?.invalidate()

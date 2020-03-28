@@ -75,6 +75,7 @@ class ViewController: UIViewController {
 	}
 }
 
+
 extension ViewController {
 	
 	private func setupBottomMenu() {
