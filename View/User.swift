@@ -1,5 +1,5 @@
 //
-//  Settings.swift
+//  User.swift
 //  Flaneur
 //
 //  Created by debavlad on 27.03.2020.
@@ -8,8 +8,8 @@
 
 import AVFoundation
 
-class Settings {
-	static let shared = Settings()
+class User {
+	static let shared = User()
 	
 	var exposureMode: AVCaptureDevice.ExposureMode
 	var torchEnabled: Bool

@@ -53,9 +53,9 @@ class MovablePoint : UIImageView {
 		}
 		
 		if let p = point {
-			camera?.setExposure(p, Settings.shared.exposureMode)
+			camera?.setExposure(p, User.shared.exposureMode)
 		} else {
-			camera?.setExposure(Settings.shared.exposureMode)
+			camera?.setExposure(User.shared.exposureMode)
 		}
 		
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseOut, .allowUserInteraction], animations: {

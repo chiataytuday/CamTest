@@ -16,8 +16,6 @@ class Colors {
 	static let enabledButton = rgb(142, 142, 142)
 	static let buttonDown = rgb(20, 20, 20)
 	static let buttonUp = rgb(30, 30, 30)
-	static let red = rgb(205, 52, 41)
-	static let yellow = rgb(254, 199, 32)
 	static let buttonLabel = rgb(140, 140, 140)
 	static let backIcon = rgb(72, 72, 72)
 	static let permissionIcon = rgb(100, 100, 100)

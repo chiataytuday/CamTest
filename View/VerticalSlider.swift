@@ -1,6 +1,6 @@
 //
-//  Slider.swift
-//  CamTest
+//  VerticalSlider.swift
+//  Flaneur
 //
 //  Created by debavlad on 17.03.2020.
 //  Copyright © 2020 debavlad. All rights reserved.

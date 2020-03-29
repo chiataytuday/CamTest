@@ -206,7 +206,7 @@ extension ViewController {
 	@objc private func lockTouchDown() {
 		let isLocked = cam.device.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
-		Settings.shared.exposureMode = mode
+		User.shared.exposureMode = mode
 		cam.setExposure(mode)
 	}
 	
@@ -228,7 +228,7 @@ extension ViewController {
 	@objc private func torchTouchDown() {
 		let torchEnabled = cam.device.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
-		Settings.shared.torchEnabled = !torchEnabled
+		User.shared.torchEnabled = !torchEnabled
 		cam.setTorch(mode)
 	}
 	
@@ -255,14 +255,14 @@ extension ViewController {
 		cam.startSession()
 		if let vc = presentedViewController as? PlayerController {
 			vc.queuePlayer.play()
-		} else if Settings.shared.torchEnabled {
+		} else if User.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
 	}
 	
 	public func resetControls(_ duration: Double = 0) {
 		view.isUserInteractionEnabled = true
-		if Settings.shared.torchEnabled {
+		if User.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
@@ -285,7 +285,7 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 		guard output.recordedDuration.seconds > 0.25 else { return }
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
-		if Settings.shared.torchEnabled {
+		if User.shared.torchEnabled {
 			cam.setTorch(.off)
 		}
 		
