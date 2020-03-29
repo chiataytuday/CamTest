@@ -41,7 +41,7 @@ class PointOfInterest: UIImageView {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		var point: CGPoint?
 		if frame.maxY > superview!.frame.height - 80 {
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 				self.center.y = self.superview!.frame.height - 85 - self.frame.height/2
 			})
 			point = center

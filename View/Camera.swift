@@ -17,8 +17,8 @@ class Camera {
 	private let path: URL
 	
 	private let durationBar: UIView = {
-		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
-		bar.backgroundColor = Colors.red
+		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 3))
+		bar.backgroundColor = .systemRed
 		bar.layer.cornerRadius = 0.25
 		return bar
 	}()

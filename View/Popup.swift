@@ -55,7 +55,7 @@ class Popup: UIView {
 		
 		if value < 0 && !isExpanded || value >= 0 && isExpanded {
 			let args: (CGFloat, CGFloat) = isExpanded ? (-10, 5) : (10, -5)
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 				self.frame.size.width += args.0
 				self.frame.origin.x += args.1
 			})
@@ -68,14 +68,14 @@ class Popup: UIView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: 0, y: 20)
 			self.alpha = 1
 		})
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.5, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseIn, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
 		})

@@ -30,13 +30,12 @@ class Slider: UIView {
 		min = 0; max = 1; value = max
 		self.alignment = alignment
 		super.init(frame: CGRect(origin: .zero, size: size))
-		layer.cornerRadius = frame.width/2
-		clipsToBounds = true
+		roundCorners(corners: [.bottomLeft, .bottomRight, .topLeft, .topRight], radius: frame.width/2)
 		backgroundColor = .black
 		center = CGPoint(x: alignment == .left ? -frame.width/2 : superviewFrame.maxX + frame.width/2, y: superviewFrame.midY)
 		
 		progressView = UIView(frame: bounds)
-		progressView.backgroundColor = Colors.sliderRange
+		progressView.backgroundColor = .white
 		addSubview(progressView)
 	}
 	
@@ -63,7 +62,7 @@ class Slider: UIView {
 		guard let touch = touches.first?.location(in: self) else { return }
 		offset = progressView.frame.height + touch.y
 		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		})
 		popup?.setImage(imageView!.image!)
@@ -80,7 +79,10 @@ class Slider: UIView {
 		}
 		
 		let ratio = progressView.frame.size.height/frame.size.height
-		progressView.frame = CGRect(origin: CGPoint(x: 0, y: frame.height), size: CGSize(width: frame.width, height: height))
+		UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
+			self.progressView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
+		}.startAnimation()
+		
 		
 		value = ratio*(max-min)+min
 		let rounded = floor(value*10)/10
@@ -89,7 +91,7 @@ class Slider: UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [.curveEaseIn, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 		})
 		popup?.hide()

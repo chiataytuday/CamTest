@@ -49,6 +49,17 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
+	private let trimButton: UIButton = {
+		let button = UIButton(type: .custom)
+		button.translatesAutoresizingMaskIntoConstraints = false
+		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
+		button.setImage(UIImage(systemName: "scissors"), for: .normal)
+		button.tintColor = Colors.backIcon
+		button.backgroundColor = .black
+		button.adjustsImageWhenHighlighted = false
+		return button
+	}()
+	
 	let blurView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
@@ -103,7 +114,12 @@ class PlayerController: UIViewController {
 			backButton.heightAnchor.constraint(equalToConstant: 50)
 		])
 		
-		stackView = UIStackView(arrangedSubviews: [exportButton, backButton])
+		NSLayoutConstraint.activate([
+			trimButton.widthAnchor.constraint(equalToConstant: 50),
+			trimButton.heightAnchor.constraint(equalToConstant: 50)
+		])
+		
+		stackView = UIStackView(arrangedSubviews: [exportButton, trimButton, backButton])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.alignment = .center
 		stackView.distribution = .fillProportionally
@@ -114,8 +130,8 @@ class PlayerController: UIViewController {
 			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: view.frame.height - 18), size: CGSize(width: view.frame.width - 60, height: 4)))
-		view.addSubview(rangeSlider)
+//		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: view.frame.height - 18), size: CGSize(width: view.frame.width - 60, height: 4)))
+//		view.addSubview(rangeSlider)
 		
 		
 		blurView.frame = view.bounds
@@ -139,8 +155,8 @@ class PlayerController: UIViewController {
 		})
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
-				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
-				self?.rangeSlider.player = self?.queuePlayer
+//				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
+//				self?.rangeSlider.player = self?.queuePlayer
 				self?.queuePlayer.play()
 				self?.queuePlayer.pause()
 			}

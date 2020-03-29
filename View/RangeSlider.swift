@@ -78,7 +78,7 @@ class RangeSlider : UIView {
 		}
 		offset = touch.x - active!.center.x
 		
-		UIViewPropertyAnimator(duration: 0.2, curve: .easeOut) {
+		UIViewPropertyAnimator(duration: 0.15, curve: .easeOut) {
 			self.unactive!.backgroundColor = .systemGray
 			self.range.backgroundColor = Colors.buttonLabel
 		}.startAnimation()
@@ -115,7 +115,7 @@ class RangeSlider : UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
+		UIViewPropertyAnimator(duration: 0.08, curve: .linear) {
 			self.unactive!.backgroundColor = .white
 			self.range.backgroundColor = .white
 		}.startAnimation()
