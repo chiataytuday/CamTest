@@ -20,8 +20,6 @@ class PlayerController: UIViewController {
 	var queuePlayer: AVQueuePlayer!
 	var timer: Timer?
 	
-//	var rangeSlider: RangeSlider?
-	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
@@ -84,18 +82,6 @@ class PlayerController: UIViewController {
 	deinit {
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
-	
-//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		rangeSlider?.touchesBegan(touches, with: event)
-//	}
-//
-//	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		rangeSlider?.touchesMoved(touches, with: event)
-//	}
-//
-//	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-//		rangeSlider?.touchesEnded(touches, with: event)
-//	}
 	
 	private func setupInterface() {
 		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
