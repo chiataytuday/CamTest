@@ -1,5 +1,5 @@
 //
-//  MenuButton.swift
+//  SquareButton.swift
 //  Flaneur
 //
 //  Created by debavlad on 27.03.2020.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MenuButton: UIButton {
+class SquareButton : UIButton {
 	
 	init(_ imageName: String?) {
 		super.init(frame: .zero)

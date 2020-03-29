@@ -36,7 +36,7 @@ class ViewController: UIViewController {
 	}()
 	
 	private var playerController: PlayerController?
-	private var torchButton, recordButton, lockButton: MenuButton!
+	private var torchButton, recordButton, lockButton: SquareButton!
 	private var stackView: UIStackView!
 	
 	
@@ -79,9 +79,9 @@ class ViewController: UIViewController {
 extension ViewController {
 	
 	private func setupBottomMenu() {
-		torchButton = MenuButton("bolt.fill")
-		recordButton = MenuButton(nil)
-		lockButton = MenuButton("lock.fill")
+		torchButton = SquareButton("bolt.fill")
+		recordButton = SquareButton(nil)
+		lockButton = SquareButton("lock.fill")
 		stackView = UIStackView(arrangedSubviews: [torchButton, recordButton, lockButton])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.distribution = .fillProportionally
