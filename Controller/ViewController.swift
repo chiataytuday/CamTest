@@ -15,7 +15,7 @@ class ViewController: UIViewController {
 	
 	private var cam: Camera!
 	private var exposureSlider, focusSlider: Slider!
-	private var exposurePointView: PointOfInterest!
+	private var exposurePointView: MovablePoint!
 	private var activeSlider: Slider?
 	
 	private let blurView: UIVisualEffectView = {
@@ -143,9 +143,9 @@ extension ViewController {
 	}
 	
 	private func setupSecondary() {
-		exposurePointView = PointOfInterest()
+		exposurePointView = MovablePoint()
 		exposurePointView.center = view.center
-		exposurePointView.cam = cam
+		exposurePointView.camera = cam
 		view.addSubview(exposurePointView)
 		
 		blurView.frame = view.bounds
