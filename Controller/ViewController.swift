@@ -93,8 +93,8 @@ extension ViewController {
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
 		NSLayoutConstraint.activate([
-			redCircle.widthAnchor.constraint(equalToConstant: 21),
-			redCircle.heightAnchor.constraint(equalToConstant: 21),
+			redCircle.widthAnchor.constraint(equalToConstant: 20),
+			redCircle.heightAnchor.constraint(equalToConstant: 20),
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
@@ -158,6 +158,8 @@ extension ViewController {
 		}
 		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
+		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -167,10 +169,19 @@ extension ViewController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchDown() {
+		redCircle.transform = CGAffineTransform.identity
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
+				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
+			self.recordButton.backgroundColor = Colors.buttonDown
+		})
+	}
+	
+	@objc private func recordTouchUp() {
 		if !cam.isRecording {
 			cam.startRecording(self)
 			recordButton.backgroundColor = Colors.buttonUp
-			cam.durationAnim?.addCompletion({ _ in self.recordTouchDown() })
+			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
 			cam.durationAnim?.startAnimation()
 		} else {
 			cam.stopRecording()
@@ -184,13 +195,11 @@ extension ViewController {
 		
 		let args: (CGFloat, UIColor) = cam.isRecording ? (3.5, Colors.buttonUp) : (10, .black)
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = args.0
-			self.recordButton.backgroundColor = args.1
-		})
-		
-		let scale: CGFloat = cam.isRecording ? 0.8 : 1
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.3, initialSpringVelocity: 0.5, options: .curveLinear, animations: {
-			self.redCircle.transform = CGAffineTransform(scaleX: scale, y: scale)
+			if !self.cam.isRecording {
+				self.recordButton.backgroundColor = args.1
+			}
 		})
 	}
 	
@@ -237,7 +246,7 @@ extension ViewController {
 		if let vc = presentedViewController as? PlayerController {
 			vc.queuePlayer.pause()
 		} else if cam.isRecording {
-			recordTouchDown()
+			recordTouchUp()
 		}
 		cam.stopSession()
 	}
