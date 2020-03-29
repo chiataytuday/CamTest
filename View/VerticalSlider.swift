@@ -8,44 +8,42 @@
 
 import UIKit
 
-class Slider: UIView {
+class VerticalSlider : UIView {
 	
-	enum SliderAlignment {
+	enum VerticalSliderAlignment {
 		case left
 		case right
 	}
 	
-	private var progressView: UIView!
+	private var filledView: UIView!
 	private var offset: CGFloat?
 	private var min, max: CGFloat
 	private(set) var value: CGFloat
-	let alignment: SliderAlignment
+	let alignment: VerticalSliderAlignment
 	
-	private var imageView: UIImageView?
+	private var iconImageView: UIImageView?
 	var delegate: (() -> ())?
 	var popup: Popup?
 	
-	
-	init(_ size: CGSize, _ superviewFrame: CGRect, _ alignment: SliderAlignment) {
+	init(_ size: CGSize, _ superviewFrame: CGRect, _ alignment: VerticalSliderAlignment) {
 		min = 0; max = 1; value = max
 		self.alignment = alignment
 		super.init(frame: CGRect(origin: .zero, size: size))
-		roundCorners(corners: [.bottomLeft, .bottomRight, .topLeft, .topRight], radius: frame.width/2)
+		roundCorners(corners: [.allCorners], radius: frame.width/2)
 		backgroundColor = .black
 		center = CGPoint(x: alignment == .left ? -frame.width/2 : superviewFrame.maxX + frame.width/2, y: superviewFrame.midY)
-		
-		progressView = UIView(frame: bounds)
-		progressView.backgroundColor = .white
-		addSubview(progressView)
+		filledView = UIView(frame: bounds)
+		filledView.backgroundColor = .white
+		addSubview(filledView)
 	}
 	
 	func setImage(_ imageName: String) {
 		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
-		imageView = UIImageView(image: image)
-		imageView?.tintColor = Colors.sliderIcon
+		iconImageView = UIImageView(image: image)
+		iconImageView?.tintColor = Colors.sliderIcon
 		
-		imageView?.center = CGPoint(x: progressView.frame.midX, y: progressView.frame.maxY - imageView!.frame.height/2 - 8)
-		insertSubview(imageView!, aboveSubview: progressView)
+		iconImageView?.center = CGPoint(x: filledView.frame.midX, y: filledView.frame.maxY - iconImageView!.frame.height/2 - 8)
+		insertSubview(iconImageView!, aboveSubview: filledView)
 	}
 	
 	func setRange(_ min: CGFloat, _ max: CGFloat, _ value: CGFloat) {
@@ -53,36 +51,35 @@ class Slider: UIView {
 		self.max = max
 		
 		let height = (value-min)/(max-min)*frame.height
-		progressView.frame.size.height = height
-		progressView.frame.origin.y = frame.height - progressView.frame.height
+		filledView.frame.size.height = height
+		filledView.frame.origin.y = frame.height - filledView.frame.height
 		self.value = value
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let touch = touches.first?.location(in: self) else { return }
-		offset = progressView.frame.height + touch.y
+		let t = touches.first!.location(in: self)
+		offset = filledView.frame.height + t.y
 		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		})
-		popup?.setIconImage(imageView!.image!)
+		popup?.setIconImage(iconImageView!.image!)
 		popup?.show()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		guard let touch = touches.first?.location(in: self) else { return }
-		var height = touch.y - offset!
+		let t = touches.first!.location(in: self)
+		var height = t.y - offset!
 		if height > 0 {
 			height = 0
 		} else if height < -frame.height {
 			height = -frame.height
 		}
 		
-		let ratio = progressView.frame.size.height/frame.size.height
-		UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
-			self.progressView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
+		let ratio = filledView.frame.size.height/frame.size.height
+		UIViewPropertyAnimator(duration: 0.075, curve: .linear) {
+			self.filledView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
 		}.startAnimation()
-		
 		
 		value = ratio*(max-min)+min
 		let rounded = floor(value*10)/10
@@ -101,4 +98,3 @@ class Slider: UIView {
 		fatalError("init(coder:) has not been implemented")
 	}
 }
-

@@ -10,6 +10,7 @@ import UIKit
 import AVFoundation
 
 class Camera {
+	
 	let device: AVCaptureDevice
 	let output: AVCaptureMovieFileOutput
 	private let session: AVCaptureSession

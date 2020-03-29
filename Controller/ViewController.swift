@@ -14,9 +14,9 @@ import AudioToolbox
 class ViewController: UIViewController {
 	
 	private var cam: Camera!
-	private var exposureSlider, focusSlider: Slider!
+	private var exposureSlider, focusSlider: VerticalSlider!
 	private var exposurePointView: MovablePoint!
-	private var activeSlider: Slider?
+	private var activeSlider: VerticalSlider?
 	
 	private let blurView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
@@ -105,14 +105,14 @@ extension ViewController {
 		let popup = Popup(CGPoint(x: view.center.x, y: y))
 		view.addSubview(popup)
 		
-		exposureSlider = Slider(CGSize(width: 40, height: 280), view.frame, .left)
+		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .left)
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.setRange(-3, 3, -0.5)
 		exposureSlider.popup = popup
 		exposureSlider.delegate = updateExposureTargetBias
 		view.addSubview(exposureSlider)
 		
-		focusSlider = Slider(CGSize(width: 40, height: 280), view.frame, .right)
+		focusSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
 		focusSlider.setImage("globe")
 		focusSlider.setRange(0, 1, 0.4)
 		focusSlider.popup = popup
