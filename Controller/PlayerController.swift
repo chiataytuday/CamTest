@@ -20,7 +20,7 @@ class PlayerController: UIViewController {
 	var queuePlayer: AVQueuePlayer!
 	var timer: Timer?
 	
-	var rangeSlider: RangeSlider!
+//	var rangeSlider: RangeSlider?
 	
 	private let exportButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -85,17 +85,17 @@ class PlayerController: UIViewController {
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
-	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		rangeSlider.touchesBegan(touches, with: event)
-	}
-	
-	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		rangeSlider.touchesMoved(touches, with: event)
-	}
-	
-	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		rangeSlider.touchesEnded(touches, with: event)
-	}
+//	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		rangeSlider?.touchesBegan(touches, with: event)
+//	}
+//
+//	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		rangeSlider?.touchesMoved(touches, with: event)
+//	}
+//
+//	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+//		rangeSlider?.touchesEnded(touches, with: event)
+//	}
 	
 	private func setupInterface() {
 		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
@@ -114,6 +114,7 @@ class PlayerController: UIViewController {
 			backButton.heightAnchor.constraint(equalToConstant: 50)
 		])
 		
+		trimButton.addTarget(self, action: #selector(trimTouchDown(sender:)), for: .touchDown)
 		NSLayoutConstraint.activate([
 			trimButton.widthAnchor.constraint(equalToConstant: 50),
 			trimButton.heightAnchor.constraint(equalToConstant: 50)
@@ -127,16 +128,19 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
+			stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: UIApplication.shared.windows[0].safeAreaInsets.top + 5)
 		])
 		
-//		rangeSlider = RangeSlider(frame: CGRect(origin: CGPoint(x: view.center.x, y: view.frame.height - 18), size: CGSize(width: view.frame.width - 60, height: 4)))
-//		view.addSubview(rangeSlider)
+		
+		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height + 15, width: view.frame.width - 60, height: 30))
+		view.addSubview(rangeSlider)
 		
 		
 		blurView.frame = view.bounds
 		view.addSubview(blurView)
 	}
+	
+	var rangeSlider: RangeSlider!
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		self.url = url
@@ -155,10 +159,9 @@ class PlayerController: UIViewController {
 		})
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
-//				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
-//				self?.rangeSlider.player = self?.queuePlayer
+				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
+				self?.rangeSlider.player = self?.queuePlayer
 				self?.queuePlayer.play()
-				self?.queuePlayer.pause()
 			}
 			self?.timer?.invalidate()
 			self?.observer?.invalidate()
@@ -167,6 +170,13 @@ class PlayerController: UIViewController {
 	}
 	
 	var observer: NSKeyValueObservation?
+	
+	@objc private func trimTouchDown(sender: UIButton) {
+		let args: (CGFloat, CGFloat) = rangeSlider.transform == CGAffineTransform.identity ? (-45, -60) : (0, 0)
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
+		})
+	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
