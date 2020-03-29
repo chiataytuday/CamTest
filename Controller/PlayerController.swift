@@ -132,7 +132,7 @@ class PlayerController: UIViewController {
 		])
 		
 		
-		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height + 15, width: view.frame.width - 60, height: 30))
+		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height + 15, width: view.frame.width - 60, height: 20))
 		view.addSubview(rangeSlider)
 		
 		

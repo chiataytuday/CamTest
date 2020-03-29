@@ -65,7 +65,7 @@ class Slider: UIView {
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		})
-		popup?.setImage(imageView!.image!)
+		popup?.setIconImage(imageView!.image!)
 		popup?.show()
 	}
 	
@@ -86,7 +86,7 @@ class Slider: UIView {
 		
 		value = ratio*(max-min)+min
 		let rounded = floor(value*10)/10
-		popup?.setLabel(rounded)
+		popup?.setLabelDigit(rounded)
 		delegate?()
 	}
 	
