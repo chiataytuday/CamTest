@@ -14,22 +14,21 @@ import AudioToolbox
 class ViewController: UIViewController {
 	
 	private var cam: Camera!
-	private var exposureSlider, focusSlider: VerticalSlider!
+	private var exposureSlider, lensSlider: VerticalSlider!
 	private var exposurePointView: MovablePoint!
 	private var activeSlider: VerticalSlider?
 	
-	private let blurView: UIVisualEffectView = {
+	private let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
 		let effectView = UIVisualEffectView(effect: effect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		effectView.alpha = 0
 		return effectView
 	}()
-
+	
 	private let redCircle: UIView = {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
-		view.isUserInteractionEnabled = false
 		view.backgroundColor = .systemRed
 		view.layer.cornerRadius = 10
 		return view
@@ -37,7 +36,7 @@ class ViewController: UIViewController {
 	
 	private var playerController: PlayerController?
 	private var torchButton, recordButton, lockButton: SquareButton!
-	private var stackView: UIStackView!
+	private var btnStackView: UIStackView!
 	
 	
 	override func viewDidLoad() {
@@ -48,20 +47,20 @@ class ViewController: UIViewController {
 		cam.attach(to: view)
 		
 		setupGrid()
-		setupBottomMenu()
+		setupBottomButtons()
 		attachActions()
-		setupSliders()
+		setupVerticalSliders()
 		setupSecondary()
 	}
 	
 	override func viewDidLayoutSubviews() {
-		stackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18.5)
-		stackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18.5)
+		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18.5)
+		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18.5)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		let touch = touches.first!.location(in: view)
-		activeSlider = touch.x > view.frame.width/2 ? focusSlider : exposureSlider
+		let t = touches.first!.location(in: view)
+		activeSlider = t.x > view.frame.width/2 ? lensSlider : exposureSlider
 		activeSlider?.touchesBegan(touches, with: event)
 	}
 	
@@ -73,22 +72,26 @@ class ViewController: UIViewController {
 		activeSlider?.touchesEnded(touches, with: event)
 		activeSlider = nil
 	}
+	
+	override var prefersStatusBarHidden: Bool {
+		return true
+	}
 }
 
 
 extension ViewController {
 	
-	private func setupBottomMenu() {
+	private func setupBottomButtons() {
 		torchButton = SquareButton("bolt.fill")
 		recordButton = SquareButton(nil)
 		lockButton = SquareButton("lock.fill")
-		stackView = UIStackView(arrangedSubviews: [torchButton, recordButton, lockButton])
-		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.distribution = .fillProportionally
-		view.addSubview(stackView)
+		btnStackView = UIStackView(arrangedSubviews: [torchButton, recordButton, lockButton])
+		btnStackView.translatesAutoresizingMaskIntoConstraints = false
+		btnStackView.distribution = .fillProportionally
+		view.addSubview(btnStackView)
 		NSLayoutConstraint.activate([
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
@@ -100,7 +103,7 @@ extension ViewController {
 		])
 	}
 	
-	private func setupSliders() {
+	private func setupVerticalSliders() {
 		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 5
 		let popup = Popup(CGPoint(x: view.center.x, y: y))
 		view.addSubview(popup)
@@ -109,15 +112,15 @@ extension ViewController {
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.setRange(-3, 3, -0.5)
 		exposureSlider.popup = popup
-		exposureSlider.delegate = updateExposureTargetBias
+		exposureSlider.delegate = updateTargetBias
 		view.addSubview(exposureSlider)
 		
-		focusSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
-		focusSlider.setImage("globe")
-		focusSlider.setRange(0, 1, 0.4)
-		focusSlider.popup = popup
-		focusSlider.delegate = updateLensPosition
-		view.addSubview(focusSlider)
+		lensSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
+		lensSlider.setImage("globe")
+		lensSlider.setRange(0, 1, 0.4)
+		lensSlider.popup = popup
+		lensSlider.delegate = updateLensPosition
+		view.addSubview(lensSlider)
 	}
 	
 	private func setupGrid() {
@@ -148,13 +151,13 @@ extension ViewController {
 		exposurePointView.camera = cam
 		view.addSubview(exposurePointView)
 		
-		blurView.frame = view.bounds
-		view.insertSubview(blurView, belowSubview: exposurePointView)
+		blurEffectView.frame = view.bounds
+		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
 	}
 	
 	private func attachActions() {
 		for button in [lockButton, torchButton] {
-			button!.addTarget(self, action: #selector(menuButtonTouchDown(sender:)), for: .touchDown)
+			button!.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
 		}
 		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
@@ -188,7 +191,7 @@ extension ViewController {
 			if cam.output.recordedDuration.seconds > 0.25 {
 				view.isUserInteractionEnabled = false
 				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-					self.blurView.alpha = 1
+					self.blurEffectView.alpha = 1
 				})
 			}
 		}
@@ -210,7 +213,7 @@ extension ViewController {
 		cam.setExposure(mode)
 	}
 	
-	@objc private func menuButtonTouchDown(sender: UIButton) {
+	@objc private func buttonTouchDown(sender: UIButton) {
 		if sender.tag == 0 {
 			sender.tintColor = Colors.enabledButton
 			sender.tag = 1
@@ -234,12 +237,12 @@ extension ViewController {
 	
 	// MARK: - Sliders handlers & Secondary methods
 	
-	private func updateExposureTargetBias() {
+	private func updateTargetBias() {
 		cam.setTargetBias(Float(exposureSlider.value))
 	}
 	
 	private func updateLensPosition() {
-		cam.setLensPosition(Float(focusSlider.value))
+		cam.setLensPosition(Float(lensSlider.value))
 	}
 	
 	@objc private func didEnterBackground() {
@@ -260,22 +263,17 @@ extension ViewController {
 		}
 	}
 	
-	public func resetControls(_ duration: Double = 0) {
+	func resetView(_ transitionDuration: Double = 0) {
 		view.isUserInteractionEnabled = true
 		if User.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		UIView.animate(withDuration: duration * 0.8, delay: 0, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: transitionDuration * 0.8, delay: 0, options: .curveEaseOut, animations: {
 			self.view.alpha = 1
-			self.blurView.alpha = 0
+			self.blurEffectView.alpha = 0
 		})
 	}
-	
-	override var prefersStatusBarHidden: Bool {
-		return true
-	}
-	
 }
 
 
@@ -293,9 +291,9 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 			if ready {
 				self?.present(playerController!, animated: true)
 			} else {
-				self?.resetControls()
+				self?.resetView()
 				UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-					self?.blurView.alpha = 0
+					self?.blurEffectView.alpha = 0
 				})
 				let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
 				self?.view.addSubview(error)

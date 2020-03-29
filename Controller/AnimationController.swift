@@ -46,7 +46,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		let duration = transitionDuration(using: transitionContext)
-		(transitionContext.viewController(forKey: .to) as? ViewController)?.resetControls(duration)
+		(transitionContext.viewController(forKey: .to) as? ViewController)?.resetView(duration)
 		
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
