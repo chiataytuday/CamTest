@@ -64,7 +64,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		let duration = transitionDuration(using: transitionContext)
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			viewController.view.alpha = 0.15
-			playerController.blurView.alpha = 0
+			playerController.blurEffectView.alpha = 0
 			viewToAnimate.transform = CGAffineTransform.identity
 		}) { _ in
 			transitionContext.completeTransition(true)

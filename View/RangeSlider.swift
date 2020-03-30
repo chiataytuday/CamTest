@@ -12,13 +12,12 @@ import AVFoundation
 class RangeSlider : UIView {
 	
 	var looper: AVPlayerLooper?
-	var videoPlayer: AVQueuePlayer?
-//	var duration: Double? {
-//		return videoPlayer?.currentItem?.duration.seconds
-//	}
-//	var timescale: CMTimeScale? {
-//		return videoPlayer?.currentItem?.asset.duration.timescale
-//	}
+	var videoPlayer: AVQueuePlayer? {
+		willSet {
+			begin.time = .zero
+			end.time = CMTimeMakeWithSeconds(newValue!.currentItem!.duration.seconds, preferredTimescale: newValue!.currentItem!.asset.duration.timescale)
+		}
+	}
 	
 	var isPresented = false
 	
@@ -60,7 +59,6 @@ class RangeSlider : UIView {
 		begin.setMax = {
 			self.begin.maxX = self.end.center.x - self.minDistance
 		}
-//		begin.value = 0
 		begin.update = {
 			var sec = Double((self.begin.center.x - self.begin.frame.width/2)/self.path.frame.width)
 			sec *= self.videoPlayer!.currentItem!.duration.seconds
@@ -133,7 +131,6 @@ class RangeSlider : UIView {
 		}.startAnimation()
 		
 		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = end.time!
-		
 		videoPlayer?.play()
 		touchOffset = nil
 		activeRangePoint = nil

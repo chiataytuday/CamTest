@@ -12,11 +12,10 @@ import Photos
 
 class PlayerController: UIViewController {
 	
-	private var url: URL!
-	private var stackView: UIStackView!
-//	private var looper: AVPlayerLooper?
-	private var layer: AVPlayerLayer!
-	private var item: AVPlayerItem!
+	private var fileURL: URL!
+	private var btnStackView: UIStackView!
+	private var playerLayer: AVPlayerLayer!
+	private var playerItem: AVPlayerItem!
 	var queuePlayer: AVQueuePlayer!
 	var timer: Timer?
 	
@@ -58,7 +57,7 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	let blurView: UIVisualEffectView = {
+	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -77,8 +76,6 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 		view.clipsToBounds = true
 		view.backgroundColor = .black
-		
-		
 	}
 	
 	deinit {
@@ -108,58 +105,49 @@ class PlayerController: UIViewController {
 			trimButton.heightAnchor.constraint(equalToConstant: 50)
 		])
 		
-		stackView = UIStackView(arrangedSubviews: [exportButton, trimButton, backButton])
-		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.alignment = .center
-		stackView.distribution = .fillProportionally
-		stackView.spacing = -1
-		view.addSubview(stackView)
+		btnStackView = UIStackView(arrangedSubviews: [exportButton, trimButton, backButton])
+		btnStackView.translatesAutoresizingMaskIntoConstraints = false
+		btnStackView.alignment = .center
+		btnStackView.distribution = .fillProportionally
+		btnStackView.spacing = -1
+		view.addSubview(btnStackView)
 		NSLayoutConstraint.activate([
-			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
+			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
-		
 		
 		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height + 15, width: view.frame.width - 60, height: 20))
 		view.addSubview(rangeSlider)
 		
-		
-		blurView.frame = view.bounds
-		view.addSubview(blurView)
+		blurEffectView.frame = view.bounds
+		view.addSubview(blurEffectView)
 	}
 	
 	var rangeSlider: RangeSlider!
 	
-	@objc func didPlayToEndTime() {
-		print("0")
-	}
-	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
-		self.url = url
-		item = AVPlayerItem(url: url)
-		queuePlayer = AVQueuePlayer(playerItem: item)
+		self.fileURL = url
+		playerItem = AVPlayerItem(url: url)
+		queuePlayer = AVQueuePlayer(playerItem: playerItem)
 		queuePlayer.actionAtItemEnd = .pause
-		
-		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main) { [weak self] (_) in
+		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
 			self?.queuePlayer.seek(to: self!.rangeSlider.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
 			self?.queuePlayer.play()
 		}
 		
-		layer = AVPlayerLayer(player: queuePlayer)
-		layer.frame = view.frame
-		layer.videoGravity = .resizeAspectFill
-		view.layer.addSublayer(layer)
+		playerLayer = AVPlayerLayer(player: queuePlayer)
+		playerLayer.frame = view.frame
+		playerLayer.videoGravity = .resizeAspectFill
+		view.layer.addSublayer(playerLayer)
 		setupInterface()
 		timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { [weak self] (t) in
 			self?.observer?.invalidate()
 			t.invalidate()
 			handler(false)
 		})
-		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
+		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.queuePlayer
-				self?.rangeSlider.begin.update!()
-				self?.rangeSlider.end.update!()
 				self?.queuePlayer.play()
 			}
 			self?.timer?.invalidate()
@@ -175,20 +163,20 @@ class PlayerController: UIViewController {
 		let args: (CGFloat, CGFloat, UIColor) = rangeSlider.isPresented ? (-30, -55, Colors.buttonUp) : (0, 0, .black)
 		trimButton.backgroundColor = args.2
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.stackView.transform = CGAffineTransform(translationX: 0, y: args.0)
+			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.0)
 			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
 		})
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.stackView.transform = self.stackView.transform.scaledBy(x: 0.95, y: 0.95)
+			self.btnStackView.transform = self.btnStackView.transform.scaledBy(x: 0.95, y: 0.95)
 			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 0.95, y: 0.95)
 			sender.backgroundColor = Colors.buttonUp
 		})
 		
 		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {
-			self.layer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
+			self.playerLayer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
 		}.startAnimation()
 	}
 	
@@ -196,13 +184,13 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 //			self.stackView.transform = self.stackView.transform.scaledBy(x: 1.05, y: 1.05)
 //			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 1.05, y: 1.05)
-			self.layer.transform = CATransform3DIdentity
+			self.playerLayer.transform = CATransform3DIdentity
 			sender.backgroundColor = .black
 		})
 	}
 	
 	@objc private func exportTouchUpInside(sender: UIButton) {
-		let videoAsset = AVAsset(url: url)
+		let videoAsset = AVAsset(url: fileURL)
 		let exportSession = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPreset1920x1080)
 		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 		let outputURL = url.appendingPathComponent("ou1").appendingPathExtension("mp4")
@@ -224,7 +212,7 @@ class PlayerController: UIViewController {
 	@objc private func backTouchUpInside(sender: UIButton) {
 		buttonTouchUpOutside(sender: sender)
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
-			self.blurView.alpha = 1
+			self.blurEffectView.alpha = 1
 		})
 		queuePlayer.pause()
 		observer?.invalidate()
