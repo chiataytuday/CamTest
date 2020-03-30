@@ -157,7 +157,8 @@ class PlayerController: UIViewController {
 	var observer: NSKeyValueObservation?
 	
 	@objc private func trimTouchDown(sender: UIButton) {
-		let args: (CGFloat, CGFloat, UIColor) = rangeSlider.transform == CGAffineTransform.identity ? (-30, -55, Colors.buttonUp) : (0, 0, .black)
+		rangeSlider.isPresented = !rangeSlider.isPresented
+		let args: (CGFloat, CGFloat, UIColor) = rangeSlider.isPresented ? (-30, -55, Colors.buttonUp) : (0, 0, .black)
 		trimButton.backgroundColor = args.2
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.stackView.transform = CGAffineTransform(translationX: 0, y: args.0)
@@ -199,6 +200,22 @@ class PlayerController: UIViewController {
 		queuePlayer.pause()
 		observer?.invalidate()
 		dismiss(animated: true, completion: nil)
+	}
+	
+	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if rangeSlider.isPresented {
+			rangeSlider.touchesBegan(touches, with: event)
+		}
+	}
+	
+	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+		if rangeSlider.isPresented {
+			rangeSlider.touchesMoved(touches, with: event)
+		}
+	}
+	
+	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+		rangeSlider.touchesEnded(touches, with: event)
 	}
 }
 

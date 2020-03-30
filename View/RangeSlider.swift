@@ -19,6 +19,8 @@ class RangeSlider : UIView {
 		return videoPlayer?.currentItem?.asset.duration.timescale
 	}
 	
+	var isPresented = false
+	
 	private var touchOffset: CGFloat?
 	private var begin, end: RangePoint!
 	private var activeRangePoint, unactiveRangePoint: RangePoint?
@@ -60,6 +62,7 @@ class RangeSlider : UIView {
 		begin.update = {
 			var value = Double((self.begin.center.x - self.begin.frame.width/2)/self.path.frame.width)
 			value *= self.duration!
+			print("begin \(value)")
 			self.videoPlayer?.seek(to: CMTimeMakeWithSeconds(value, preferredTimescale: self.timescale!), toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(begin)
@@ -73,6 +76,7 @@ class RangeSlider : UIView {
 		end.update = {
 			var value = Double((self.end.center.x + self.end.frame.width/2)/self.path.frame.width)
 			value *= self.duration!
+			print("end \(value)")
 			self.videoPlayer?.seek(to: CMTimeMakeWithSeconds(value, preferredTimescale: self.timescale!), toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(end)
@@ -88,6 +92,7 @@ class RangeSlider : UIView {
 			unactiveRangePoint = begin
 		}
 		touchOffset = t.x - activeRangePoint!.center.x
+		videoPlayer?.pause()
 		
 		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
 			self.unactiveRangePoint?.backgroundColor = .systemGray
@@ -113,7 +118,7 @@ class RangeSlider : UIView {
 			val = activeRangePoint!.maxX
 		}
 		
-		UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
+		UIViewPropertyAnimator(duration: 0.08, curve: .linear) {
 			self.activeRangePoint!.center.x = val
 			self.range.frame = CGRect(origin: CGPoint(x: self.begin.center.x, y: 0), size: CGSize(width: self.end.center.x - self.begin.center.x, height: self.path.frame.height))
 		}.startAnimation()
@@ -125,6 +130,7 @@ class RangeSlider : UIView {
 			self.range.backgroundColor = .white
 		}.startAnimation()
 		
+		videoPlayer?.play()
 		touchOffset = nil
 		activeRangePoint = nil
 		unactiveRangePoint = nil
