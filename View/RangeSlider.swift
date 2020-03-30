@@ -51,7 +51,7 @@ class RangeSlider : UIView {
 		minDistance = path.frame.width/8
 		
 		range = UIView(frame: CGRect(origin: .zero, size: path.frame.size))
-		range.backgroundColor = .systemGray
+		range.backgroundColor = .systemGray2
 		path.addSubview(range)
 		
 		begin = RangePoint(path.frame.height, path.frame)

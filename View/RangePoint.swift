@@ -18,7 +18,7 @@ class RangePoint : UIView {
 	
 	init(_ diameter: CGFloat, _ pathFrame: CGRect) {
 		super.init(frame: CGRect(origin: .zero, size: CGSize(width: diameter, height: diameter)))
-		backgroundColor = .white
+		backgroundColor = .systemGray
 		layer.cornerRadius = diameter/2
 	}
 	
