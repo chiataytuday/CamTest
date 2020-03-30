@@ -29,6 +29,7 @@ class ViewController: UIViewController {
 	private let redCircle: UIView = {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
+		view.isUserInteractionEnabled = false
 		view.backgroundColor = .systemRed
 		view.layer.cornerRadius = 10
 		return view
