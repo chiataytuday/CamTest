@@ -77,6 +77,8 @@ class PlayerController: UIViewController {
 		super.viewDidLoad()
 		view.clipsToBounds = true
 		view.backgroundColor = .black
+		
+		
 	}
 	
 	deinit {
@@ -146,6 +148,7 @@ class PlayerController: UIViewController {
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.queuePlayer
+				self?.rangeSlider.looper = self?.looper
 				self?.queuePlayer.play()
 			}
 			self?.timer?.invalidate()
@@ -168,7 +171,9 @@ class PlayerController: UIViewController {
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+			self.stackView.transform = self.stackView.transform.scaledBy(x: 0.95, y: 0.95)
+			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 0.95, y: 0.95)
+//			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			sender.backgroundColor = Colors.buttonUp
 		})
 		
@@ -179,7 +184,8 @@ class PlayerController: UIViewController {
 	
 	@objc private func buttonTouchUpOutside(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.stackView.transform = CGAffineTransform.identity
+//			self.stackView.transform = self.stackView.transform.scaledBy(x: 1.05, y: 1.05)
+//			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 1.05, y: 1.05)
 			self.layer.transform = CATransform3DIdentity
 			sender.backgroundColor = .black
 		})

@@ -12,6 +12,7 @@ class RangePoint : UIView {
 	
 	var update: (() -> ())?
 	var setMin, setMax: (() -> ())?
+	var value: Double?
 	var minX, maxX: CGFloat!
 	
 	init(_ diameter: CGFloat, _ pathFrame: CGRect) {
