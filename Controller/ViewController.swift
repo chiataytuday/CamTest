@@ -45,17 +45,11 @@ class ViewController: UIViewController {
 		view.backgroundColor = .black
 		
 		cam = Camera()
-		setupGrid()
 		cam.attach(to: view)
 		setupBottomButtons()
 		attachActions()
 		setupVerticalSliders()
 		setupSecondary()
-	}
-	
-	override func viewDidLayoutSubviews() {
-		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18.5)
-		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18.5)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -82,16 +76,11 @@ class ViewController: UIViewController {
 extension ViewController {
 	
 	private func setupBottomButtons() {
-		torchButton = SquareButton("bolt.fill")
 		recordButton = SquareButton(nil)
-		lockButton = SquareButton("lock.fill")
-		btnStackView = UIStackView(arrangedSubviews: [torchButton, recordButton, lockButton])
-		btnStackView.translatesAutoresizingMaskIntoConstraints = false
-		btnStackView.distribution = .fillProportionally
-		view.addSubview(btnStackView)
+		view.addSubview(recordButton)
 		NSLayoutConstraint.activate([
-			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
@@ -156,14 +145,9 @@ extension ViewController {
 	}
 	
 	private func attachActions() {
-		for button in [lockButton, torchButton] {
-			button!.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
-		}
-		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
-		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -173,7 +157,7 @@ extension ViewController {
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 			self.recordButton.backgroundColor = Colors.buttonDown
@@ -197,7 +181,7 @@ extension ViewController {
 		}
 		
 		let args: (CGFloat, UIColor) = cam.isRecording ? (3.25, Colors.buttonUp) : (10, .black)
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = args.0
 			if !self.cam.isRecording {

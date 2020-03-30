@@ -42,7 +42,7 @@ class RangeSlider : UIView {
 	private func setupSubviews() {
 		path = UIView()
 		path.backgroundColor = .systemGray3
-		path.frame.size = CGSize(width: frame.width - frame.height, height: 3)
+		path.frame.size = CGSize(width: frame.width - frame.height, height: 4)
 		path.center = CGPoint(x: frame.width/2, y: frame.height/2)
 		path.layer.cornerRadius = path.frame.height/2
 		path.clipsToBounds = true
@@ -51,7 +51,7 @@ class RangeSlider : UIView {
 		minDistance = path.frame.width/8
 		
 		range = UIView(frame: CGRect(origin: .zero, size: path.frame.size))
-		range.backgroundColor = .white
+		range.backgroundColor = .systemGray
 		path.addSubview(range)
 		
 		begin = RangePoint(path.frame.height, path.frame)
@@ -95,8 +95,8 @@ class RangeSlider : UIView {
 		videoPlayer?.pause()
 		
 		UIViewPropertyAnimator(duration: 0.16, curve: .easeOut) {
-			self.unactiveRangePoint?.backgroundColor = .systemGray
-			self.range.backgroundColor = .systemGray
+			self.activeRangePoint?.backgroundColor = .systemGray
+			self.range.backgroundColor = .systemGray2
 		}.startAnimation()
 	}
 	
@@ -126,8 +126,8 @@ class RangeSlider : UIView {
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
-			self.unactiveRangePoint?.backgroundColor = .white
-			self.range.backgroundColor = .white
+			self.activeRangePoint?.backgroundColor = .white
+			self.range.backgroundColor = .systemGray
 		}.startAnimation()
 		
 		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = end.time!

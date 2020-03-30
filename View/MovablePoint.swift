@@ -26,7 +26,7 @@ class MovablePoint : UIImageView {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let t = touches.first!.location(in: superview!)
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 		})
 		offset = CGPoint(x: t.x - frame.origin.x, y: t.y - frame.origin.y)
@@ -46,8 +46,8 @@ class MovablePoint : UIImageView {
 		offset = nil
 		var point: CGPoint?
 		if frame.maxY > superview!.frame.height - 80 {
-			UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-				self.center.y = self.superview!.frame.height - 85 - self.frame.height/2
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
+				self.center.y = self.superview!.frame.height - self.frame.height/2 - 85
 			})
 			point = center
 		}
@@ -58,7 +58,7 @@ class MovablePoint : UIImageView {
 			camera?.setExposure(User.shared.exposureMode)
 		}
 		
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform.identity
 		})
 	}

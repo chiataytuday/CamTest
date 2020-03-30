@@ -164,7 +164,7 @@ class PlayerController: UIViewController {
 		
 		if rangeSlider.isPresented {
 			trimButton.backgroundColor = Colors.buttonUp
-			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: .allowUserInteraction, animations: {
 				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: -30)
 				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: -30)
 			})
@@ -173,7 +173,7 @@ class PlayerController: UIViewController {
 			}.startAnimation()
 		} else {
 			trimButton.backgroundColor = .black
-			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: .allowUserInteraction, animations: {
 				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: 0)
 				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: 0)
 			})

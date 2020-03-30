@@ -72,7 +72,7 @@ class Popup : UIView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [], animations: {
 			self.transform = CGAffineTransform(translationX: 0, y: 15)
 			self.alpha = 1
 		}, completion: nil)
