@@ -145,8 +145,7 @@ class PlayerController: UIViewController {
 		})
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
-				self?.rangeSlider.duration = self?.queuePlayer.currentItem?.duration.seconds
-				self?.rangeSlider.player = self?.queuePlayer
+				self?.rangeSlider.videoPlayer = self?.queuePlayer
 				self?.queuePlayer.play()
 			}
 			self?.timer?.invalidate()
