@@ -60,9 +60,9 @@ class VerticalSlider : UIView {
 		let t = touches.first!.location(in: self)
 		offset = filledView.frame.height + t.y
 		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
-		})
+		}, completion: nil)
 		popup?.setIconImage(iconImageView!.image!)
 		popup?.show()
 	}
@@ -88,9 +88,9 @@ class VerticalSlider : UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform.identity
-		})
+		}, completion: nil)
 		popup?.hide()
 	}
 	
