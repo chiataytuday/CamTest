@@ -9,23 +9,6 @@
 import UIKit
 import AVFoundation
 
-class RangePoint : UIView {
-	
-	var update: (() -> ())?
-	var setMin, setMax: (() -> ())?
-	var minX, maxX: CGFloat!
-	
-	init(_ diameter: CGFloat, _ pathFrame: CGRect) {
-		super.init(frame: CGRect(origin: .zero, size: CGSize(width: diameter, height: diameter)))
-		backgroundColor = .white
-		layer.cornerRadius = diameter/2
-	}
-	
-	required init?(coder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
-}
-
 class RangeSlider : UIView {
 	
 	var videoPlayer: AVQueuePlayer?
@@ -49,7 +32,7 @@ class RangeSlider : UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		center = frame.origin
-		backgroundColor = .black
+		backgroundColor = Colors.buttonUp
 		layer.cornerRadius = frame.height/2
 		setupSubviews()
 	}
@@ -57,7 +40,7 @@ class RangeSlider : UIView {
 	private func setupSubviews() {
 		path = UIView()
 		path.backgroundColor = .systemGray3
-		path.frame.size = CGSize(width: frame.width - frame.height, height: 2)
+		path.frame.size = CGSize(width: frame.width - frame.height, height: 3)
 		path.center = CGPoint(x: frame.width/2, y: frame.height/2)
 		path.layer.cornerRadius = path.frame.height/2
 		path.clipsToBounds = true

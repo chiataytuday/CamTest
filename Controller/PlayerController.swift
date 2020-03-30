@@ -114,7 +114,7 @@ class PlayerController: UIViewController {
 		view.addSubview(stackView)
 		NSLayoutConstraint.activate([
 			stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: UIApplication.shared.windows[0].safeAreaInsets.top + 5)
+			stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
 		
@@ -157,8 +157,10 @@ class PlayerController: UIViewController {
 	var observer: NSKeyValueObservation?
 	
 	@objc private func trimTouchDown(sender: UIButton) {
-		let args: (CGFloat, CGFloat) = rangeSlider.transform == CGAffineTransform.identity ? (-45, -60) : (0, 0)
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+		let args: (CGFloat, CGFloat, UIColor) = rangeSlider.transform == CGAffineTransform.identity ? (-30, -55, Colors.buttonUp) : (0, 0, .black)
+		trimButton.backgroundColor = args.2
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
+			self.stackView.transform = CGAffineTransform(translationX: 0, y: args.0)
 			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
 		})
 	}
