@@ -24,8 +24,8 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
-		button.setTitle("Export", for: .normal)
-		button.titleLabel?.font = UIFont.systemFont(ofSize: 16.5, weight: .regular)
+		button.setTitle("Save", for: .normal)
+		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
 		button.setTitleColor(.systemGray, for: .normal)
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
@@ -87,8 +87,8 @@ class PlayerController: UIViewController {
 		exportButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
 		exportButton.addTarget(self, action: #selector(exportTouchUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
-			exportButton.widthAnchor.constraint(equalToConstant: 110),
-			exportButton.heightAnchor.constraint(equalToConstant: 50),
+			exportButton.widthAnchor.constraint(equalToConstant: 100),
+			exportButton.heightAnchor.constraint(equalToConstant: 48),
 		])
 		
 		backButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
@@ -96,13 +96,13 @@ class PlayerController: UIViewController {
 		backButton.addTarget(self, action: #selector(backTouchUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
 			backButton.widthAnchor.constraint(equalToConstant: 50),
-			backButton.heightAnchor.constraint(equalToConstant: 50)
+			backButton.heightAnchor.constraint(equalToConstant: 48)
 		])
 		
 		trimButton.addTarget(self, action: #selector(trimTouchDown(sender:)), for: .touchDown)
 		NSLayoutConstraint.activate([
 			trimButton.widthAnchor.constraint(equalToConstant: 50),
-			trimButton.heightAnchor.constraint(equalToConstant: 50)
+			trimButton.heightAnchor.constraint(equalToConstant: 48)
 		])
 		
 		btnStackView = UIStackView(arrangedSubviews: [exportButton, trimButton, backButton])
