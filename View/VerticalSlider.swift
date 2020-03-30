@@ -77,7 +77,7 @@ class VerticalSlider : UIView {
 		}
 		
 		let ratio = filledView.frame.size.height/frame.size.height
-		UIViewPropertyAnimator(duration: 0.075, curve: .linear) {
+		UIViewPropertyAnimator(duration: 0.08, curve: .linear) {
 			self.filledView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
 		}.startAnimation()
 		

@@ -116,7 +116,8 @@ class PlayerController: UIViewController {
 			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height + 15, width: view.frame.width - 60, height: 20))
+		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height - 10, width: view.frame.width - 60, height: 20))
+		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
 		
 		blurEffectView.frame = view.bounds
@@ -160,12 +161,26 @@ class PlayerController: UIViewController {
 	
 	@objc private func trimTouchDown(sender: UIButton) {
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		let args: (CGFloat, CGFloat, UIColor) = rangeSlider.isPresented ? (-30, -55, Colors.buttonUp) : (0, 0, .black)
-		trimButton.backgroundColor = args.2
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.0)
-			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
-		})
+		
+		if rangeSlider.isPresented {
+			trimButton.backgroundColor = Colors.buttonUp
+			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: [.curveEaseOut, .allowUserInteraction], animations: {
+				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: -30)
+				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: -30)
+			})
+			UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
+				self.rangeSlider.alpha = 1
+			}.startAnimation()
+		} else {
+			trimButton.backgroundColor = .black
+			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.45, options: [.curveEaseOut, .allowUserInteraction], animations: {
+				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: 0)
+				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: 0)
+			})
+			UIViewPropertyAnimator(duration: 0.075, curve: .easeIn) {
+				self.rangeSlider.alpha = 0
+			}.startAnimation()
+		}
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {

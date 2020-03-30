@@ -40,7 +40,7 @@ class Popup : UIView {
 		
 		self.center = center
 		backgroundColor = .black
-		layer.cornerRadius = 17.5
+		layer.cornerRadius = frame.height/2
 		alpha = 0
 		
 		addSubview(iconImageView)
@@ -73,13 +73,13 @@ class Popup : UIView {
 	
 	func show() {
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
-			self.transform = CGAffineTransform(translationX: 0, y: 20)
+			self.transform = CGAffineTransform(translationX: 0, y: 15)
 			self.alpha = 1
 		})
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseIn, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: [.curveEaseIn, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 0
 		})

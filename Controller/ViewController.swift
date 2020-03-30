@@ -45,9 +45,8 @@ class ViewController: UIViewController {
 		view.backgroundColor = .black
 		
 		cam = Camera()
-		cam.attach(to: view)
-		
 		setupGrid()
+		cam.attach(to: view)
 		setupBottomButtons()
 		attachActions()
 		setupVerticalSliders()
@@ -105,7 +104,7 @@ extension ViewController {
 	}
 	
 	private func setupVerticalSliders() {
-		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 5
+		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 10
 		let popup = Popup(CGPoint(x: view.center.x, y: y))
 		view.addSubview(popup)
 		
@@ -174,7 +173,7 @@ extension ViewController {
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 			self.recordButton.backgroundColor = Colors.buttonDown
@@ -197,8 +196,8 @@ extension ViewController {
 			}
 		}
 		
-		let args: (CGFloat, UIColor) = cam.isRecording ? (3.5, Colors.buttonUp) : (10, .black)
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
+		let args: (CGFloat, UIColor) = cam.isRecording ? (3.25, Colors.buttonUp) : (10, .black)
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.redCircle.transform = CGAffineTransform.identity
 			self.redCircle.layer.cornerRadius = args.0
 			if !self.cam.isRecording {
@@ -224,7 +223,7 @@ extension ViewController {
 		}
 		
 		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/4)
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
 			sender.imageView?.transform = CGAffineTransform.identity
 		})
 	}
