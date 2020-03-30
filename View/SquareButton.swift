@@ -14,7 +14,8 @@ class SquareButton : UIButton {
 		super.init(frame: .zero)
 		backgroundColor = .black
 		translatesAutoresizingMaskIntoConstraints = false
-		var width: CGFloat
+		
+		var size: CGSize
 		if let name = imageName {
 			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 			setImage(UIImage(systemName: name), for: .normal)
@@ -22,16 +23,16 @@ class SquareButton : UIButton {
 			imageView?.clipsToBounds = false
 			imageView?.contentMode = .center
 			tintColor = Colors.disabledButton
-			width = 52.5
+			size = CGSize(width: 48, height: 48)
 		} else {
-			width = 60
+			size = CGSize(width: 62.5, height: 60)
+			layer.cornerRadius = 22.5
 		}
 		
-		layer.cornerRadius = 22.5
 		
 		NSLayoutConstraint.activate([
-			widthAnchor.constraint(equalToConstant: width + 2.5),
-			heightAnchor.constraint(equalToConstant: width)
+			widthAnchor.constraint(equalToConstant: size.width),
+			heightAnchor.constraint(equalToConstant: size.height)
 		])
 	}
 	

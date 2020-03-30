@@ -75,12 +75,29 @@ class ViewController: UIViewController {
 
 extension ViewController {
 	
+	override func viewDidLayoutSubviews() {
+		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 20)
+		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 20)
+	}
+	
 	private func setupBottomButtons() {
+		torchButton = SquareButton("bolt.fill")
+		lockButton = SquareButton("lock.fill")
 		recordButton = SquareButton(nil)
 		view.addSubview(recordButton)
 		NSLayoutConstraint.activate([
 			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+		])
+		
+		btnStackView = UIStackView(arrangedSubviews: [torchButton, lockButton])
+		btnStackView.translatesAutoresizingMaskIntoConstraints = false
+		btnStackView.distribution = .fillProportionally
+		view.addSubview(btnStackView)
+		let xOffset = view.frame.width/4 + 15.625
+		NSLayoutConstraint.activate([
+			btnStackView.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
+			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -xOffset)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)
@@ -145,9 +162,14 @@ extension ViewController {
 	}
 	
 	private func attachActions() {
+		for button in [lockButton, torchButton] {
+			button!.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
+		}
+		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
+		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
