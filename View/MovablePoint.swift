@@ -14,7 +14,7 @@ class MovablePoint : UIImageView {
 	var offset: CGPoint?
 	
 	init() {
-		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
+		let image = UIImage(systemName: "smallcircle.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
 		tintColor = .systemYellow
