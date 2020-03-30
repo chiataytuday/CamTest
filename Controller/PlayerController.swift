@@ -14,7 +14,7 @@ class PlayerController: UIViewController {
 	
 	private var url: URL!
 	private var stackView: UIStackView!
-	private var looper: AVPlayerLooper?
+//	private var looper: AVPlayerLooper?
 	private var layer: AVPlayerLayer!
 	private var item: AVPlayerItem!
 	var queuePlayer: AVQueuePlayer!
@@ -130,11 +130,21 @@ class PlayerController: UIViewController {
 	
 	var rangeSlider: RangeSlider!
 	
+	@objc func didPlayToEndTime() {
+		print("0")
+	}
+	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		self.url = url
 		item = AVPlayerItem(url: url)
 		queuePlayer = AVQueuePlayer(playerItem: item)
-		looper = AVPlayerLooper(player: queuePlayer, templateItem: item)
+		queuePlayer.actionAtItemEnd = .pause
+		
+		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main) { [weak self] (_) in
+			self?.queuePlayer.seek(to: self!.rangeSlider.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
+			self?.queuePlayer.play()
+		}
+		
 		layer = AVPlayerLayer(player: queuePlayer)
 		layer.frame = view.frame
 		layer.videoGravity = .resizeAspectFill
@@ -148,7 +158,8 @@ class PlayerController: UIViewController {
 		observer = item.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.queuePlayer
-				self?.rangeSlider.looper = self?.looper
+				self?.rangeSlider.begin.update!()
+				self?.rangeSlider.end.update!()
 				self?.queuePlayer.play()
 			}
 			self?.timer?.invalidate()
@@ -173,7 +184,6 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.stackView.transform = self.stackView.transform.scaledBy(x: 0.95, y: 0.95)
 			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 0.95, y: 0.95)
-//			self.stackView.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			sender.backgroundColor = Colors.buttonUp
 		})
 		
@@ -192,9 +202,22 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func exportTouchUpInside(sender: UIButton) {
-		DispatchQueue.global(qos: .background).async {
-			UISaveVideoAtPathToSavedPhotosAlbum(self.url.path, nil, nil, nil)
-		}
+		let videoAsset = AVAsset(url: url)
+		let exportSession = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPreset1920x1080)
+		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+		let outputURL = url.appendingPathComponent("ou1").appendingPathExtension("mp4")
+		do {
+			try FileManager.default.removeItem(at: outputURL)
+		} catch {}
+		exportSession?.outputURL = outputURL
+		exportSession?.outputFileType = .mp4
+		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
+		exportSession?.timeRange = range
+		exportSession?.exportAsynchronously(completionHandler: {
+			if exportSession!.status == AVAssetExportSession.Status.completed {
+				UISaveVideoAtPathToSavedPhotosAlbum(outputURL.path, nil, nil, nil)
+			}
+		})
 		backTouchUpInside(sender: sender)
 	}
 	

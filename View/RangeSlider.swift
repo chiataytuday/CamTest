@@ -13,17 +13,17 @@ class RangeSlider : UIView {
 	
 	var looper: AVPlayerLooper?
 	var videoPlayer: AVQueuePlayer?
-	var duration: Double? {
-		return videoPlayer?.currentItem?.duration.seconds
-	}
-	var timescale: CMTimeScale? {
-		return videoPlayer?.currentItem?.asset.duration.timescale
-	}
+//	var duration: Double? {
+//		return videoPlayer?.currentItem?.duration.seconds
+//	}
+//	var timescale: CMTimeScale? {
+//		return videoPlayer?.currentItem?.asset.duration.timescale
+//	}
 	
 	var isPresented = false
 	
 	private var touchOffset: CGFloat?
-	private var begin, end: RangePoint!
+	private(set) var begin, end: RangePoint!
 	private var activeRangePoint, unactiveRangePoint: RangePoint?
 	private var minDistance: CGFloat!
 	private var path, range: UIView!
@@ -60,13 +60,12 @@ class RangeSlider : UIView {
 		begin.setMax = {
 			self.begin.maxX = self.end.center.x - self.minDistance
 		}
-		begin.value = 0
+//		begin.value = 0
 		begin.update = {
-			var value = Double((self.begin.center.x - self.begin.frame.width/2)/self.path.frame.width)
-			value *= self.duration!
-			print("begin \(value)")
-			self.begin.value = value
-			self.videoPlayer?.seek(to: CMTimeMakeWithSeconds(value, preferredTimescale: self.timescale!), toleranceBefore: .zero, toleranceAfter: .zero)
+			var sec = Double((self.begin.center.x - self.begin.frame.width/2)/self.path.frame.width)
+			sec *= self.videoPlayer!.currentItem!.duration.seconds
+			self.begin.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
+			self.videoPlayer?.seek(to: self.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(begin)
 		
@@ -77,11 +76,10 @@ class RangeSlider : UIView {
 			self.end.minX = self.begin.center.x + self.minDistance
 		}
 		end.update = {
-			var value = Double((self.end.center.x + self.end.frame.width/2)/self.path.frame.width)
-			value *= self.duration!
-			print("end \(value)")
-			self.end.value = value
-			self.videoPlayer?.seek(to: CMTimeMakeWithSeconds(value, preferredTimescale: self.timescale!), toleranceBefore: .zero, toleranceAfter: .zero)
+			var sec = Double((self.end.center.x + self.end.frame.width/2)/self.path.frame.width)
+			sec *= self.videoPlayer!.currentItem!.duration.seconds
+			self.end.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
+			self.videoPlayer?.seek(to: self.end.time!, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(end)
 	}
@@ -134,18 +132,7 @@ class RangeSlider : UIView {
 			self.range.backgroundColor = .white
 		}.startAnimation()
 		
-		print(begin.value, end.value, timescale)
-		let range = CMTimeRange(start: CMTimeMakeWithSeconds(begin.value!, preferredTimescale: timescale!), end: CMTimeMakeWithSeconds(end.value!, preferredTimescale: timescale!))
-		let item = videoPlayer?.currentItem!
-		videoPlayer?.removeAllItems()
-		self.looper = AVPlayerLooper(player: self.videoPlayer!, templateItem: item!, timeRange: range)
-		videoPlayer?.play()
-		//		if self.avQueuePlayer.rate == 0 {
-		//		   self.avQueuePlayer.removeAllItems()
-		//		   let range = CMTimeRange(start: self.startTime, end: self.endTime)
-		//		   self.avPlayerLooper = AVPlayerLooper(player: self.avQueuePlayer, templateItem: self.avPlayerItem, timeRange: range)
-		//		   self.avQueuePlayer.play()
-		//		}
+		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = end.time!
 		
 		videoPlayer?.play()
 		touchOffset = nil

@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import AVFoundation
 
 class RangePoint : UIView {
 	
 	var update: (() -> ())?
 	var setMin, setMax: (() -> ())?
-	var value: Double?
 	var minX, maxX: CGFloat!
+	var time: CMTime?
 	
 	init(_ diameter: CGFloat, _ pathFrame: CGRect) {
 		super.init(frame: CGRect(origin: .zero, size: CGSize(width: diameter, height: diameter)))
