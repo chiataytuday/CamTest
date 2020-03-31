@@ -14,7 +14,7 @@ class MovablePoint : UIImageView {
 	var offset: CGPoint?
 	
 	init() {
-		let image = UIImage(systemName: "smallcircle.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
+		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
 		tintColor = .systemYellow
@@ -25,6 +25,7 @@ class MovablePoint : UIImageView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		let t = touches.first!.location(in: superview!)
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)

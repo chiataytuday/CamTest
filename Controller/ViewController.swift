@@ -183,7 +183,7 @@ extension ViewController {
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
-			self.recordButton.backgroundColor = Colors.buttonDown
+//			self.recordButton.backgroundColor = Colors.buttonDown
 		})
 	}
 	
@@ -191,7 +191,7 @@ extension ViewController {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		if !cam.isRecording {
 			cam.startRecording(self)
-			recordButton.backgroundColor = Colors.buttonUp
+//			recordButton.backgroundColor = Colors.buttonUp
 			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
 			cam.durationAnim?.startAnimation()
 		} else {

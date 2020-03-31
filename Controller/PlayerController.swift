@@ -160,7 +160,7 @@ class PlayerController: UIViewController {
 	var observer: NSKeyValueObservation?
 	
 	@objc private func trimTouchDown(sender: UIButton) {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
 		if rangeSlider.isPresented {
 			trimButton.backgroundColor = Colors.buttonUp
@@ -184,9 +184,10 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+			self.view.layer.cornerRadius = 20
 			sender.backgroundColor = Colors.buttonUp
 		})
 	}
@@ -194,6 +195,7 @@ class PlayerController: UIViewController {
 	@objc private func buttonTouchUpOutside(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform.identity
+			self.view.layer.cornerRadius = 0
 			sender.backgroundColor = .black
 		})
 	}

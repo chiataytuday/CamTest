@@ -121,7 +121,8 @@ class RangeSlider : UIView {
 			val = activeRangePoint!.maxX
 		}
 		
-		UIViewPropertyAnimator(duration: 0.075, curve: .easeOut) {
+		
+		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) {
 			self.activeRangePoint!.center.x = val
 			self.range.frame = CGRect(origin: CGPoint(x: self.begin.center.x, y: 0), size: CGSize(width: self.end.center.x - self.begin.center.x, height: self.path.frame.height))
 		}.startAnimation()
