@@ -57,6 +57,7 @@ class VerticalSlider : UIView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.3)
 		let t = touches.first!.location(in: self)
 		offset = filledView.frame.height + t.y
 		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2

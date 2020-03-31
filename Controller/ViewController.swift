@@ -178,6 +178,7 @@ extension ViewController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchDown() {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		redCircle.transform = CGAffineTransform.identity
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
@@ -187,6 +188,7 @@ extension ViewController {
 	}
 	
 	@objc private func recordTouchUp() {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		if !cam.isRecording {
 			cam.startRecording(self)
 			recordButton.backgroundColor = Colors.buttonUp
@@ -213,6 +215,7 @@ extension ViewController {
 	}
 	
 	@objc private func lockTouchDown() {
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.4)
 		let isLocked = cam.device.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		User.shared.exposureMode = mode
@@ -235,6 +238,7 @@ extension ViewController {
 	}
 	
 	@objc private func torchTouchDown() {
+		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.4)
 		let torchEnabled = cam.device.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		User.shared.torchEnabled = !torchEnabled

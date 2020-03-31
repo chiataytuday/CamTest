@@ -15,6 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 		do {
 			try AVAudioSession.sharedInstance().setCategory(.playAndRecord, options: [.duckOthers, .defaultToSpeaker, .allowBluetoothA2DP])
+			try AVAudioSession.sharedInstance().setAllowHapticsAndSystemSoundsDuringRecording(true)
 		} catch {}
 		
 		// Override point for customization after application launch.
