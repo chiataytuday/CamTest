@@ -178,7 +178,7 @@ extension CameraController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchDown() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		redCircle.transform = CGAffineTransform.identity
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
@@ -187,7 +187,7 @@ extension CameraController {
 	}
 	
 	@objc private func recordTouchUp() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		if !cam.isRecording {
 			cam.startRecording(self)
 			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
