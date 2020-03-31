@@ -83,23 +83,23 @@ class PlayerController: UIViewController {
 	}
 	
 	private func setupInterface() {
-		exportButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
-		exportButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
-		exportButton.addTarget(self, action: #selector(exportTouchUpInside(sender:)), for: .touchUpInside)
+		exportButton.addTarget(self, action: #selector(buttonDown(sender:)), for: .touchDown)
+		exportButton.addTarget(self, action: #selector(buttonUpOutside(sender:)), for: .touchUpOutside)
+		exportButton.addTarget(self, action: #selector(saveButtonUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
 			exportButton.widthAnchor.constraint(equalToConstant: 100),
 			exportButton.heightAnchor.constraint(equalToConstant: 48),
 		])
 		
-		backButton.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
-		backButton.addTarget(self, action: #selector(buttonTouchUpOutside(sender:)), for: .touchUpOutside)
-		backButton.addTarget(self, action: #selector(backTouchUpInside(sender:)), for: .touchUpInside)
+		backButton.addTarget(self, action: #selector(buttonDown(sender:)), for: .touchDown)
+		backButton.addTarget(self, action: #selector(buttonUpOutside(sender:)), for: .touchUpOutside)
+		backButton.addTarget(self, action: #selector(backButtonUpInside(sender:)), for: .touchUpInside)
 		NSLayoutConstraint.activate([
 			backButton.widthAnchor.constraint(equalToConstant: 50),
 			backButton.heightAnchor.constraint(equalToConstant: 48)
 		])
 		
-		trimButton.addTarget(self, action: #selector(trimTouchDown(sender:)), for: .touchDown)
+		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
 		NSLayoutConstraint.activate([
 			trimButton.widthAnchor.constraint(equalToConstant: 50),
 			trimButton.heightAnchor.constraint(equalToConstant: 48)
@@ -159,7 +159,7 @@ class PlayerController: UIViewController {
 	
 	var observer: NSKeyValueObservation?
 	
-	@objc private func trimTouchDown(sender: UIButton) {
+	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
 		if rangeSlider.isPresented {
@@ -183,7 +183,7 @@ class PlayerController: UIViewController {
 		}
 	}
 	
-	@objc private func buttonTouchDown(sender: UIButton) {
+	@objc private func buttonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
@@ -192,7 +192,7 @@ class PlayerController: UIViewController {
 		})
 	}
 	
-	@objc private func buttonTouchUpOutside(sender: UIButton) {
+	@objc private func buttonUpOutside(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform.identity
 			self.view.layer.cornerRadius = 0
@@ -200,28 +200,45 @@ class PlayerController: UIViewController {
 		})
 	}
 	
-	@objc private func exportTouchUpInside(sender: UIButton) {
-		let videoAsset = AVAsset(url: fileURL)
-		let exportSession = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPreset1920x1080)
-		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		let outputURL = url.appendingPathComponent("ou1").appendingPathExtension("mp4")
-		do {
-			try FileManager.default.removeItem(at: outputURL)
-		} catch {}
+	
+	@objc private func saveButtonUpInside(sender: UIButton) {
+		saveVideoToLibrary()
+		backButtonUpInside(sender: sender)
+	}
+	
+	private func saveVideoToLibrary() {
+		let asset = AVAsset(url: fileURL)
+		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
+		let outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("outp").appendingPathExtension("mp4")
 		exportSession?.outputURL = outputURL
 		exportSession?.outputFileType = .mp4
 		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
 		exportSession?.timeRange = range
 		exportSession?.exportAsynchronously(completionHandler: {
-			if exportSession!.status == AVAssetExportSession.Status.completed {
-				UISaveVideoAtPathToSavedPhotosAlbum(outputURL.path, nil, nil, nil)
+			if exportSession?.status == .completed {
+				print("\(outputURL.path) export completed")
+				UISaveVideoAtPathToSavedPhotosAlbum(outputURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
 			}
 		})
-		backTouchUpInside(sender: sender)
 	}
 	
-	@objc private func backTouchUpInside(sender: UIButton) {
-		buttonTouchUpOutside(sender: sender)
+	private func removeVideoAtPath() {
+		do {
+			try FileManager.default.removeItem(at: fileURL)
+			print("\(fileURL.path) removed")
+		} catch {
+			print(error.localizedDescription)
+		}
+	}
+	
+	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
+		print("\(videoPath) saved to library")
+		removeVideoAtPath()
+	}
+	
+	
+	@objc private func backButtonUpInside(sender: UIButton) {
+		buttonUpOutside(sender: sender)
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurEffectView.alpha = 1
 		})

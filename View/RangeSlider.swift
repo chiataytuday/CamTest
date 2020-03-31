@@ -58,10 +58,10 @@ class RangeSlider : UIView {
 		begin = RangePoint(pointWidth, path.frame)
 		begin.center.y = path.frame.height/2
 		begin.minX = pointWidth/2
-		begin.setMax = {
+		begin.setMax = { [unowned self] in
 			self.begin.maxX = self.end.center.x - self.minDistance
 		}
-		begin.update = {
+		begin.update = { [unowned self] in
 			var sec = Double((self.begin.center.x - self.pointWidth/2)/self.path.frame.width)
 			sec *= self.videoPlayer!.currentItem!.duration.seconds
 			self.begin.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
@@ -73,10 +73,10 @@ class RangeSlider : UIView {
 		end.center.x = path.frame.width - end.frame.width/2
 		end.center.y = path.frame.height/2
 		end.maxX = path.frame.width - pointWidth/2
-		end.setMin = {
+		end.setMin = { [unowned self] in
 			self.end.minX = self.begin.center.x + self.minDistance
 		}
-		end.update = {
+		end.update = { [unowned self] in
 			var sec = Double((self.end.center.x + self.pointWidth/2)/self.path.frame.width)
 			sec *= self.videoPlayer!.currentItem!.duration.seconds
 			self.end.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
@@ -138,6 +138,10 @@ class RangeSlider : UIView {
 		touchOffset = nil
 		activeRangePoint = nil
 		unactiveRangePoint = nil
+	}
+	
+	deinit {
+		print("range slider deinit")
 	}
 	
 	required init?(coder: NSCoder) {

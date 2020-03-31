@@ -281,6 +281,7 @@ extension ViewController {
 			self.view.alpha = 1
 			self.blurEffectView.alpha = 0
 		})
+		playerController = nil
 	}
 }
 
@@ -303,7 +304,7 @@ extension ViewController: AVCaptureFileOutputRecordingDelegate {
 				UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 					self?.blurEffectView.alpha = 0
 				})
-				let error = Notification("Not enough memory", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
+				let error = Notification("Something went wrong", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
 				self?.view.addSubview(error)
 				error.show()
 			}
