@@ -12,7 +12,7 @@ import AudioToolbox
 
 class PermissionsController: UIViewController {
 	
-	let captionLabel: UILabel = {
+	let bottomLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
@@ -37,7 +37,7 @@ class PermissionsController: UIViewController {
 		view.addSubview(libraryButton)
 		NSLayoutConstraint.activate([
 			libraryButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			libraryButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+			libraryButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -15),
 		])
 		
 		cameraButton = grantButton("camera.fill")
@@ -46,30 +46,30 @@ class PermissionsController: UIViewController {
 		view.addSubview(cameraButton)
 		NSLayoutConstraint.activate([
 			cameraButton.trailingAnchor.constraint(equalTo: libraryButton.leadingAnchor, constant: -15),
-			cameraButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+			cameraButton.centerYAnchor.constraint(equalTo: libraryButton.centerYAnchor)
 		])
-		
+
 		micButton = grantButton("mic.fill")
 		setButtonAppearance(micButton, AVAudioSession.sharedInstance().recordPermission == .granted)
 		micButton.addTarget(self, action: #selector(micButtonTouchDown), for: .touchDown)
 		view.addSubview(micButton)
 		NSLayoutConstraint.activate([
 			micButton.leadingAnchor.constraint(equalTo: libraryButton.trailingAnchor, constant: 15),
-			micButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+			micButton.centerYAnchor.constraint(equalTo: libraryButton.centerYAnchor)
 		])
-		
-		view.addSubview(captionLabel)
+
+		view.addSubview(bottomLabel)
 		NSLayoutConstraint.activate([
-			captionLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			captionLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
+			bottomLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			bottomLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
-		
+
 		// MARK: - Animation
-		
+
 		UIView.animate(withDuration: 0.5, delay: 0.12, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
-			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
-			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
-			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)
+			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
+			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
+			self.micButton.transform = CGAffineTransform(translationX: 0, y: 20)
 			self.libraryButton.alpha = 1
 			self.cameraButton.alpha = 1
 			self.micButton.alpha = 1
@@ -117,7 +117,7 @@ class PermissionsController: UIViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 27, weight: .light), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
 		button.tintColor = Colors.permissionIcon
-		button.layer.borderWidth = 1
+		button.layer.borderWidth = 1.5
 		button.layer.borderColor = Colors.permissionBorder.cgColor
 		button.layer.cornerRadius = 17.5
 		button.alpha = 0
@@ -145,14 +145,15 @@ class PermissionsController: UIViewController {
 	
 	private func setButtonAppearance(_ button: UIButton, _ accessGranted: Bool) {
 		DispatchQueue.main.async {
-			if accessGranted {
-				button.backgroundColor = Colors.permissionIcon
-				button.layer.borderColor = Colors.permissionIcon.cgColor
-				button.tintColor = Colors.permissionBackground
-			} else {
-				button.backgroundColor = Colors.permissionBackground
-				button.layer.borderColor = Colors.permissionBorder.cgColor
-				button.tintColor = Colors.permissionIcon
+			switch accessGranted {
+				case true:
+					button.backgroundColor = Colors.permissionIcon
+					button.layer.borderColor = Colors.permissionIcon.cgColor
+					button.tintColor = Colors.permissionBackground
+				case false:
+					button.backgroundColor = Colors.permissionBackground
+					button.layer.borderColor = Colors.permissionBorder.cgColor
+					button.tintColor = Colors.permissionIcon
 			}
 			
 			if PermissionsController.grantedCount() == 3 {
