@@ -48,8 +48,8 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		let duration = transitionDuration(using: transitionContext)
 		(transitionContext.viewController(forKey: .to) as? CameraController)?.resetView(duration)
 		
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
-			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: { [weak viewToAnimate] in
+			viewToAnimate!.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate!.frame.height)
 		}) { _ in
 			transitionContext.completeTransition(true)
 		}
@@ -62,9 +62,9 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.2, y: 0.2).rotated(by: .pi/7)
 		
 		let duration = transitionDuration(using: transitionContext)
-		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-			viewController.view.alpha = 0.15
-			playerController.blurEffectView.alpha = 0
+		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: { [weak viewController, weak playerController] in
+			viewController!.view.alpha = 0.15
+			playerController!.blurEffectView.alpha = 0
 			viewToAnimate.transform = CGAffineTransform.identity
 		}) { _ in
 			transitionContext.completeTransition(true)

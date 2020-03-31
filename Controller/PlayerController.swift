@@ -270,7 +270,7 @@ extension PlayerController: UIViewControllerTransitioningDelegate {
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.34, .dismiss)
+		return AnimationController(0.33, .dismiss)
 	}
 }
 
