@@ -116,7 +116,7 @@ class PlayerController: UIViewController {
 			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
 		])
 		
-		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height - 10, width: view.frame.width - 60, height: 20))
+		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x, y: view.frame.height - 5, width: view.frame.width - 60, height: 30))
 		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
 		
@@ -161,19 +161,18 @@ class PlayerController: UIViewController {
 	
 	@objc private func trimTouchDown(sender: UIButton) {
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		
 		if rangeSlider.isPresented {
 			trimButton.backgroundColor = Colors.buttonUp
-			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: -30)
-				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: -30)
+			UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: -45)
+				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: -45)
 			})
 			UIViewPropertyAnimator(duration: 0.1, curve: .linear) {
 				self.rangeSlider.alpha = 1
 			}.startAnimation()
 		} else {
 			trimButton.backgroundColor = .black
-			UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 				self.btnStackView.transform = CGAffineTransform(translationX: 0, y: 0)
 				self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: 0)
 			})
@@ -184,22 +183,15 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.btnStackView.transform = self.btnStackView.transform.scaledBy(x: 0.95, y: 0.95)
-			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 0.95, y: 0.95)
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			sender.backgroundColor = Colors.buttonUp
 		})
-		
-		UIViewPropertyAnimator(duration: 0.7, curve: .easeOut) {
-			self.playerLayer.transform = CATransform3DScale(CATransform3DIdentity, 0.975, 0.975, 1)
-		}.startAnimation()
 	}
 	
 	@objc private func buttonTouchUpOutside(sender: UIButton) {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-//			self.stackView.transform = self.stackView.transform.scaledBy(x: 1.05, y: 1.05)
-//			self.rangeSlider.transform = self.rangeSlider.transform.scaledBy(x: 1.05, y: 1.05)
-			self.playerLayer.transform = CATransform3DIdentity
+			self.view.transform = CGAffineTransform.identity
 			sender.backgroundColor = .black
 		})
 	}
