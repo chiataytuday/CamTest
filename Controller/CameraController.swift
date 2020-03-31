@@ -30,7 +30,7 @@ class CameraController: UIViewController {
 		let view = UIView()
 		view.translatesAutoresizingMaskIntoConstraints = false
 		view.isUserInteractionEnabled = false
-		view.backgroundColor = .systemRed
+		view.backgroundColor = Colors.red
 		view.layer.cornerRadius = 10
 		return view
 	}()

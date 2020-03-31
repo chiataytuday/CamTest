@@ -17,7 +17,7 @@ class MovablePoint : UIImageView {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
-		tintColor = .systemYellow
+		tintColor = Colors.yellow
 	}
 	
 	required init?(coder: NSCoder) {
