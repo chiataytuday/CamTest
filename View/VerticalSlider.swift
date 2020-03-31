@@ -40,7 +40,7 @@ class VerticalSlider : UIView {
 	func setImage(_ imageName: String) {
 		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
 		iconImageView = UIImageView(image: image)
-		iconImageView?.tintColor = Colors.sliderIcon
+		iconImageView?.tintColor = Colors.gray3
 		
 		iconImageView?.center = CGPoint(x: filledView.frame.midX, y: filledView.frame.maxY - iconImageView!.frame.height/2 - 8)
 		insertSubview(iconImageView!, aboveSubview: filledView)

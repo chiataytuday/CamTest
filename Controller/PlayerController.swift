@@ -28,11 +28,11 @@ class PlayerController: UIViewController {
 		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
 		button.setTitle("Save", for: .normal)
 		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-		button.setTitleColor(.systemGray, for: .normal)
+		button.setTitleColor(Colors.gray5, for: .normal)
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
 		button.backgroundColor = .black
-		button.tintColor = Colors.buttonLabel
+		button.tintColor = Colors.gray5
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -42,7 +42,7 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = Colors.backIcon
+		button.tintColor = Colors.gray3
 		button.backgroundColor = .black
 		button.adjustsImageWhenHighlighted = false
 		return button
@@ -53,7 +53,7 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "scissors"), for: .normal)
-		button.tintColor = Colors.backIcon
+		button.tintColor = Colors.gray3
 		button.backgroundColor = .black
 		button.adjustsImageWhenHighlighted = false
 		return button
@@ -165,7 +165,7 @@ class PlayerController: UIViewController {
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		let args: (UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (Colors.buttonUp, -45, 0.1, .linear, 1) : (.black, 0, 0.075, .easeIn, 0)
+		let args: (UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (Colors.gray1, -45, 0.1, .linear, 1) : (.black, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
@@ -194,7 +194,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.view.layer.cornerRadius = 20
-			sender?.backgroundColor = Colors.buttonUp
+			sender?.backgroundColor = Colors.gray1
 		})
 	}
 	

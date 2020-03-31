@@ -202,13 +202,10 @@ extension CameraController {
 			}
 		}
 		
-		let args: (CGFloat, UIColor) = cam.isRecording ? (3.25, Colors.buttonUp) : (10, .black)
+		let radius: CGFloat = cam.isRecording ? 3.25 : 10
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform.identity
-			self.redCircle.layer.cornerRadius = args.0
-			if !self.cam.isRecording {
-				self.recordButton.backgroundColor = args.1
-			}
+			self.redCircle.layer.cornerRadius = radius
 		})
 	}
 	
@@ -222,10 +219,12 @@ extension CameraController {
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
 		if sender.tag == 0 {
-			sender.tintColor = Colors.enabledButton
+			sender.tintColor = Colors.gray5
+			sender.backgroundColor = Colors.gray1
 			sender.tag = 1
 		} else {
-			sender.tintColor = .systemGray3
+			sender.tintColor = Colors.gray3
+			sender.backgroundColor = .black
 			sender.tag = 0
 		}
 		

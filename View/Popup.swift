@@ -15,7 +15,7 @@ class Popup : UIView {
 	private let iconImageView: UIImageView = {
 		let image = UIImage(systemName: "sun.max.fill")
 		let imageView = UIImageView(image: image)
-		imageView.tintColor = Colors.popupContent
+		imageView.tintColor = Colors.gray5
 		return imageView
 	}()
 	
@@ -23,7 +23,7 @@ class Popup : UIView {
 		let label = UILabel()
 		label.text = "0.0"
 		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
-		label.textColor = Colors.popupContent
+		label.textColor = Colors.gray5
 		label.lineBreakMode = .byClipping
 		label.sizeToFit()
 		return label

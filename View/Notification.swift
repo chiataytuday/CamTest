@@ -22,7 +22,7 @@ class Notification : UIView {
 		label.sizeToFit()
 		let margin = CGPoint(x: 16, y: 8)
 		super.init(frame: label.frame.insetBy(dx: -margin.x, dy: -margin.y))
-		backgroundColor = .systemRed
+		backgroundColor = Colors.red
 		layer.cornerRadius = frame.height/2
 		alpha = 0
 		
