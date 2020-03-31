@@ -11,7 +11,7 @@ import AVFoundation
 import AudioToolbox
 
 
-class ViewController: UIViewController {
+class CameraController: UIViewController {
 	
 	private var cam: Camera!
 	private var exposureSlider, lensSlider: VerticalSlider!
@@ -73,7 +73,7 @@ class ViewController: UIViewController {
 }
 
 
-extension ViewController {
+extension CameraController {
 	
 	override func viewDidLayoutSubviews() {
 		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 20)
@@ -286,7 +286,7 @@ extension ViewController {
 }
 
 
-extension ViewController: AVCaptureFileOutputRecordingDelegate {
+extension CameraController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		guard output.recordedDuration.seconds > 0.25 else { return }

@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		if PermissionsController.grantedCount() < 3 {
 			vc = PermissionsController()
 		} else {
-			vc = ViewController()
+			vc = CameraController()
 		}
 		vc.modalPresentationStyle = .fullScreen
 		window?.rootViewController = vc

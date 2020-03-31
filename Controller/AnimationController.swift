@@ -46,7 +46,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	
 	func dismissAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		let duration = transitionDuration(using: transitionContext)
-		(transitionContext.viewController(forKey: .to) as? ViewController)?.resetView(duration)
+		(transitionContext.viewController(forKey: .to) as? CameraController)?.resetView(duration)
 		
 		UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: -viewToAnimate.frame.height)
@@ -57,7 +57,7 @@ extension AnimationController : UIViewControllerAnimatedTransitioning {
 	
 	func presentAnimation(with transitionContext: UIViewControllerContextTransitioning, viewToAnimate: UIView) {
 		
-		guard let viewController = transitionContext.viewController(forKey: .from) as? ViewController, let playerController = transitionContext.viewController(forKey: .to) as? PlayerController else { return }
+		guard let viewController = transitionContext.viewController(forKey: .from) as? CameraController, let playerController = transitionContext.viewController(forKey: .to) as? PlayerController else { return }
 		
 		viewToAnimate.transform = CGAffineTransform(translationX: viewToAnimate.frame.width/2, y: -viewToAnimate.frame.height/2).scaledBy(x: 0.2, y: 0.2).rotated(by: .pi/7)
 		

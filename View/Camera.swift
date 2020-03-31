@@ -57,7 +57,7 @@ class Camera {
 		} catch {}
 		
 		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		path = url.appendingPathComponent("output").appendingPathExtension("mp4")
+		path = url.appendingPathComponent("record").appendingPathExtension("mp4")
 		
 		layer = AVCaptureVideoPreviewLayer(session: session)
 		layer.videoGravity = .resizeAspectFill
