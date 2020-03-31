@@ -8,6 +8,7 @@
 
 import UIKit
 import Photos
+import AudioToolbox
 
 class PermissionsController: UIViewController {
 	
@@ -15,7 +16,7 @@ class PermissionsController: UIViewController {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
-		label.textColor = Colors.permissionBorder
+		label.textColor = Colors.backIcon
 		label.font = UIFont.systemFont(ofSize: 19, weight: .light)
 		return label
 	}()
@@ -65,7 +66,7 @@ class PermissionsController: UIViewController {
 		
 		// MARK: - Animation
 		
-		UIView.animate(withDuration: 0.5, delay: 0.12, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.5, delay: 0.12, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: [], animations: {
 			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 10)
 			self.micButton.transform = CGAffineTransform(translationX: 0, y: 10)

@@ -22,7 +22,7 @@ class SquareButton : UIButton {
 			adjustsImageWhenHighlighted = false
 			imageView?.clipsToBounds = false
 			imageView?.contentMode = .center
-			tintColor = .systemGray3
+			tintColor = Colors.backIcon
 			size = CGSize(width: 48, height: 48)
 		} else {
 			size = CGSize(width: 62.5, height: 60)
