@@ -215,7 +215,7 @@ extension ViewController {
 	}
 	
 	@objc private func lockTouchDown() {
-		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.4)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		let isLocked = cam.device.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		User.shared.exposureMode = mode
@@ -227,7 +227,7 @@ extension ViewController {
 			sender.tintColor = Colors.enabledButton
 			sender.tag = 1
 		} else {
-			sender.tintColor = Colors.disabledButton
+			sender.tintColor = .systemGray3
 			sender.tag = 0
 		}
 		
@@ -238,7 +238,7 @@ extension ViewController {
 	}
 	
 	@objc private func torchTouchDown() {
-		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.4)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		let torchEnabled = cam.device.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		User.shared.torchEnabled = !torchEnabled

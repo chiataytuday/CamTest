@@ -86,7 +86,7 @@ class RangeSlider : UIView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIImpactFeedbackGenerator(style: .light).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		let t = touches.first!.location(in: self)
 		if t.x < midOfRange {
 			activeRangePoint = begin
