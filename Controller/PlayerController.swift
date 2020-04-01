@@ -12,14 +12,14 @@ import Photos
 
 class PlayerController: UIViewController {
 	
-	private var recURL: URL!
-	private var outputURL: URL?
-	private var btnStackView: UIStackView!
-	private var playerLayer: AVPlayerLayer!
+	var player: AVQueuePlayer!
 	private var playerItem: AVPlayerItem!
-	var queuePlayer: AVQueuePlayer!
-	var rangeSlider: RangeSlider!
-	var timer: Timer?
+	private var playerLayer: AVPlayerLayer!
+	private var btnStackView: UIStackView!
+	private var rangeSlider: RangeSlider!
+	
+	private var observer: NSKeyValueObservation?
+	private var timer: Timer?
 	
 	private let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -81,7 +81,7 @@ class PlayerController: UIViewController {
 	}
 	
 	deinit {
-		removeFileAtURL(URLS.output)
+		removeFileAtURL(Camera.outputURL)
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
@@ -130,39 +130,42 @@ class PlayerController: UIViewController {
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
-		removeFileAtURL(URLS.output)
+		// Remove old output file if exists
+		removeFileAtURL(Camera.outputURL)
 		
+		// Initialize player
 		playerItem = AVPlayerItem(url: url)
-		queuePlayer = AVQueuePlayer(playerItem: playerItem)
-		queuePlayer.actionAtItemEnd = .pause
-		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
-			self?.queuePlayer.seek(to: self!.rangeSlider.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
-			self?.queuePlayer.play()
-		}
-		
-		playerLayer = AVPlayerLayer(player: queuePlayer)
+		player = AVQueuePlayer(playerItem: playerItem)
+		player.actionAtItemEnd = .pause
+		playerLayer = AVPlayerLayer(player: player)
 		playerLayer.frame = view.frame
 		playerLayer.videoGravity = .resizeAspectFill
 		view.layer.addSublayer(playerLayer)
+		
+		// Buttons & slider
 		setupSubviews()
+		
+		// Register events
+		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
+			self?.player.seek(to: self!.rangeSlider.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
+			self?.player.play()
+		}
 		timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { [weak self] (t) in
 			self?.observer?.invalidate()
 			t.invalidate()
 			handler(false)
 		})
-		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
-			if item.status == .readyToPlay {
-				self?.removeFileAtURL(url)
-				self?.rangeSlider.videoPlayer = self?.queuePlayer
-				self?.queuePlayer.play()
-			}
+		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, _) in
 			self?.timer?.invalidate()
 			self?.observer?.invalidate()
+			self?.removeFileAtURL(url)
+			if item.status == .readyToPlay {
+				self?.rangeSlider.videoPlayer = self?.player
+				self?.player.play()
+			}
 			handler(item.status == .readyToPlay)
 		})
 	}
-	
-	var observer: NSKeyValueObservation?
 	
 	
 	@objc private func trimButtonDown(sender: UIButton) {
@@ -187,7 +190,6 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func backButtonUpInside(sender: UIButton) {
-//		cleanUpDocumentDirectory()
 		resetViewSize(sender: sender)
 		closeController()
 	}
@@ -214,7 +216,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
 			self.blurEffectView.alpha = 1
 		})
-		queuePlayer.pause()
+		player.pause()
 		observer?.invalidate()
 		dismiss(animated: true)
 	}
@@ -222,27 +224,30 @@ class PlayerController: UIViewController {
 	private func saveVideoToLibrary() {
 		let asset = playerItem.asset
 		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
-//		outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
-		exportSession?.outputURL = URLS.output
+		exportSession?.outputURL = Camera.outputURL
 		exportSession?.outputFileType = .mp4
+		
 		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
 		exportSession?.timeRange = range
 		
 		exportSession?.exportAsynchronously(completionHandler: {
 			if exportSession?.status == .completed {
-				print("\(URLS.output) exported")
-				UISaveVideoAtPathToSavedPhotosAlbum(URLS.output.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
+				print("\(Camera.outputURL.relativePath) exported")
+				UISaveVideoAtPathToSavedPhotosAlbum(Camera.outputURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
 			}
 		})
 	}
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
 		print("\(videoPath) saved")
-//		removeFileAtURL(URL(fileURLWithPath: videoPath))
-//		cleanUpDocumentDirectory()
 	}
 	
 	private func removeFileAtURL(_ url: URL) {
+		guard FileManager.default.fileExists(atPath: url.path) else {
+			print("File \(url.lastPathComponent) doesn't exist")
+			return
+		}
+		
 		do {
 			try FileManager.default.removeItem(at: url)
 			print("\(url.relativePath) removed")
@@ -250,17 +255,6 @@ class PlayerController: UIViewController {
 			print(error.localizedDescription)
 		}
 	}
-//	private func cleanUpDocumentDirectory() {
-//		do {
-//			try FileManager.default.removeItem(at: recordURL)
-//			print("\(recordURL.path) removed")
-//			guard let outputURL = outputURL else { return }
-//			try FileManager.default.removeItem(at: outputURL)
-//			print("\(outputURL.path) removed")
-//		} catch {
-//			print(error.localizedDescription)
-//		}
-//	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if rangeSlider.isPresented {

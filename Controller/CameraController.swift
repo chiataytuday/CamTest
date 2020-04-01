@@ -257,7 +257,7 @@ extension CameraController {
 	
 	@objc private func didEnterBackground() {
 		if let vc = presentedViewController as? PlayerController {
-			vc.queuePlayer.pause()
+			vc.player.pause()
 		} else if cam.isRecording {
 			recordTouchUp()
 		}
@@ -267,7 +267,7 @@ extension CameraController {
 	@objc private func didBecomeActive() {
 		cam.startSession()
 		if let vc = presentedViewController as? PlayerController {
-			vc.queuePlayer.play()
+			vc.player.play()
 		} else if User.shared.torchEnabled {
 			cam.setTorch(.on)
 		}

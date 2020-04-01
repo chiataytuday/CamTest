@@ -35,11 +35,11 @@ class Colors {
 	}
 }
 
-class URLS {
-	static let output = getUrl("out")
-	static let record = getUrl("rec")
-	
-	private static func getUrl(_ name: String) -> URL {
-		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name).appendingPathExtension("mp4")
-	}
-}
+//class URLS {
+//	static let output = getUrl("out")
+//	static let record = getUrl("rec")
+//
+//	private static func getUrl(_ name: String) -> URL {
+//		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name).appendingPathExtension("mp4")
+//	}
+//}
