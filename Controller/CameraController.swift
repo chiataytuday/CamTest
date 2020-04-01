@@ -94,10 +94,10 @@ extension CameraController {
 		btnStackView.translatesAutoresizingMaskIntoConstraints = false
 		btnStackView.distribution = .fillProportionally
 		view.addSubview(btnStackView)
-		let xOffset = view.frame.width/4 + 15.625
+		let xOffset = (view.frame.width/2 - 31.25)/2
 		NSLayoutConstraint.activate([
 			btnStackView.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -xOffset)
+			btnStackView.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
 		
 		view.insertSubview(redCircle, aboveSubview: recordButton)

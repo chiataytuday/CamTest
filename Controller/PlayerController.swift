@@ -265,6 +265,10 @@ class PlayerController: UIViewController {
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		rangeSlider.touchesEnded(touches, with: event)
 	}
+	
+	override var prefersStatusBarHidden: Bool {
+		return true
+	}
 }
 
 extension PlayerController: UIViewControllerTransitioningDelegate {

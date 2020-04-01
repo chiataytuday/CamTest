@@ -21,7 +21,6 @@ class SquareButton : UIButton {
 			setImage(UIImage(systemName: name), for: .normal)
 			adjustsImageWhenHighlighted = false
 			imageView?.clipsToBounds = false
-			imageView?.contentMode = .center
 			tintColor = Colors.gray3
 			size = CGSize(width: 48, height: 48)
 		} else {

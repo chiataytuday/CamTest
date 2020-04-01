@@ -177,4 +177,8 @@ class PermissionsController: UIViewController {
 		}
 		return granted
 	}
+	
+	override var prefersStatusBarHidden: Bool {
+		return true
+	}
 }
