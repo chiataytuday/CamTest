@@ -57,9 +57,6 @@ class Camera {
 			output.connection(with: .video)?.preferredVideoStabilizationMode = .auto
 		} catch {}
 		
-//		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-//		path = url.appendingPathComponent("record").appendingPathExtension("mp4")
-		
 		layer = AVCaptureVideoPreviewLayer(session: session)
 		layer.videoGravity = .resizeAspectFill
 		layer.connection?.videoOrientation = .portrait

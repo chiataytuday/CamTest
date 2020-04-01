@@ -10,7 +10,6 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
-
 class CameraController: UIViewController {
 	
 	private var cam: Camera!
