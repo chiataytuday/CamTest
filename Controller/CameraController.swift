@@ -189,7 +189,9 @@ extension CameraController {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		if !cam.isRecording {
 			cam.startRecording(self)
-			cam.durationAnim?.addCompletion({ _ in self.recordTouchUp() })
+			cam.durationAnim?.addCompletion({ [unowned self] _ in
+				self.recordTouchUp()
+			})
 			cam.durationAnim?.startAnimation()
 		} else {
 			cam.stopRecording()

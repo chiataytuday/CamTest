@@ -84,9 +84,9 @@ class Camera {
 		session.stopRunning()
 	}
 	
-	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
+	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate?) {
 		isRecording = true
-		output.startRecording(to: recordURL, recordingDelegate: delegate)
+		output.startRecording(to: recordURL, recordingDelegate: delegate!)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 			self.durationBar.frame.size.width = self.layer.frame.width
