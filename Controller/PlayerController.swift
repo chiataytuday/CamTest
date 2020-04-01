@@ -12,7 +12,7 @@ import Photos
 
 class PlayerController: UIViewController {
 	
-	private var recordURL: URL!
+	private var recURL: URL!
 	private var outputURL: URL?
 	private var btnStackView: UIStackView!
 	private var playerLayer: AVPlayerLayer!
@@ -81,6 +81,7 @@ class PlayerController: UIViewController {
 	}
 	
 	deinit {
+		removeFileAtURL(URLS.output)
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
@@ -129,7 +130,8 @@ class PlayerController: UIViewController {
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
-		self.recordURL = url
+		removeFileAtURL(URLS.output)
+		
 		playerItem = AVPlayerItem(url: url)
 		queuePlayer = AVQueuePlayer(playerItem: playerItem)
 		queuePlayer.actionAtItemEnd = .pause
@@ -150,6 +152,7 @@ class PlayerController: UIViewController {
 		})
 		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, change) in
 			if item.status == .readyToPlay {
+				self?.removeFileAtURL(url)
 				self?.rangeSlider.videoPlayer = self?.queuePlayer
 				self?.queuePlayer.play()
 			}
@@ -184,7 +187,7 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func backButtonUpInside(sender: UIButton) {
-		cleanUpDocumentDirectory()
+//		cleanUpDocumentDirectory()
 		resetViewSize(sender: sender)
 		closeController()
 	}
@@ -217,38 +220,47 @@ class PlayerController: UIViewController {
 	}
 	
 	private func saveVideoToLibrary() {
-		let asset = AVAsset(url: recordURL)
+		let asset = playerItem.asset
 		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
-		outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
-		exportSession?.outputURL = outputURL
+//		outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
+		exportSession?.outputURL = URLS.output
 		exportSession?.outputFileType = .mp4
 		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
 		exportSession?.timeRange = range
 		
 		exportSession?.exportAsynchronously(completionHandler: {
 			if exportSession?.status == .completed {
-				print("\(self.outputURL!.path) exported")
-				UISaveVideoAtPathToSavedPhotosAlbum(self.outputURL!.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
+				print("\(URLS.output) exported")
+				UISaveVideoAtPathToSavedPhotosAlbum(URLS.output.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
 			}
 		})
 	}
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
 		print("\(videoPath) saved")
-		cleanUpDocumentDirectory()
+//		removeFileAtURL(URL(fileURLWithPath: videoPath))
+//		cleanUpDocumentDirectory()
 	}
 	
-	private func cleanUpDocumentDirectory() {
+	private func removeFileAtURL(_ url: URL) {
 		do {
-			try FileManager.default.removeItem(at: recordURL)
-			print("\(recordURL.path) removed")
-			guard let outputURL = outputURL else { return }
-			try FileManager.default.removeItem(at: outputURL)
-			print("\(outputURL.path) removed")
+			try FileManager.default.removeItem(at: url)
+			print("\(url.relativePath) removed")
 		} catch {
 			print(error.localizedDescription)
 		}
 	}
+//	private func cleanUpDocumentDirectory() {
+//		do {
+//			try FileManager.default.removeItem(at: recordURL)
+//			print("\(recordURL.path) removed")
+//			guard let outputURL = outputURL else { return }
+//			try FileManager.default.removeItem(at: outputURL)
+//			print("\(outputURL.path) removed")
+//		} catch {
+//			print(error.localizedDescription)
+//		}
+//	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if rangeSlider.isPresented {

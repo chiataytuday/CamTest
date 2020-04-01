@@ -83,8 +83,7 @@ class Camera {
 	
 	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
 		isRecording = true
-		path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
-		output.startRecording(to: path, recordingDelegate: delegate)
+		output.startRecording(to: URLS.record, recordingDelegate: delegate)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
 			self.durationBar.frame.size.width = self.layer.frame.width
