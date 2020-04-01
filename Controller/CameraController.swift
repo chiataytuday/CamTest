@@ -76,8 +76,8 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	override func viewDidLayoutSubviews() {
-		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 20)
-		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 20)
+		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
+		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
 	}
 	
 	private func setupBottomButtons() {
@@ -110,7 +110,7 @@ extension CameraController {
 	}
 	
 	private func setupVerticalSliders() {
-		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 10
+		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 25
 		let popup = Popup(CGPoint(x: view.center.x, y: y))
 		view.addSubview(popup)
 		

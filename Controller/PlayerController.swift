@@ -76,8 +76,8 @@ class PlayerController: UIViewController {
 	}
 	
 	override func viewDidLayoutSubviews() {
-		saveButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16.5)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16.5)
+		saveButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
+		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
 	}
 	
 	deinit {
@@ -193,7 +193,7 @@ class PlayerController: UIViewController {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.view.layer.cornerRadius = 20
+			self.view.layer.cornerRadius = 18
 			sender?.backgroundColor = Colors.gray1
 		})
 	}

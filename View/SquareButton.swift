@@ -25,7 +25,7 @@ class SquareButton : UIButton {
 			size = CGSize(width: 48, height: 48)
 		} else {
 			size = CGSize(width: 62.5, height: 60)
-			layer.cornerRadius = 22.5
+			layer.cornerRadius = 23
 		}
 		
 		
