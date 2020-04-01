@@ -218,6 +218,7 @@ extension CameraController {
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
+		sender.imageView?.contentMode = .center
 		if sender.tag == 0 {
 			sender.tintColor = Colors.gray5
 			sender.backgroundColor = Colors.gray1
