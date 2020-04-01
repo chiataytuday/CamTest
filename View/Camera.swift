@@ -15,7 +15,7 @@ class Camera {
 	let output: AVCaptureMovieFileOutput
 	private let session: AVCaptureSession
 	private let layer: AVCaptureVideoPreviewLayer
-	private let path: URL
+	private var path: URL!
 	
 	private let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 1.5))
@@ -57,8 +57,8 @@ class Camera {
 			output.connection(with: .video)?.preferredVideoStabilizationMode = .auto
 		} catch {}
 		
-		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-		path = url.appendingPathComponent("record").appendingPathExtension("mp4")
+//		let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//		path = url.appendingPathComponent("record").appendingPathExtension("mp4")
 		
 		layer = AVCaptureVideoPreviewLayer(session: session)
 		layer.videoGravity = .resizeAspectFill
@@ -86,6 +86,7 @@ class Camera {
 	
 	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate) {
 		isRecording = true
+		path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		output.startRecording(to: path, recordingDelegate: delegate)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {

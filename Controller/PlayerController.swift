@@ -219,7 +219,7 @@ class PlayerController: UIViewController {
 	private func saveVideoToLibrary() {
 		let asset = AVAsset(url: recordURL)
 		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
-		outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("output").appendingPathExtension("mp4")
+		outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		exportSession?.outputURL = outputURL
 		exportSession?.outputFileType = .mp4
 		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
@@ -227,25 +227,28 @@ class PlayerController: UIViewController {
 		
 		exportSession?.exportAsynchronously(completionHandler: {
 			if exportSession?.status == .completed {
+				print("\(self.outputURL!.path) exported")
 				UISaveVideoAtPathToSavedPhotosAlbum(self.outputURL!.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
 			}
 		})
 	}
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
+		print("\(videoPath) saved")
 		cleanUpDocumentDirectory()
 	}
 	
 	private func cleanUpDocumentDirectory() {
 		do {
 			try FileManager.default.removeItem(at: recordURL)
+			print("\(recordURL.path) removed")
 			guard let outputURL = outputURL else { return }
 			try FileManager.default.removeItem(at: outputURL)
+			print("\(outputURL.path) removed")
 		} catch {
 			print(error.localizedDescription)
 		}
 	}
-	
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		if rangeSlider.isPresented {
@@ -280,5 +283,12 @@ extension UIView {
 		let mask = CAShapeLayer()
 		mask.path = path.cgPath
 		layer.mask = mask
+	}
+}
+
+extension String {
+	static func random(_ length: Int) -> String {
+		let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+		return String((0..<length).map { _ in letters.randomElement()! })
 	}
 }
