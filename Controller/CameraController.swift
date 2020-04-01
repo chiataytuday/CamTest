@@ -218,7 +218,10 @@ extension CameraController {
 	}
 	
 	@objc private func buttonTouchDown(sender: UIButton) {
+		// We shouldn't apply this in SquareButton class
 		sender.imageView?.contentMode = .center
+		// because buttons' images of LaunchScreen are inaccessible, so they differ
+		
 		if sender.tag == 0 {
 			sender.tintColor = Colors.gray5
 			sender.backgroundColor = Colors.gray1

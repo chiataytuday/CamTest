@@ -42,19 +42,15 @@ class RangeSlider : UIView {
 	
 	private func setupSubviews() {
 		path = UIView()
-		path.backgroundColor = .systemGray4
-		path.frame.size = CGSize(width: frame.width - frame.height, height: 4)
+		path.backgroundColor = Colors.gray5.withAlphaComponent(0.38)
+		path.frame.size = CGSize(width: frame.width - frame.height, height: 2)
 		path.center = CGPoint(x: frame.width/2, y: frame.height/2)
 		path.layer.cornerRadius = path.frame.height/2
 		addSubview(path)
 		
 		minDistance = path.frame.width/8
 		
-		range = UIView(frame: CGRect(origin: .zero, size: path.frame.size))
-		range.backgroundColor = .systemGray2
-		path.addSubview(range)
-		
-		pointWidth = path.frame.height * 1.75
+		pointWidth = 10
 		begin = RangePoint(pointWidth, path.frame)
 		begin.center.y = path.frame.height/2
 		begin.minX = pointWidth/2
@@ -83,6 +79,10 @@ class RangeSlider : UIView {
 			self.videoPlayer?.seek(to: self.end.time!, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(end)
+		
+		range = UIView(frame: CGRect(origin: CGPoint(x: self.begin.center.x, y: 0), size: CGSize(width: self.end.center.x - self.begin.center.x, height: self.path.frame.height)))
+		range.backgroundColor = Colors.gray5
+		path.addSubview(range)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -99,7 +99,7 @@ class RangeSlider : UIView {
 		videoPlayer?.pause()
 		
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {
-			self.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.75, y: 1.75)
+			self.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
 		})
 	}
 	
