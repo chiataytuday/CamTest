@@ -9,11 +9,6 @@
 import UIKit
 
 class Colors {
-	static let backIcon = rgb(72, 72, 72)
-	static let permissionIcon = rgb(100, 100, 100)
-	static let permissionBorder = rgb(45, 45, 45)
-	static let permissionBackground = rgb(12, 12, 12)
-	
 	static let gray1 = gray(38)
 	static let gray2 = gray(67)
 	static let gray3 = gray(85)

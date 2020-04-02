@@ -52,8 +52,8 @@ class CameraController: UIViewController {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		let t = touches.first!.location(in: view)
-		activeSlider = t.x > view.frame.width/2 ? lensSlider : exposureSlider
+		let touchX = touches.first!.location(in: view).x
+		activeSlider = touchX > view.frame.width/2 ? lensSlider : exposureSlider
 		activeSlider?.touchesBegan(touches, with: event)
 	}
 	
@@ -115,40 +115,18 @@ extension CameraController {
 		view.addSubview(popup)
 		
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .left)
+		exposureSlider.set(min: -3, max: 3, value: -0.5)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.setRange(-3, 3, -0.5)
-		exposureSlider.popup = popup
 		exposureSlider.delegate = updateTargetBias
+		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
 		
 		lensSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
+		lensSlider.set(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("globe")
-		lensSlider.setRange(0, 1, 0.4)
-		lensSlider.popup = popup
 		lensSlider.delegate = updateLensPosition
+		lensSlider.popup = popup
 		view.addSubview(lensSlider)
-	}
-	
-	private func setupGrid() {
-		let vert1 = UIView(frame: CGRect(x: view.frame.width/3 - 0.5,
-			y: 0, width: 1, height: view.frame.height))
-		let vert2 = UIView(frame: CGRect(x: view.frame.width/3*2 - 0.5,
-			y: 0, width: 1, height: view.frame.height))
-		let hor1 = UIView(frame: CGRect(x: 0, y: view.frame.height/3 - 0.5,
-			width: view.frame.width, height: 1))
-		let hor2 = UIView(frame: CGRect(x: 0, y: view.frame.height*2/3 - 0.5,
-			width: view.frame.width, height: 1))
-		
-		for line in [vert1, vert2, hor1, hor2] {
-			line.alpha = 0.2
-			line.backgroundColor = .white
-			line.layer.shadowColor = UIColor.black.cgColor
-			line.layer.shadowOffset = CGSize(width: 0.5, height: 0.5)
-			line.layer.shadowOpacity = 0.6
-			line.layer.shadowRadius = 1
-			line.clipsToBounds = false
-			view.addSubview(line)
-		}
 	}
 	
 	private func setupSecondary() {
@@ -178,16 +156,15 @@ extension CameraController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchDown() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		redCircle.transform = CGAffineTransform.identity
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 		})
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 	}
 	
 	@objc private func recordTouchUp() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		if !cam.isRecording {
 			cam.startRecording(self)
 			cam.durationAnim?.addCompletion({ [unowned self] _ in
@@ -203,6 +180,7 @@ extension CameraController {
 				})
 			}
 		}
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		
 		let radius: CGFloat = cam.isRecording ? 3.25 : 10
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
@@ -302,7 +280,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		}
 		
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
-			if !ready {
+			if ready {
 				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()

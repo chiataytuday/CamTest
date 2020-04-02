@@ -16,7 +16,7 @@ class VerticalSlider : UIView {
 	}
 	
 	private var filledView: UIView!
-	private var offset: CGFloat?
+	private var touchOffset: CGFloat?
 	private var min, max: CGFloat
 	private(set) var value: CGFloat
 	let alignment: VerticalSliderAlignment
@@ -29,9 +29,10 @@ class VerticalSlider : UIView {
 		min = 0; max = 1; value = max
 		self.alignment = alignment
 		super.init(frame: CGRect(origin: .zero, size: size))
+		center = CGPoint(x: alignment == .left ? -frame.width/2 : superviewFrame.maxX + frame.width/2, y: superviewFrame.midY)
 		roundCorners(corners: [.allCorners], radius: frame.width/2)
 		backgroundColor = .black
-		center = CGPoint(x: alignment == .left ? -frame.width/2 : superviewFrame.maxX + frame.width/2, y: superviewFrame.midY)
+		
 		filledView = UIView(frame: bounds)
 		filledView.backgroundColor = .white
 		addSubview(filledView)
@@ -46,10 +47,9 @@ class VerticalSlider : UIView {
 		insertSubview(imageView!, aboveSubview: filledView)
 	}
 	
-	func setRange(_ min: CGFloat, _ max: CGFloat, _ value: CGFloat) {
+	func set(min: CGFloat, max: CGFloat, value: CGFloat) {
 		self.min = min
 		self.max = max
-		
 		let height = (value-min)/(max-min)*frame.height
 		filledView.frame.size.height = height
 		filledView.frame.origin.y = frame.height - filledView.frame.height
@@ -57,23 +57,23 @@ class VerticalSlider : UIView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
-		let t = touches.first!.location(in: self)
-		offset = filledView.frame.height + t.y
+		let touchPoint = touches.first!.location(in: self)
+		touchOffset = filledView.frame.height + touchPoint.y
 		let x: CGFloat = alignment == .left ? frame.width/2: -frame.width/2
 		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		}, completion: nil)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		popup?.setImage(imageView!.image!)
 		popup?.show()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		let t = touches.first!.location(in: self)
-		var height = t.y - offset!
-		if height > 0 {
+		let touchY = touches.first!.location(in: self).y
+		var height = touchY - touchOffset!
+		if height >= 0 {
 			height = 0
-		} else if height < -frame.height {
+		} else if height <= -frame.height {
 			height = -frame.height
 		}
 		

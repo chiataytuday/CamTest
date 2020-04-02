@@ -10,15 +10,15 @@ import UIKit
 
 class SquareButton : UIButton {
 	
-	init(_ imageName: String?) {
+	init(_ systemImageName: String?) {
 		super.init(frame: .zero)
 		backgroundColor = .black
 		translatesAutoresizingMaskIntoConstraints = false
 		
 		var size: CGSize
-		if let name = imageName {
+		if let systemName = systemImageName {
 			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-			setImage(UIImage(systemName: name), for: .normal)
+			setImage(UIImage(systemName: systemName), for: .normal)
 			adjustsImageWhenHighlighted = false
 			imageView?.clipsToBounds = false
 			tintColor = Colors.gray3
@@ -27,7 +27,6 @@ class SquareButton : UIButton {
 			size = CGSize(width: 62.5, height: 60)
 			layer.cornerRadius = 23
 		}
-		
 		
 		NSLayoutConstraint.activate([
 			widthAnchor.constraint(equalToConstant: size.width),

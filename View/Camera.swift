@@ -106,18 +106,12 @@ class Camera {
 	}
 	
 	
-	func setExposure(_ point: CGPoint, _ mode: AVCaptureDevice.ExposureMode) {
+	func setExposure(_ mode: AVCaptureDevice.ExposureMode, _ point: CGPoint? = nil) {
 		do {
 			try device.lockForConfiguration()
-			device.exposurePointOfInterest = layer.captureDevicePointConverted(fromLayerPoint: point)
-			device.exposureMode = mode
-			device.unlockForConfiguration()
-		} catch {}
-	}
-	
-	func setExposure(_ mode: AVCaptureDevice.ExposureMode) {
-		do {
-			try device.lockForConfiguration()
+			if let point = point {
+				device.exposurePointOfInterest = layer.captureDevicePointConverted(fromLayerPoint: point)
+			}
 			device.exposureMode = mode
 			device.unlockForConfiguration()
 		} catch {}

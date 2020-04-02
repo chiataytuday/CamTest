@@ -81,7 +81,7 @@ class PlayerController: UIViewController {
 	}
 	
 	deinit {
-		removeFileAtURL(Camera.outputURL)
+		removeFile(at: Camera.outputURL)
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
@@ -131,7 +131,7 @@ class PlayerController: UIViewController {
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		// Remove old output file if exists
-		removeFileAtURL(Camera.outputURL)
+		removeFile(at: Camera.outputURL)
 		
 		// Initialize player
 		playerItem = AVPlayerItem(url: url)
@@ -147,7 +147,7 @@ class PlayerController: UIViewController {
 		
 		// Register events
 		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
-			self?.player.seek(to: self!.rangeSlider.begin.time!, toleranceBefore: .zero, toleranceAfter: .zero)
+			self?.player.seek(to: self!.rangeSlider.beginPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 			self?.player.play()
 		}
 		timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { [weak self] (t) in
@@ -158,7 +158,7 @@ class PlayerController: UIViewController {
 		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, _) in
 			self?.timer?.invalidate()
 			self?.observer?.invalidate()
-			self?.removeFileAtURL(url)
+			self?.removeFile(at: url)
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.player
 				self?.player.play()
@@ -227,7 +227,7 @@ class PlayerController: UIViewController {
 		exportSession?.outputURL = Camera.outputURL
 		exportSession?.outputFileType = .mp4
 		
-		let range = CMTimeRange(start: rangeSlider.begin.time!, end: rangeSlider.end.time!)
+		let range = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
 		exportSession?.timeRange = range
 		
 		exportSession?.exportAsynchronously(completionHandler: {
@@ -242,7 +242,7 @@ class PlayerController: UIViewController {
 		print("\(videoPath) saved")
 	}
 	
-	private func removeFileAtURL(_ url: URL) {
+	private func removeFile(at url: URL) {
 		guard FileManager.default.fileExists(atPath: url.path) else {
 			print("File \(url.lastPathComponent) doesn't exist")
 			return
@@ -279,11 +279,11 @@ class PlayerController: UIViewController {
 
 extension PlayerController: UIViewControllerTransitioningDelegate {
 	func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.34, .present)
+		return AnimationController(0.33, .present)
 	}
 	
 	func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-		return AnimationController(0.33, .dismiss)
+		return AnimationController(0.3, .dismiss)
 	}
 }
 
