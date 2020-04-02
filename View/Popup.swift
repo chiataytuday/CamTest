@@ -12,14 +12,14 @@ class Popup : UIView {
 	
 	private var isExpanded = false
 	
-	private let iconImageView: UIImageView = {
+	private let imageView: UIImageView = {
 		let image = UIImage(systemName: "sun.max.fill")
 		let imageView = UIImageView(image: image)
 		imageView.tintColor = Colors.gray5
 		return imageView
 	}()
 	
-	private let numLabel: UILabel = {
+	private let valueLabel: UILabel = {
 		let label = UILabel()
 		label.text = "0.0"
 		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
@@ -29,22 +29,22 @@ class Popup : UIView {
 		return label
 	}()
 	
-	init(_ center: CGPoint) {
-		let contentRect = CGRect(x: 0, y: 0, width: iconImageView.frame.width + numLabel.frame.width + 5, height: iconImageView.frame.height)
+	
+	init() {
+		valueLabel.frame.origin.x = imageView.frame.width + 5
+		let contentRect = CGRect(origin: .zero, size: CGSize(width: imageView.frame.width + 5 + valueLabel.frame.width, height: imageView.frame.height))
 		super.init(frame: contentRect.insetBy(dx: -16, dy: -7.25))
-		numLabel.frame.origin.x = iconImageView.frame.width + 5
-		for v in [iconImageView, numLabel] {
-			v.frame.origin.x += 16
-			v.center.y = self.center.y + 7.25
-		}
 		
-		self.center = center
+		// Compensate insets by moving subviews
+		for subview in [imageView, valueLabel] {
+			subview.frame.origin.x += 16
+			subview.center.y = center.y + 7.25
+		}
+		addSubview(imageView); addSubview(valueLabel)
+		
 		backgroundColor = .black
 		layer.cornerRadius = frame.height/2
 		alpha = 0
-		
-		addSubview(iconImageView)
-		addSubview(numLabel)
 	}
 	
 	required init?(coder: NSCoder) {
@@ -53,9 +53,9 @@ class Popup : UIView {
 	
 	typealias PopupFrame = (width: CGFloat, x: CGFloat)
 	
-	func setLabelDigit(_ value: CGFloat) {
-		numLabel.text = "\(value)"
-		numLabel.sizeToFit()
+	func setValue(_ value: CGFloat) {
+		valueLabel.text = "\(value)"
+		valueLabel.sizeToFit()
 		
 		if value < 0 && !isExpanded || value >= 0 && isExpanded {
 			let args: PopupFrame = isExpanded ? (-10, 5) : (10, -5)
@@ -67,8 +67,8 @@ class Popup : UIView {
 		}
 	}
 	
-	func setIconImage(_ image: UIImage) {
-		iconImageView.image = image
+	func setImage(_ image: UIImage) {
+		imageView.image = image
 	}
 	
 	func show() {

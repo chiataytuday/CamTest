@@ -109,8 +109,9 @@ extension CameraController {
 	}
 	
 	private func setupVerticalSliders() {
-		let y = UIApplication.shared.windows[0].safeAreaInsets.top + 25
-		let popup = Popup(CGPoint(x: view.center.x, y: y))
+		let popup = Popup()
+		let popupY = UIApplication.shared.windows[0].safeAreaInsets.top + 25
+		popup.center = CGPoint(x: view.center.x, y: popupY)
 		view.addSubview(popup)
 		
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .left)
@@ -301,14 +302,16 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		}
 		
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
-			if ready {
+			if !ready {
 				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()
 				UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 					self?.blurEffectView.alpha = 0
 				})
-				let error = Notification("Something went wrong", CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130))
+				
+				let error = Notification(text: "Something went wrong")
+				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
 				error.show()
 			}

@@ -17,31 +17,29 @@ class Notification : UIView {
 		return label
 	}()
 	
-	init(_ labelText: String, _ position: CGPoint) {
-		label.text = labelText
+	init(text: String) {
+		label.text = text
 		label.sizeToFit()
-		let margin = CGPoint(x: 16, y: 8)
-		super.init(frame: label.frame.insetBy(dx: -margin.x, dy: -margin.y))
-		backgroundColor = Colors.red
-		layer.cornerRadius = frame.height/2
-		alpha = 0
 		
-		center.x = position.x
-		frame.origin.y = position.y
+		let margin: (x: CGFloat, y: CGFloat) = (16, 8)
+		super.init(frame: label.frame.insetBy(dx: -margin.x, dy: -margin.y))
 		label.frame.origin.x += margin.x
 		label.frame.origin.y += margin.y
 		addSubview(label)
+		
+		backgroundColor = Colors.red
+		layer.cornerRadius = frame.height/2
+		alpha = 0
 	}
 	
 	func show() {
 		transform = CGAffineTransform(translationX: 0, y: 15)
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveEaseOut, animations: {
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
 			self.transform = CGAffineTransform.identity
 			self.alpha = 1
 		})
 
-		UIView.animate(withDuration: 0.2, delay: 2, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseIn, animations: {
-			self.transform = CGAffineTransform(translationX: 0, y: 5)
+		UIView.animate(withDuration: 0.25, delay: 2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			self.alpha = 0
 		}) { _ in
 			self.removeFromSuperview()

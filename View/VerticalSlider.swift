@@ -21,7 +21,7 @@ class VerticalSlider : UIView {
 	private(set) var value: CGFloat
 	let alignment: VerticalSliderAlignment
 	
-	private var iconImageView: UIImageView?
+	private var imageView: UIImageView?
 	var delegate: (() -> ())?
 	var popup: Popup?
 	
@@ -37,13 +37,13 @@ class VerticalSlider : UIView {
 		addSubview(filledView)
 	}
 	
-	func setImage(_ imageName: String) {
-		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
-		iconImageView = UIImageView(image: image)
-		iconImageView?.tintColor = Colors.gray3
+	func setImage(_ systemName: String) {
+		let image = UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
+		imageView = UIImageView(image: image)
+		imageView?.tintColor = Colors.gray3
 		
-		iconImageView?.center = CGPoint(x: filledView.frame.midX, y: filledView.frame.maxY - iconImageView!.frame.height/2 - 8)
-		insertSubview(iconImageView!, aboveSubview: filledView)
+		imageView?.center = CGPoint(x: filledView.frame.midX, y: filledView.frame.maxY - imageView!.frame.height/2 - 8)
+		insertSubview(imageView!, aboveSubview: filledView)
 	}
 	
 	func setRange(_ min: CGFloat, _ max: CGFloat, _ value: CGFloat) {
@@ -64,7 +64,7 @@ class VerticalSlider : UIView {
 		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(translationX: x, y: 0)
 		}, completion: nil)
-		popup?.setIconImage(iconImageView!.image!)
+		popup?.setImage(imageView!.image!)
 		popup?.show()
 	}
 	
@@ -84,7 +84,7 @@ class VerticalSlider : UIView {
 		
 		value = ratio*(max-min)+min
 		let rounded = floor(value*10)/10
-		popup?.setLabelDigit(rounded)
+		popup?.setValue(rounded)
 		delegate?()
 	}
 	
