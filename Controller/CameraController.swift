@@ -278,15 +278,14 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		guard output.recordedDuration.seconds > 0.25 else { return }
+		if User.shared.torchEnabled {
+			cam.setTorch(.off)
+		}
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
 			if ready {
-				self?.present(playerController!, animated: true, completion: { [weak self] in
-					if User.shared.torchEnabled {
-						self?.cam.setTorch(.off)
-					}
-				})
+				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()
 				let error = Notification(text: "Something went wrong")
