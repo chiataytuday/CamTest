@@ -65,6 +65,8 @@ class VerticalSlider : UIView {
 		}, completion: nil)
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		popup?.setImage(imageView!.image!)
+		let rounded = floor(value*10)/10
+		popup?.setValue(rounded)
 		popup?.show()
 	}
 	

@@ -41,7 +41,7 @@ class Camera {
 		do {
 			try device.lockForConfiguration()
 			device.setFocusModeLocked(lensPosition: 0.4, completionHandler: nil)
-			device.setExposureTargetBias(-0.5, completionHandler: nil)
+			device.setExposureTargetBias(0, completionHandler: nil)
 			device.unlockForConfiguration()
 		} catch {}
 		
