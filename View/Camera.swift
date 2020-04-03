@@ -11,8 +11,7 @@ import AVFoundation
 
 class Camera {
 	
-	static let outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("out").appendingPathExtension("mp4")
-	let recordURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("rec").appendingPathExtension("mp4")
+	static var outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 	
 	let device: AVCaptureDevice
 	let output: AVCaptureMovieFileOutput
@@ -86,6 +85,7 @@ class Camera {
 	
 	func startRecording(_ delegate: AVCaptureFileOutputRecordingDelegate?) {
 		isRecording = true
+		let recordURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		output.startRecording(to: recordURL, recordingDelegate: delegate!)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {

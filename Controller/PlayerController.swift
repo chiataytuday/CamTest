@@ -82,6 +82,7 @@ class PlayerController: UIViewController {
 	
 	deinit {
 		removeFile(at: Camera.outputURL)
+		Camera.outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
@@ -131,7 +132,7 @@ class PlayerController: UIViewController {
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		// Remove old output file if exists
-		removeFile(at: Camera.outputURL)
+//		removeFile(at: Camera.outputURL)
 		
 		// Initialize player
 		playerItem = AVPlayerItem(url: url)
@@ -158,12 +159,12 @@ class PlayerController: UIViewController {
 		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, _) in
 			self?.timer?.invalidate()
 			self?.observer?.invalidate()
-			self?.removeFile(at: url)
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.player
 				self?.player.play()
 			}
 			handler(item.status == .readyToPlay)
+			self?.removeFile(at: url)
 		})
 	}
 	
@@ -247,7 +248,7 @@ class PlayerController: UIViewController {
 			print("File \(url.lastPathComponent) doesn't exist")
 			return
 		}
-		
+
 		do {
 			try FileManager.default.removeItem(at: url)
 			print("\(url.relativePath) removed")

@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  CameraController.swift
 //  CamTest
 //
 //  Created by debavlad on 07.03.2020.
@@ -171,6 +171,10 @@ extension CameraController {
 				self.recordTouchUp()
 			})
 			cam.durationAnim?.startAnimation()
+			UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+				self.btnStackView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+				self.btnStackView.alpha = 0
+			}, completion: nil)
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
@@ -260,6 +264,8 @@ extension CameraController {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
+		btnStackView.alpha = 1
+		btnStackView.transform = .identity
 		UIView.animate(withDuration: transitionDuration * 0.8, delay: 0, options: .curveEaseOut, animations: {
 			self.view.alpha = 1
 			self.blurEffectView.alpha = 0
