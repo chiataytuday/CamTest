@@ -63,7 +63,7 @@ class PlayerController: UIViewController {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		view.alpha = 1
+		view.alpha = 0
 		return view
 	}()
 	
@@ -85,7 +85,6 @@ class PlayerController: UIViewController {
 		Camera.outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
-	
 	
 	private func setupSubviews() {
 		saveButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
@@ -131,9 +130,6 @@ class PlayerController: UIViewController {
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
-		// Remove old output file if exists
-//		removeFile(at: Camera.outputURL)
-		
 		// Initialize player
 		playerItem = AVPlayerItem(url: url)
 		player = AVQueuePlayer(playerItem: playerItem)

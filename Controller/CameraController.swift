@@ -17,7 +17,7 @@ class CameraController: UIViewController {
 	private var exposurePointView: MovablePoint!
 	private var activeSlider: VerticalSlider?
 	
-	private let blurEffectView: UIVisualEffectView = {
+	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
 		let effectView = UIVisualEffectView(effect: effect)
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -37,6 +37,10 @@ class CameraController: UIViewController {
 	private var playerController: PlayerController?
 	private var torchButton, recordButton, lockButton: SquareButton!
 	private var btnStackView: UIStackView!
+	
+	deinit {
+		print("Why the fuck would you do that")
+	}
 	
 	
 	override func viewDidLoad() {
@@ -161,7 +165,7 @@ extension CameraController {
 			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75).rotated(by: .pi/6)
 		})
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 	}
 	
 	@objc private func recordTouchUp() {
@@ -174,14 +178,11 @@ extension CameraController {
 			UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
 				self.btnStackView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 				self.btnStackView.alpha = 0
-			}, completion: nil)
+			})
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
 				view.isUserInteractionEnabled = false
-				UIView.animate(withDuration: 0.25, delay: 0.4, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-					self.blurEffectView.alpha = 1
-				})
 			}
 		}
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
@@ -264,11 +265,9 @@ extension CameraController {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		btnStackView.alpha = 1
-		btnStackView.transform = .identity
-		UIView.animate(withDuration: transitionDuration * 0.8, delay: 0, options: .curveEaseOut, animations: {
-			self.view.alpha = 1
-			self.blurEffectView.alpha = 0
+		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.btnStackView.transform = .identity
+			self.btnStackView.alpha = 1
 		})
 		playerController = nil
 	}
@@ -281,19 +280,15 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		guard output.recordedDuration.seconds > 0.25 else { return }
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
-		if User.shared.torchEnabled {
-			cam.setTorch(.off)
-		}
-		
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
 			if ready {
-				self?.present(playerController!, animated: true)
+				self?.present(playerController!, animated: true, completion: { [weak self] in
+					if User.shared.torchEnabled {
+						self?.cam.setTorch(.off)
+					}
+				})
 			} else {
 				self?.resetView()
-				UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-					self?.blurEffectView.alpha = 0
-				})
-				
 				let error = Notification(text: "Something went wrong")
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
