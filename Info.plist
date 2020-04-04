@@ -15,17 +15,17 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Enable photo library access so you can save videos</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Enable camera access so you can record a video</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Enable microphone access to record video with sound</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Enable photo library access so you can save videos</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

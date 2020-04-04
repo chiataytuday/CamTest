@@ -29,12 +29,3 @@ class Colors {
 		return UIColor(red: white/255, green: white/255, blue: white/255, alpha: 1)
 	}
 }
-
-//class URLS {
-//	static let output = getUrl("out")
-//	static let record = getUrl("rec")
-//
-//	private static func getUrl(_ name: String) -> URL {
-//		return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name).appendingPathExtension("mp4")
-//	}
-//}
