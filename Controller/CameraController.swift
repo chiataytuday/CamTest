@@ -31,6 +31,24 @@ class CameraController: UIViewController {
 		view.isUserInteractionEnabled = false
 		view.backgroundColor = Colors.red
 		view.layer.cornerRadius = 10
+		NSLayoutConstraint.activate([
+			view.widthAnchor.constraint(equalToConstant: 20),
+			view.heightAnchor.constraint(equalToConstant: 20)
+		])
+		return view
+	}()
+	
+	private let animatedCircle: UIView = {
+		let view = UIView()
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.isUserInteractionEnabled = false
+		view.backgroundColor = .systemRed
+		view.layer.cornerRadius = 6
+		NSLayoutConstraint.activate([
+			view.widthAnchor.constraint(equalToConstant: 20),
+			view.heightAnchor.constraint(equalToConstant: 20)
+		])
+		view.alpha = 0.3
 		return view
 	}()
 	
@@ -82,6 +100,7 @@ extension CameraController {
 		torchButton = SquareButton("bolt.fill")
 		lockButton = SquareButton("lock.fill")
 		recordButton = SquareButton(nil)
+		recordButton.clipsToBounds = true
 		view.addSubview(recordButton)
 		NSLayoutConstraint.activate([
 			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
@@ -98,12 +117,16 @@ extension CameraController {
 			btnStackView.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
 		
-		view.insertSubview(redCircle, aboveSubview: recordButton)
+		recordButton.addSubview(redCircle)
 		NSLayoutConstraint.activate([
-			redCircle.widthAnchor.constraint(equalToConstant: 20),
-			redCircle.heightAnchor.constraint(equalToConstant: 20),
 			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
 			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
+		])
+		
+		redCircle.addSubview(animatedCircle)
+		NSLayoutConstraint.activate([
+			animatedCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
+			animatedCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
 	}
 	
@@ -174,11 +197,18 @@ extension CameraController {
 				self.btnStackView.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 				self.btnStackView.alpha = 0
 			})
+			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
+				self.animatedCircle.transform = CGAffineTransform(scaleX: 2, y: 2)
+			})
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
 				view.isUserInteractionEnabled = false
 			}
+			animatedCircle.layer.removeAllAnimations()
+			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: {
+				self.animatedCircle.transform = .identity
+			})
 		}
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		
