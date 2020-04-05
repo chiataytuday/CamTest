@@ -13,9 +13,9 @@ import AudioToolbox
 class CameraController: UIViewController {
 	
 	private var cam: Camera!
+	private var activeSlider: VerticalSlider?
 	private var exposureSlider, lensSlider: VerticalSlider!
 	private var exposurePointView: MovablePoint!
-	private var activeSlider: VerticalSlider?
 	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
@@ -25,35 +25,9 @@ class CameraController: UIViewController {
 		return effectView
 	}()
 	
-	private let redCircle: UIView = {
-		let view = UIView()
-		view.translatesAutoresizingMaskIntoConstraints = false
-		view.isUserInteractionEnabled = false
-		view.backgroundColor = Colors.red
-		view.layer.cornerRadius = 10
-		NSLayoutConstraint.activate([
-			view.widthAnchor.constraint(equalToConstant: 20),
-			view.heightAnchor.constraint(equalToConstant: 20)
-		])
-		return view
-	}()
-	
-	private let animatedCircle: UIView = {
-		let view = UIView()
-		view.translatesAutoresizingMaskIntoConstraints = false
-		view.isUserInteractionEnabled = false
-		view.backgroundColor = .systemRed
-		view.layer.cornerRadius = 6
-		NSLayoutConstraint.activate([
-			view.widthAnchor.constraint(equalToConstant: 20),
-			view.heightAnchor.constraint(equalToConstant: 20)
-		])
-		view.alpha = 0.3
-		return view
-	}()
-	
 	private var playerController: PlayerController?
-	private var torchButton, recordButton, lockButton: SquareButton!
+	private var torchButton, lockButton: SquareButton!
+	private var recordButton: RecordButton!
 	private var btnStackView: UIStackView!
 	
 	override func viewDidLoad() {
@@ -97,16 +71,15 @@ extension CameraController {
 	}
 	
 	private func setupBottomButtons() {
-		torchButton = SquareButton("bolt.fill")
-		lockButton = SquareButton("lock.fill")
-		recordButton = SquareButton(nil)
-		recordButton.clipsToBounds = true
+		recordButton = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
 		view.addSubview(recordButton)
 		NSLayoutConstraint.activate([
 			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
+		torchButton = SquareButton(size: CGSize(width: 48, height: 48), "bolt.fill")
+		lockButton = SquareButton(size: CGSize(width: 48, height: 48), "lock.fill")
 		btnStackView = UIStackView(arrangedSubviews: [torchButton, lockButton])
 		btnStackView.translatesAutoresizingMaskIntoConstraints = false
 		btnStackView.distribution = .fillProportionally
@@ -115,18 +88,6 @@ extension CameraController {
 		NSLayoutConstraint.activate([
 			btnStackView.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
 			btnStackView.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
-		])
-		
-		recordButton.addSubview(redCircle)
-		NSLayoutConstraint.activate([
-			redCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
-			redCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
-		])
-		
-		redCircle.addSubview(animatedCircle)
-		NSLayoutConstraint.activate([
-			animatedCircle.centerXAnchor.constraint(equalTo: recordButton.centerXAnchor),
-			animatedCircle.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor)
 		])
 	}
 	
@@ -166,7 +127,7 @@ extension CameraController {
 			button!.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
 		}
 		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
-		recordButton.addTarget(self, action: #selector(recordTouchDown), for: .touchDown)
+		recordButton.addTarget(recordButton, action: #selector(recordButton.touchDown), for: .touchDown)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
@@ -177,17 +138,9 @@ extension CameraController {
 	
 	// MARK: - Buttons' handlers
 	
-	@objc private func recordTouchDown() {
-		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
-				.scaledBy(x: 0.75, y: 0.75)
-		})
-		
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
-	}
-	
 	@objc private func recordTouchUp() {
+		recordButton.touchUp(camIsRecording: cam.isRecording)
+		
 		if !cam.isRecording {
 			cam.startRecording(self)
 			cam.durationAnim?.addCompletion({ [weak self] _ in
@@ -198,26 +151,12 @@ extension CameraController {
 				self?.btnStackView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
 				self?.btnStackView.alpha = 0
 			})
-			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: { [weak self] in
-				self?.animatedCircle.transform = CGAffineTransform(scaleX: 2, y: 2)
-			})
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
 				view.isUserInteractionEnabled = false
 			}
-			animatedCircle.layer.removeAllAnimations()
-			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: { [weak self] in
-				self?.animatedCircle.transform = .identity
-			})
 		}
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
-		
-		let radius: CGFloat = cam.isRecording ? 3.25 : 10
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: { [weak self] in
-			self?.redCircle.transform = CGAffineTransform.identity
-			self?.redCircle.layer.cornerRadius = radius
-		})
 	}
 	
 	@objc private func lockTouchDown() {
