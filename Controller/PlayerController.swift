@@ -238,6 +238,7 @@ class PlayerController: UIViewController {
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
 		exportPath = nil
+		AppStoreReviewManager.requestReviewIfAppropriate()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
