@@ -87,8 +87,8 @@ class Camera {
 		let recordURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		output.startRecording(to: recordURL, recordingDelegate: delegate!)
 		
-		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: {
-			self.durationBar.frame.size.width = self.layer.frame.width
+		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: { [weak self] in
+			self?.durationBar.frame.size.width = self!.layer.frame.width
 		})
 	}
 	
@@ -99,8 +99,8 @@ class Camera {
 		timer?.invalidate()
 		durationAnim?.stopAnimation(true)
 		durationAnim = nil
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
-			self.durationBar.frame.size.width = 0
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: { [weak self] in
+			self?.durationBar.frame.size.width = 0
 		})
 	}
 	

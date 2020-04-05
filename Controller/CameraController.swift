@@ -179,27 +179,27 @@ extension CameraController {
 	
 	@objc private func recordTouchDown() {
 		redCircle.transform = CGAffineTransform.identity
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
+		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
+			self?.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75)
-			//.rotated(by: .pi/6)
 		})
+		
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 	}
 	
 	@objc private func recordTouchUp() {
 		if !cam.isRecording {
 			cam.startRecording(self)
-			cam.durationAnim?.addCompletion({ [unowned self] _ in
-				self.recordTouchUp()
+			cam.durationAnim?.addCompletion({ [weak self] _ in
+				self?.recordTouchUp()
 			})
 			cam.durationAnim?.startAnimation()
-			UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-				self.btnStackView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-				self.btnStackView.alpha = 0
+			UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+				self?.btnStackView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+				self?.btnStackView.alpha = 0
 			})
-			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
-				self.animatedCircle.transform = CGAffineTransform(scaleX: 2, y: 2)
+			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: { [weak self] in
+				self?.animatedCircle.transform = CGAffineTransform(scaleX: 2, y: 2)
 			})
 		} else {
 			cam.stopRecording()
@@ -207,16 +207,16 @@ extension CameraController {
 				view.isUserInteractionEnabled = false
 			}
 			animatedCircle.layer.removeAllAnimations()
-			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: {
-				self.animatedCircle.transform = .identity
+			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: { [weak self] in
+				self?.animatedCircle.transform = .identity
 			})
 		}
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		
 		let radius: CGFloat = cam.isRecording ? 3.25 : 10
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-			self.redCircle.transform = CGAffineTransform.identity
-			self.redCircle.layer.cornerRadius = radius
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: { [weak self] in
+			self?.redCircle.transform = CGAffineTransform.identity
+			self?.redCircle.layer.cornerRadius = radius
 		})
 	}
 	
@@ -291,9 +291,9 @@ extension CameraController {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.btnStackView.transform = .identity
-			self.btnStackView.alpha = 1
+		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+			self?.btnStackView.transform = .identity
+			self?.btnStackView.alpha = 1
 		})
 		playerController = nil
 	}
