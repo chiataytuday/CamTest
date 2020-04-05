@@ -17,6 +17,8 @@ class CameraController: UIViewController {
 	private var exposureSlider, lensSlider: VerticalSlider!
 	private var exposurePointView: MovablePoint!
 	
+	var recordPath: TemporaryFileURL?
+	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
 		let effectView = UIVisualEffectView(effect: effect)
@@ -142,7 +144,8 @@ extension CameraController {
 		recordButton.touchUp(camIsRecording: cam.isRecording)
 		
 		if !cam.isRecording {
-			cam.startRecording(self)
+			recordPath = TemporaryFileURL(extension: "mp4")
+			cam.startRecording(to: recordPath!.contentURL, self)
 			cam.durationAnim?.addCompletion({ [weak self] _ in
 				self?.recordTouchUp()
 			})
@@ -249,6 +252,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
+			self?.recordPath = nil
 			if ready {
 				self?.present(playerController!, animated: true)
 			} else {

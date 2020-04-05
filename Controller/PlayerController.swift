@@ -9,8 +9,11 @@
 import UIKit
 import AVFoundation
 import Photos
+import AssetsLibrary
 
 class PlayerController: UIViewController {
+	
+	var exportPath: TemporaryFileURL?
 	
 	var player: AVQueuePlayer!
 	private var playerItem: AVPlayerItem!
@@ -81,8 +84,6 @@ class PlayerController: UIViewController {
 	}
 	
 	deinit {
-		removeFile(at: Camera.outputURL)
-		Camera.outputURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(String.random(6)).appendingPathExtension("mp4")
 		print("OS deinits PlayerController: NO memory leaks/retain cycles")
 	}
 	
@@ -160,7 +161,7 @@ class PlayerController: UIViewController {
 				self?.player.play()
 			}
 			handler(item.status == .readyToPlay)
-			self?.removeFile(at: url)
+//			self?.removeFile(at: url)
 		})
 	}
 	
@@ -221,36 +222,22 @@ class PlayerController: UIViewController {
 	private func saveVideoToLibrary() {
 		let asset = playerItem.asset
 		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
-		exportSession?.outputURL = Camera.outputURL
+		exportPath = TemporaryFileURL(extension: "mp4")
+		exportSession?.outputURL = exportPath?.contentURL
 		exportSession?.outputFileType = .mp4
 		
-		let range = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
-		exportSession?.timeRange = range
+		let timeRange = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
+		exportSession?.timeRange = timeRange
 		
 		exportSession?.exportAsynchronously(completionHandler: {
 			if exportSession?.status == .completed {
-				print("\(Camera.outputURL.relativePath) exported")
-				UISaveVideoAtPathToSavedPhotosAlbum(Camera.outputURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
+				UISaveVideoAtPathToSavedPhotosAlbum(self.exportPath!.contentURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
 			}
 		})
 	}
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
-		print("\(videoPath) saved")
-	}
-	
-	private func removeFile(at url: URL) {
-		guard FileManager.default.fileExists(atPath: url.path) else {
-			print("File \(url.lastPathComponent) doesn't exist")
-			return
-		}
-
-		do {
-			try FileManager.default.removeItem(at: url)
-			print("\(url.relativePath) removed")
-		} catch {
-			print(error.localizedDescription)
-		}
+		exportPath = nil
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -290,12 +277,5 @@ extension UIView {
 		let mask = CAShapeLayer()
 		mask.path = path.cgPath
 		layer.mask = mask
-	}
-}
-
-extension String {
-	static func random(_ length: Int) -> String {
-		let letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-		return String((0..<length).map { _ in letters.randomElement()! })
 	}
 }
