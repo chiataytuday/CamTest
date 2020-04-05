@@ -115,7 +115,7 @@ extension CameraController {
 	private func setupSecondary() {
 		exposurePointView = MovablePoint()
 		exposurePointView.center = view.center
-		exposurePointView.camera = cam
+		exposurePointView.cam = cam
 		view.addSubview(exposurePointView)
 		
 		blurEffectView.frame = view.bounds

@@ -18,14 +18,14 @@ class Colors {
 	static let gray7 = gray(217)
 	static let gray8 = gray(233)
 	static let gray9 = gray(245)
-	static let red = rgb(244, 68, 54)
-	static let yellow = rgb(253, 216, 54)
+	static let red = rgb(r: 244, g: 68, b: 54)
+	static let yellow = rgb(r: 253, g: 216, b: 54)
 	
-	private static func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> UIColor {
+	private static func rgb(r: CGFloat, g: CGFloat, b: CGFloat) -> UIColor {
 		return UIColor(red: r/255, green: g/255, blue: b/255, alpha: 1)
 	}
 	
-	private static func gray(_ white: CGFloat) -> UIColor {
-		return UIColor(red: white/255, green: white/255, blue: white/255, alpha: 1)
+	private static func gray(_ c: CGFloat) -> UIColor {
+		return UIColor(red: c/255, green: c/255, blue: c/255, alpha: 1)
 	}
 }

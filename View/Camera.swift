@@ -22,13 +22,12 @@ class Camera {
 	private let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
 		bar.backgroundColor = Colors.red
-		bar.layer.cornerRadius = 1.25
+		bar.layer.cornerRadius = bar.frame.height/2
 		return bar
 	}()
 	
 	private(set) var isRecording = false
 	var durationAnim: UIViewPropertyAnimator?
-	private var timer: Timer?
 	
 	
 	init() {
@@ -96,7 +95,6 @@ class Camera {
 		isRecording = false
 		output.stopRecording()
 		
-		timer?.invalidate()
 		durationAnim?.stopAnimation(true)
 		durationAnim = nil
 		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: { [weak self] in

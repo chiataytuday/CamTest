@@ -10,7 +10,7 @@ import UIKit
 
 class MovablePoint : UIImageView {
 	
-	var camera: Camera?
+	var cam: Camera?
 	var touchOffset: CGPoint?
 	
 	init() {
@@ -39,7 +39,7 @@ class MovablePoint : UIImageView {
 			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
 				self.frame.origin = CGPoint(x: touchPoint.x - offset.x, y: touchPoint.y - offset.y)
 			}.startAnimation()
-			camera?.setExposure(.autoExpose, center)
+			cam?.setExposure(.autoExpose, center)
 		}
 	}
 	
@@ -52,7 +52,7 @@ class MovablePoint : UIImageView {
 			})
 			point = center
 		}
-		camera?.setExposure(User.shared.exposureMode, point)
+		cam?.setExposure(User.shared.exposureMode, point)
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform.identity
 		})
