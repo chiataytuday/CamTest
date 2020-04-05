@@ -83,9 +83,9 @@ class PlayerController: UIViewController {
 		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
 	}
 	
-	deinit {
-		print("OS deinits PlayerController: NO memory leaks/retain cycles")
-	}
+//	deinit {
+//		print("OS deinits PlayerController: NO memory leaks/retain cycles")
+//	}
 	
 	private func setupSubviews() {
 		saveButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)

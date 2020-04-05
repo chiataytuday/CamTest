@@ -16,19 +16,13 @@ public final class TemporaryFileURL: ManagedURL {
         contentURL = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(ext)
-		print("CREATED \(contentURL.lastPathComponent) FILE")
     }
     
     deinit {
         DispatchQueue.global(qos: .utility).async { [contentURL = self.contentURL] in
 			do {
 				try FileManager.default.removeItem(at: contentURL)
-				print("REMOVED \(contentURL.lastPathComponent) FILE")
-			} catch {
-				print("File not found")
-			}
-//            try? FileManager.default.removeItem(at: contentURL)
-//			print("REMOVED \(contentURL.lastPathComponent) FILE")
+			} catch { }
         }
     }
 }
