@@ -93,8 +93,8 @@ class Camera {
 		
 		durationAnim?.stopAnimation(true)
 		durationAnim = nil
-		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: { [weak self] in
-			self?.durationBar.frame.size.width = 0
+		UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.5, options: .curveEaseOut, animations: {
+			self.durationBar.frame.size.width = 0
 		})
 	}
 	

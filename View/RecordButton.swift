@@ -59,8 +59,8 @@ class RecordButton : SquareButton {
 	@objc override func touchDown() {
 		redCircle.transform = .identity
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
-		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
+		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75)
 		})
 	}
@@ -69,19 +69,19 @@ class RecordButton : SquareButton {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		
 		let radius: CGFloat = camIsRecording ? 10 : 3.25
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: { [weak self] in
-			self?.redCircle.transform = .identity
-			self?.redCircle.layer.cornerRadius = radius
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
+			self.redCircle.transform = .identity
+			self.redCircle.layer.cornerRadius = radius
 		})
 		
 		if !camIsRecording {
-			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: { [weak self] in
-				self?.pulsatingSquare.transform = CGAffineTransform(scaleX: 2, y: 2)
+			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
+				self.pulsatingSquare.transform = CGAffineTransform(scaleX: 2, y: 2)
 			})
 		} else {
 			pulsatingSquare.layer.removeAllAnimations()
-			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: { [weak self] in
-				self?.pulsatingSquare.transform = .identity
+			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: {
+				self.pulsatingSquare.transform = .identity
 			})
 		}
 	}

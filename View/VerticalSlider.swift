@@ -72,8 +72,8 @@ class VerticalSlider : UIView {
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchPoint = touches.first!.location(in: self)
 		touchOffset = filledView.frame.height + touchPoint.y
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.transform = .identity
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			self.transform = .identity
 		})
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		popup?.setImage(imageView!.image!)
@@ -92,8 +92,8 @@ class VerticalSlider : UIView {
 		}
 		
 		let ratio = filledView.frame.size.height/frame.size.height
-		UIViewPropertyAnimator(duration: 0.08, curve: .linear) { [weak self] in
-			self?.filledView.frame = CGRect(origin: CGPoint(x: 0, y: self!.frame.height), size: CGSize(width: self!.frame.width, height: height))
+		UIViewPropertyAnimator(duration: 0.08, curve: .linear) {
+			self.filledView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
 		}.startAnimation()
 		
 		value = ratio*(max-min)+min
@@ -103,8 +103,8 @@ class VerticalSlider : UIView {
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.transform = CGAffineTransform(translationX: self!.translationX, y: 0)
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			self.transform = CGAffineTransform(translationX: self.translationX, y: 0)
 		})
 		popup?.hide()
 	}

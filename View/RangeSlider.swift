@@ -54,14 +54,14 @@ class RangeSlider : UIView {
 		beginPoint = RangePoint(pointWidth)
 		beginPoint.center.y = path.frame.height/2
 		beginPoint.minX = pointWidth/2
-		beginPoint.setMax = { [unowned self] in
-			self.beginPoint.maxX = self.endPoint.center.x - self.minDistance
+		beginPoint.setMax = { [weak self] in
+			self?.beginPoint.maxX = self!.endPoint.center.x - self!.minDistance
 		}
-		beginPoint.applyToPlayer = { [unowned self] in
-			var sec = Double((self.beginPoint.center.x - self.pointWidth/2)/self.path.frame.width)
-			sec *= self.videoPlayer!.currentItem!.duration.seconds
-			self.beginPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
-			self.videoPlayer?.seek(to: self.beginPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
+		beginPoint.applyToPlayer = { [weak self] in
+			var sec = Double((self!.beginPoint.center.x - self!.pointWidth/2)/self!.path.frame.width)
+			sec *= self!.videoPlayer!.currentItem!.duration.seconds
+			self?.beginPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
+			self?.videoPlayer?.seek(to: self!.beginPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(beginPoint)
 		
@@ -69,14 +69,14 @@ class RangeSlider : UIView {
 		endPoint.center.x = path.frame.width - endPoint.frame.width/2
 		endPoint.center.y = path.frame.height/2
 		endPoint.maxX = path.frame.width - pointWidth/2
-		endPoint.setMin = { [unowned self] in
-			self.endPoint.minX = self.beginPoint.center.x + self.minDistance
+		endPoint.setMin = { [weak self] in
+			self?.endPoint.minX = self!.beginPoint.center.x + self!.minDistance
 		}
-		endPoint.applyToPlayer = { [unowned self] in
-			var sec = Double((self.endPoint.center.x + self.pointWidth/2)/self.path.frame.width)
-			sec *= self.videoPlayer!.currentItem!.duration.seconds
-			self.endPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self.videoPlayer!.currentItem!.asset.duration.timescale)
-			self.videoPlayer?.seek(to: self.endPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
+		endPoint.applyToPlayer = { [weak self] in
+			var sec = Double((self!.endPoint.center.x + self!.pointWidth/2)/self!.path.frame.width)
+			sec *= self!.videoPlayer!.currentItem!.duration.seconds
+			self?.endPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
+			self?.videoPlayer?.seek(to: self!.endPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(endPoint)
 		
@@ -98,8 +98,8 @@ class RangeSlider : UIView {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		videoPlayer?.pause()
 		
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: { [weak self] in
-			self?.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {
+			self.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
 		})
 	}
 	
@@ -121,15 +121,15 @@ class RangeSlider : UIView {
 			pos = activeRangePoint!.maxX
 		}
 		
-		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) { [weak self] in
-			self?.activeRangePoint!.center.x = pos
-			self?.range.frame = CGRect(origin: CGPoint(x: self!.beginPoint.center.x, y: 0), size: CGSize(width: self!.endPoint.center.x - self!.beginPoint.center.x, height: self!.path.frame.height))
+		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) {
+			self.activeRangePoint?.center.x = pos
+			self.range.frame = CGRect(origin: CGPoint(x: self.beginPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.beginPoint.center.x, height: self.path.frame.height))
 		}.startAnimation()
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-			self?.activeRangePoint?.transform = .identity
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.activeRangePoint?.transform = .identity
 		})
 		
 		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = endPoint.time

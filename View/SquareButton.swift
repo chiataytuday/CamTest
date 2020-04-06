@@ -50,8 +50,8 @@ class SquareButton : UIButton {
 		setActive(isActive)
 		
 		imageView?.transform = CGAffineTransform(rotationAngle: .pi/2.5)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: { [weak self] in
-			self?.imageView?.transform = .identity
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.imageView?.transform = .identity
 		})
 	}
 	

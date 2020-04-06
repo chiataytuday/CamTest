@@ -34,13 +34,13 @@ class Notification : UIView {
 	
 	func show(for duration: TimeInterval) {
 		transform = CGAffineTransform(translationX: 0, y: 15)
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-			self?.transform = .identity
-			self?.alpha = 1
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = .identity
+			self.alpha = 1
 		})
 
-		UIView.animate(withDuration: 0.25, delay: duration, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: { [weak self] in
-			self?.alpha = 0
+		UIView.animate(withDuration: 0.25, delay: duration, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+			self.alpha = 0
 		}) { _ in
 			self.removeFromSuperview()
 		}

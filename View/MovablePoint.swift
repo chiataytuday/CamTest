@@ -26,8 +26,8 @@ class MovablePoint : UIImageView {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchPoint = touches.first!.location(in: superview!)
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 		})
 		touchOffset = CGPoint(x: touchPoint.x - frame.origin.x, y: touchPoint.y - frame.origin.y)
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
@@ -36,8 +36,8 @@ class MovablePoint : UIImageView {
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchPoint = touches.first!.location(in: superview!)
 		if let offset = touchOffset {
-			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) { [weak self] in
-				self?.frame.origin = CGPoint(x: touchPoint.x - offset.x, y: touchPoint.y - offset.y)
+			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
+				self.frame.origin = CGPoint(x: touchPoint.x - offset.x, y: touchPoint.y - offset.y)
 			}.startAnimation()
 			cam?.setExposure(.autoExpose, center)
 		}
@@ -47,14 +47,14 @@ class MovablePoint : UIImageView {
 		touchOffset = nil
 		var point: CGPoint?
 		if frame.maxY > superview!.frame.height - 80 {
-			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: { [weak self] in
-				self?.center.y = self!.superview!.frame.height - self!.frame.height/2 - 85
+			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
+				self.center.y = self.superview!.frame.height - self.frame.height/2 - 85
 			})
 			point = center
 		}
 		cam?.setExposure(User.shared.exposureMode, point)
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
-			self?.transform = .identity
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			self.transform = .identity
 		})
 	}
 }

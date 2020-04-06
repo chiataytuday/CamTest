@@ -24,10 +24,6 @@ class PermissionsController: UIViewController {
 	
 	var cameraButton, libraryButton, micButton: UIButton!
 	
-	deinit {
-		print("Permissions deinit")
-	}
-	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .black

@@ -24,16 +24,16 @@ class GroupView : UIStackView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-			self?.transform = .identity
-			self?.alpha = 1
+		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = .identity
+			self.alpha = 1
 		})
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-			self?.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-			self?.alpha = 0
+		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+			self.alpha = 0
 		})
 	}
 	
