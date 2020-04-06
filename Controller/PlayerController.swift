@@ -155,6 +155,7 @@ class PlayerController: UIViewController {
 		})
 		observer = playerItem.observe(\.status, options: [.new], changeHandler: { [weak self] (item, _) in
 			self?.timer?.invalidate()
+			self?.timer = nil
 			self?.observer?.invalidate()
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.player
