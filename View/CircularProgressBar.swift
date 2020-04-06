@@ -10,7 +10,13 @@ import UIKit
 
 class CircularProgressBar : UIView {
 	
-	private let filledShapeLayer = CAShapeLayer()
+	private let filledShapeLayer: CAShapeLayer = {
+		let shapeLayer = CAShapeLayer()
+		shapeLayer.fillColor = UIColor.clear.cgColor
+		shapeLayer.strokeColor = UIColor.white.cgColor
+		shapeLayer.strokeEnd = 0
+		return shapeLayer
+	}()
 	
 	init(diameter: CGFloat) {
 		super.init(frame: .zero)
@@ -19,18 +25,13 @@ class CircularProgressBar : UIView {
 			widthAnchor.constraint(equalToConstant: diameter),
 			heightAnchor.constraint(equalToConstant: diameter)
 		])
-
 		backgroundColor = .black
 		layer.cornerRadius = diameter/2
 		clipsToBounds = true
 		
-		filledShapeLayer.fillColor = UIColor.white.cgColor
 		let circularPath = UIBezierPath(arcCenter: CGPoint(x: diameter/2, y: diameter/2), radius: diameter/4 + 1, startAngle: -.pi/2, endAngle: .pi*3/2, clockwise: true)
 		filledShapeLayer.path = circularPath.cgPath
-		filledShapeLayer.fillColor = UIColor.clear.cgColor
-		filledShapeLayer.strokeColor = UIColor.white.cgColor
 		filledShapeLayer.lineWidth = diameter/2 + 2
-		filledShapeLayer.strokeEnd = 0
 		layer.addSublayer(filledShapeLayer)
 	}
 	

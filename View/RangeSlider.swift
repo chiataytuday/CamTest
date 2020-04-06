@@ -98,8 +98,8 @@ class RangeSlider : UIView {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		videoPlayer?.pause()
 		
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {
-			self.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: { [weak self] in
+			self?.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
 		})
 	}
 	
@@ -121,15 +121,15 @@ class RangeSlider : UIView {
 			pos = activeRangePoint!.maxX
 		}
 		
-		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) {
-			self.activeRangePoint!.center.x = pos
-			self.range.frame = CGRect(origin: CGPoint(x: self.beginPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.beginPoint.center.x, height: self.path.frame.height))
+		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) { [weak self] in
+			self?.activeRangePoint!.center.x = pos
+			self?.range.frame = CGRect(origin: CGPoint(x: self!.beginPoint.center.x, y: 0), size: CGSize(width: self!.endPoint.center.x - self!.beginPoint.center.x, height: self!.path.frame.height))
 		}.startAnimation()
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.activeRangePoint?.transform = CGAffineTransform.identity
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+			self?.activeRangePoint?.transform = .identity
 		})
 		
 		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = endPoint.time

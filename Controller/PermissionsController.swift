@@ -70,21 +70,16 @@ class PermissionsController: UIViewController {
 
 		// MARK: - Animation
 
-		UIView.animate(withDuration: 0.45, delay: 0.12, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
-			self.cameraButton.transform = CGAffineTransform(translationX: 0, y: 20)
-			self.cameraButton.alpha = 1
-		})
-		UIView.animate(withDuration: 0.45, delay: 0.15, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
-			self.libraryButton.transform = CGAffineTransform(translationX: 0, y: 20)
-			self.libraryButton.alpha = 1
-		})
-		UIView.animate(withDuration: 0.45, delay: 0.18, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
-			self.micButton.transform = CGAffineTransform(translationX: 0, y: 20)
-			self.micButton.alpha = 1
-		})
-		UIView.animate(withDuration: 0.45, delay: 0.23, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
-			self.bottomLabel.alpha = 1
-			self.bottomLabel.transform = CGAffineTransform(translationX: 0, y: 10)
+		animate(cameraButton, delay: 0.12, translationY: 20)
+		animate(libraryButton, delay: 0.15, translationY: 20)
+		animate(micButton, delay: 0.18, translationY: 20)
+		animate(bottomLabel, delay: 0.23, translationY: 10)
+	}
+	
+	func animate(_ viewToAnimate: UIView, delay: TimeInterval, translationY: CGFloat) {
+		UIView.animate(withDuration: 0.45, delay: delay, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
+			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: translationY)
+			viewToAnimate.alpha = 1
 		})
 	}
 	

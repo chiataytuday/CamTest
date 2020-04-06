@@ -10,16 +10,28 @@ import UIKit
 
 class SquareButton : UIButton {
 	
-	init(size: CGSize, _ systemImageName: String? = nil) {
+	private var isActive: Bool
+	
+	func setActive(_ active: Bool) {
+		if active == true {
+			tintColor = Colors.gray5
+			backgroundColor = Colors.gray1
+		} else {
+			tintColor = Colors.gray3
+			backgroundColor = .black
+		}
+	}
+	
+	init(size: CGSize, _ systemImageName: String? = nil, _ isActive: Bool = false) {
+		self.isActive = isActive
 		super.init(frame: .zero)
-		backgroundColor = .black
+		setActive(isActive)
 		translatesAutoresizingMaskIntoConstraints = false
 		if let systemName = systemImageName {
 			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 			setImage(UIImage(systemName: systemName), for: .normal)
 			adjustsImageWhenHighlighted = false
 			imageView?.clipsToBounds = false
-			tintColor = Colors.gray3
 		}
 		
 		NSLayoutConstraint.activate([
@@ -33,20 +45,13 @@ class SquareButton : UIButton {
 		imageView?.contentMode = .center
 		// because buttons' images of launchscreen will look different
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
-		
-		if tag == 0 {
-			tintColor = Colors.gray5
-			backgroundColor = Colors.gray1
-			tag = 1
-		} else {
-			tintColor = Colors.gray3
-			backgroundColor = .black
-			tag = 0
-		}
+
+		isActive = !isActive
+		setActive(isActive)
 		
 		imageView?.transform = CGAffineTransform(rotationAngle: .pi/2.5)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.imageView?.transform = .identity
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: { [weak self] in
+			self?.imageView?.transform = .identity
 		})
 	}
 	

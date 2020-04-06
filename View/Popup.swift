@@ -59,10 +59,10 @@ class Popup : UIView {
 		
 		if value < 0 && !isExpanded || value >= 0 && isExpanded {
 			let args: PopupFrame = isExpanded ? (-10, 5) : (10, -5)
-			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [], animations: {
-				self.frame.size.width += args.width
-				self.frame.origin.x += args.x
-			}, completion: nil)
+			UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: [], animations: { [weak self] in
+				self?.frame.size.width += args.width
+				self?.frame.origin.x += args.x
+			})
 			isExpanded = value < 0
 		}
 	}
@@ -72,16 +72,16 @@ class Popup : UIView {
 	}
 	
 	func show() {
-		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = CGAffineTransform(translationX: 0, y: 15)
-			self.alpha = 1
-		}, completion: nil)
+		UIView.animate(withDuration: 0.45, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+			self?.transform = CGAffineTransform(translationX: 0, y: 15)
+			self?.alpha = 1
+		})
 	}
 	
 	func hide() {
-		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = CGAffineTransform.identity
-			self.alpha = 0
-		}, completion: nil)
+		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+			self?.transform = CGAffineTransform.identity
+			self?.alpha = 0
+		})
 	}
 }

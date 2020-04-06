@@ -70,7 +70,7 @@ class RecordButton : SquareButton {
 		
 		let radius: CGFloat = camIsRecording ? 10 : 3.25
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: { [weak self] in
-			self?.redCircle.transform = CGAffineTransform.identity
+			self?.redCircle.transform = .identity
 			self?.redCircle.layer.cornerRadius = radius
 		})
 		

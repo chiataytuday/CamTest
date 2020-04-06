@@ -17,7 +17,7 @@ class Notification : UIView {
 		return label
 	}()
 	
-	init(text: String) {
+	init(text: String, color: UIColor = .black) {
 		label.text = text
 		label.sizeToFit()
 		
@@ -27,20 +27,20 @@ class Notification : UIView {
 		label.frame.origin.y += margin.y
 		addSubview(label)
 		
-		backgroundColor = Colors.red
+		backgroundColor = color
 		layer.cornerRadius = frame.height/2
 		alpha = 0
 	}
 	
-	func show() {
+	func show(for duration: TimeInterval) {
 		transform = CGAffineTransform(translationX: 0, y: 15)
-		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = CGAffineTransform.identity
-			self.alpha = 1
+		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: { [weak self] in
+			self?.transform = .identity
+			self?.alpha = 1
 		})
 
-		UIView.animate(withDuration: 0.25, delay: 2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-			self.alpha = 0
+		UIView.animate(withDuration: 0.25, delay: duration, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: { [weak self] in
+			self?.alpha = 0
 		}) { _ in
 			self.removeFromSuperview()
 		}

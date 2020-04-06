@@ -101,23 +101,25 @@ extension CameraController {
 		popup.center = CGPoint(x: view.center.x, y: popupY)
 		view.addSubview(popup)
 		
-		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .left)
-		exposureSlider.set(min: -3, max: 3, value: 0)
+		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280))
+		exposureSlider.range(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.delegate = { [weak self] in
 			self?.cam.setTargetBias(Float(self!.exposureSlider.value))
 		}
 		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
+		exposureSlider.align(to: .left)
 		
-		lensSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
-		lensSlider.set(min: 0, max: 1, value: 0.4)
-		lensSlider.setImage("globe")
+		lensSlider = VerticalSlider(CGSize(width: 40, height: 280))
+		lensSlider.range(min: 0, max: 1, value: 0.4)
+		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
 			self?.cam.setLensPosition(Float(self!.lensSlider.value))
 		}
 		lensSlider.popup = popup
 		view.addSubview(lensSlider)
+		lensSlider.align(to: .right)
 	}
 	
 	private func setupSecondary() {
@@ -158,12 +160,8 @@ extension CameraController {
 			cam.durationAnim?.startAnimation()
 			optionsGroup.hide(); toolsGroup.hide()
 		} else {
+			view.isUserInteractionEnabled = false
 			cam.stopRecording()
-			if cam.output.recordedDuration.seconds > 0.25 {
-				view.isUserInteractionEnabled = false
-			} else {
-				optionsGroup.show(); toolsGroup.show()
-			}
 		}
 	}
 	
@@ -216,7 +214,6 @@ extension CameraController {
 extension CameraController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
-		guard output.recordedDuration.seconds > 0.25 else { return }
 		if User.shared.torchEnabled {
 			cam.setTorch(.off)
 		}
@@ -228,10 +225,10 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()
-				let error = Notification(text: "Something went wrong")
+				let error = Notification(text: "Something went wrong", color: Colors.red)
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
-				error.show()
+				error.show(for: 2)
 			}
 		}
 	}

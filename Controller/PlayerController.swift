@@ -157,7 +157,6 @@ class PlayerController: UIViewController {
 				self?.player.play()
 			}
 			handler(item.status == .readyToPlay)
-//			self?.removeFile(at: url)
 		})
 	}
 	
@@ -168,12 +167,12 @@ class PlayerController: UIViewController {
 		let args: (UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (Colors.gray1, -45, 0.1, .linear, 1) : (.black, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.1)
-			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in
+			self?.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.1)
+			self?.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
 		})
-		UIViewPropertyAnimator(duration: args.2, curve: args.3) {
-			self.rangeSlider.alpha = args.4
+		UIViewPropertyAnimator(duration: args.2, curve: args.3) { [weak self] in
+			self?.rangeSlider.alpha = args.4
 		}.startAnimation()
 	}
 
@@ -190,25 +189,25 @@ class PlayerController: UIViewController {
 	
 	@objc private func decreaseViewSize(sender: UIButton?) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
-			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.view.layer.cornerRadius = 18
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: { [weak self] in
+			self?.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+			self?.view.layer.cornerRadius = 18
 			sender?.backgroundColor = Colors.gray1
 		})
 	}
 	
 	@objc private func resetViewSize(sender: UIButton?) {
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
-			self.view.transform = CGAffineTransform.identity
-			self.view.layer.cornerRadius = 0
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: { [weak self] in
+			self?.view.transform = .identity
+			self?.view.layer.cornerRadius = 0
 			sender?.backgroundColor = .black
 		})
 	}
 	
 	
 	private func closeController() {
-		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: {
-			self.blurEffectView.alpha = 1
+		UIView.animate(withDuration: 0.4, delay: 0, options: .curveEaseOut, animations: { [weak self] in
+			self?.blurEffectView.alpha = 1
 		})
 		player.pause()
 		observer?.invalidate()
