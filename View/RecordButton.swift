@@ -56,7 +56,7 @@ class RecordButton : SquareButton {
 		])
 	}
 	
-	@objc func touchDown() {
+	@objc override func touchDown() {
 		redCircle.transform = .identity
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: { [weak self] in

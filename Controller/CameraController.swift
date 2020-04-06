@@ -13,10 +13,14 @@ import AudioToolbox
 class CameraController: UIViewController {
 	
 	private var cam: Camera!
-	private var activeSlider: VerticalSlider?
 	private var exposureSlider, lensSlider: VerticalSlider!
+	private var torchBtn, lockBtn, exposureBtn, lensBtn: SquareButton!
+	private var recordBtn: RecordButton!
+	private var toolsGroup, optionsGroup: GroupView!
 	private var exposurePointView: MovablePoint!
 	
+	private var activeSlider: VerticalSlider?
+	private var playerController: PlayerController?
 	var recordPath: TemporaryFileURL?
 	
 	let blurEffectView: UIVisualEffectView = {
@@ -27,18 +31,13 @@ class CameraController: UIViewController {
 		return effectView
 	}()
 	
-	private var playerController: PlayerController?
-	private var torchButton, lockButton: SquareButton!
-	private var recordButton: RecordButton!
-	private var btnStackView: UIStackView!
-	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
 		cam = Camera()
 		cam.attach(to: view)
-		setupBottomButtons()
+		setupButtons()
 		attachActions()
 		setupVerticalSliders()
 		setupSecondary()
@@ -67,30 +66,33 @@ class CameraController: UIViewController {
 
 extension CameraController {
 	
-	override func viewDidLayoutSubviews() {
-		btnStackView.arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
-		btnStackView.arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
-	}
-	
-	private func setupBottomButtons() {
-		recordButton = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
-		view.addSubview(recordButton)
+	private func setupButtons() {
+		recordBtn = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
+		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
-			recordButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			recordButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		torchButton = SquareButton(size: CGSize(width: 48, height: 48), "bolt.fill")
-		lockButton = SquareButton(size: CGSize(width: 48, height: 48), "lock.fill")
-		btnStackView = UIStackView(arrangedSubviews: [torchButton, lockButton])
-		btnStackView.translatesAutoresizingMaskIntoConstraints = false
-		btnStackView.distribution = .fillProportionally
-		view.addSubview(btnStackView)
 		let xOffset = (view.frame.width/2 - 31.25)/2
+		torchBtn = SquareButton(size: CGSize(width: 46, height: 46), "bolt.fill")
+		lockBtn = SquareButton(size: CGSize(width: 46, height: 46), "lock.fill")
+		toolsGroup = GroupView(buttons: [torchBtn, lockBtn])
+		view.addSubview(toolsGroup)
 		NSLayoutConstraint.activate([
-			btnStackView.centerYAnchor.constraint(equalTo: recordButton.centerYAnchor),
-			btnStackView.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
+			toolsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
+			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
+		
+		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill")
+		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope")
+		optionsGroup = GroupView(buttons: [exposureBtn, lensBtn])
+		view.addSubview(optionsGroup)
+		NSLayoutConstraint.activate([
+			optionsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
+			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -xOffset)
+		])
+		
 	}
 	
 	private func setupVerticalSliders() {
@@ -102,14 +104,18 @@ extension CameraController {
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .left)
 		exposureSlider.set(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
-		exposureSlider.delegate = updateTargetBias
+		exposureSlider.delegate = { [weak self] in
+			self?.cam.setTargetBias(Float(self!.exposureSlider.value))
+		}
 		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
 		
 		lensSlider = VerticalSlider(CGSize(width: 40, height: 280), view.frame, .right)
 		lensSlider.set(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("globe")
-		lensSlider.delegate = updateLensPosition
+		lensSlider.delegate = { [weak self] in
+			self?.cam.setLensPosition(Float(self!.lensSlider.value))
+		}
 		lensSlider.popup = popup
 		view.addSubview(lensSlider)
 	}
@@ -125,14 +131,14 @@ extension CameraController {
 	}
 	
 	private func attachActions() {
-		for button in [lockButton, torchButton] {
-			button!.addTarget(self, action: #selector(buttonTouchDown(sender:)), for: .touchDown)
+		for btn in [lockBtn, recordBtn, torchBtn, exposureBtn, lensBtn] {
+			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
 		}
-		lockButton.addTarget(self, action: #selector(lockTouchDown), for: .touchDown)
-		recordButton.addTarget(recordButton, action: #selector(recordButton.touchDown), for: .touchDown)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
-		recordButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
-		torchButton.addTarget(self, action: #selector(torchTouchDown), for: .touchDown)
+		
+		lockBtn.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
+		torchBtn.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
+		recordBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
+		recordBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -141,7 +147,7 @@ extension CameraController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchUp() {
-		recordButton.touchUp(camIsRecording: cam.isRecording)
+		recordBtn.touchUp(camIsRecording: cam.isRecording)
 		
 		if !cam.isRecording {
 			recordPath = TemporaryFileURL(extension: "mp4")
@@ -150,64 +156,32 @@ extension CameraController {
 				self?.recordTouchUp()
 			})
 			cam.durationAnim?.startAnimation()
-			UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-				self?.btnStackView.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-				self?.btnStackView.alpha = 0
-			})
+			optionsGroup.hide(); toolsGroup.hide()
 		} else {
 			cam.stopRecording()
 			if cam.output.recordedDuration.seconds > 0.25 {
 				view.isUserInteractionEnabled = false
+			} else {
+				optionsGroup.show(); toolsGroup.show()
 			}
 		}
 	}
 	
-	@objc private func lockTouchDown() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+	@objc private func changeExposureMode() {
 		let isLocked = cam.device.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		User.shared.exposureMode = mode
 		cam.setExposure(mode)
 	}
 	
-	@objc private func buttonTouchDown(sender: UIButton) {
-		// We shouldn't apply this in SquareButton class
-		sender.imageView?.contentMode = .center
-		// because buttons' images of LaunchScreen are inaccessible, so they differ
-		
-		if sender.tag == 0 {
-			sender.tintColor = Colors.gray5
-			sender.backgroundColor = Colors.gray1
-			sender.tag = 1
-		} else {
-			sender.tintColor = Colors.gray3
-			sender.backgroundColor = .black
-			sender.tag = 0
-		}
-		
-		sender.imageView?.transform = CGAffineTransform(rotationAngle: .pi/4)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [.curveLinear, .allowUserInteraction], animations: {
-			sender.imageView?.transform = CGAffineTransform.identity
-		})
-	}
-	
-	@objc private func torchTouchDown() {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+	@objc private func changeTorchMode() {
 		let torchEnabled = cam.device.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		User.shared.torchEnabled = !torchEnabled
 		cam.setTorch(mode)
 	}
 	
-	// MARK: - Sliders handlers & Secondary methods
-	
-	private func updateTargetBias() {
-		cam.setTargetBias(Float(exposureSlider.value))
-	}
-	
-	private func updateLensPosition() {
-		cam.setLensPosition(Float(lensSlider.value))
-	}
+	// MARK: - Secondary methods
 	
 	@objc private func didEnterBackground() {
 		if let vc = presentedViewController as? PlayerController {
@@ -227,16 +201,13 @@ extension CameraController {
 		}
 	}
 	
-	func resetView(_ transitionDuration: Double = 0) {
+	func resetView() {
 		view.isUserInteractionEnabled = true
 		if User.shared.torchEnabled {
 			cam.setTorch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: { [weak self] in
-			self?.btnStackView.transform = .identity
-			self?.btnStackView.alpha = 1
-		})
+		optionsGroup.show(); toolsGroup.show()
 		playerController = nil
 	}
 }

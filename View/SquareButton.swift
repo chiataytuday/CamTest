@@ -28,6 +28,28 @@ class SquareButton : UIButton {
 		])
 	}
 	
+	@objc func touchDown() {
+		// shouldn't apply this in init
+		imageView?.contentMode = .center
+		// because buttons' images of launchscreen will look different
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		
+		if tag == 0 {
+			tintColor = Colors.gray5
+			backgroundColor = Colors.gray1
+			tag = 1
+		} else {
+			tintColor = Colors.gray3
+			backgroundColor = .black
+			tag = 0
+		}
+		
+		imageView?.transform = CGAffineTransform(rotationAngle: .pi/2.5)
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: {
+			self.imageView?.transform = .identity
+		})
+	}
+	
 	required init?(coder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
