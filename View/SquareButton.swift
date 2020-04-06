@@ -10,9 +10,13 @@ import UIKit
 
 class SquareButton : UIButton {
 	
-	private var isActive: Bool
+	private(set) var isActive: Bool
+	var verticalSlider: VerticalSlider?
 	
 	func setActive(_ active: Bool) {
+		isActive = active
+		verticalSlider?.isActive = active
+		
 		if active == true {
 			tintColor = Colors.gray5
 			backgroundColor = Colors.gray1

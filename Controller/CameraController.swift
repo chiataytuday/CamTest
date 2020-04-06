@@ -45,7 +45,9 @@ class CameraController: UIViewController {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchX = touches.first!.location(in: view).x
-		activeSlider = touchX > view.frame.width/2 ? lensSlider : exposureSlider
+		if let slider = touchX > view.frame.width/2 ? lensSlider : exposureSlider, slider.isActive {
+			activeSlider = slider
+		}
 		activeSlider?.touchesBegan(touches, with: event)
 	}
 	
@@ -84,8 +86,8 @@ extension CameraController {
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
 		
-		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill")
-		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope")
+		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill", true)
+		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope", true)
 		optionsGroup = GroupView(buttons: [exposureBtn, lensBtn])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
@@ -110,6 +112,7 @@ extension CameraController {
 		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
 		exposureSlider.align(to: .left)
+		exposureBtn.verticalSlider = exposureSlider
 		
 		lensSlider = VerticalSlider(CGSize(width: 40, height: 280))
 		lensSlider.range(min: 0, max: 1, value: 0.4)
@@ -120,6 +123,7 @@ extension CameraController {
 		lensSlider.popup = popup
 		view.addSubview(lensSlider)
 		lensSlider.align(to: .right)
+		lensBtn.verticalSlider = lensSlider
 	}
 	
 	private func setupSecondary() {
