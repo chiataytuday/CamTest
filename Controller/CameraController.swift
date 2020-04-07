@@ -45,8 +45,8 @@ class CameraController: UIViewController {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchX = touches.first!.location(in: view).x
-		if let slider = touchX > view.frame.width/2 ? lensSlider : exposureSlider, slider.isActive {
-			activeSlider = slider
+		if let s = touchX > view.frame.width/2 ? lensSlider : exposureSlider, s.isActive {
+			activeSlider = s
 		}
 		activeSlider?.touchesBegan(touches, with: event)
 	}
@@ -86,8 +86,8 @@ extension CameraController {
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
 		
-		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill", true)
-		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope", true)
+		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill")
+		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope")
 		optionsGroup = GroupView(buttons: [exposureBtn, lensBtn])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
@@ -112,18 +112,16 @@ extension CameraController {
 		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
 		exposureSlider.align(to: .left)
-		exposureBtn.verticalSlider = exposureSlider
 		
 		lensSlider = VerticalSlider(CGSize(width: 40, height: 280))
 		lensSlider.range(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
-			self?.cam.setLensPosition(Float(self!.lensSlider.value))
+			self?.cam.setLensLocked(at: Float(self!.lensSlider.value))
 		}
 		lensSlider.popup = popup
 		view.addSubview(lensSlider)
 		lensSlider.align(to: .right)
-		lensBtn.verticalSlider = lensSlider
 	}
 	
 	private func setupSecondary() {
@@ -143,6 +141,8 @@ extension CameraController {
 		
 		lockBtn.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
 		torchBtn.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
+		exposureBtn.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)
+		lensBtn.addTarget(self, action: #selector(onOffManualLens), for: .touchDown)
 		recordBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
 		recordBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		
@@ -170,17 +170,38 @@ extension CameraController {
 	}
 	
 	@objc private func changeExposureMode() {
-		let isLocked = cam.device.exposureMode == .locked
+		let isLocked = cam.captureDevice.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		User.shared.exposureMode = mode
 		cam.setExposure(mode)
 	}
 	
 	@objc private func changeTorchMode() {
-		let torchEnabled = cam.device.isTorchActive
+		let torchEnabled = cam.captureDevice.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		User.shared.torchEnabled = !torchEnabled
 		cam.setTorch(mode)
+	}
+	
+	@objc private func onOffManualExposure() {
+		if exposureBtn.isActive {
+			cam.setTargetBias(Float(exposureSlider.value))
+			exposureSlider.isActive = true
+		} else {
+			cam.setTargetBias(0)
+			exposureSlider.isActive = false
+		}
+	}
+	
+	@objc private func onOffManualLens() {
+		if lensBtn.isActive {
+			lensSlider.value = CGFloat(cam.lensPosition())
+			cam.setLensLocked(at: Float(lensSlider.value))
+			lensSlider.isActive = true
+		} else {
+			cam.setLensAuto()
+			lensSlider.isActive = false
+		}
 	}
 	
 	// MARK: - Secondary methods
@@ -232,7 +253,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				let error = Notification(text: "Something went wrong", color: Colors.red)
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
-				error.show(for: 2)
+				error.show(for: 1)
 			}
 		}
 	}

@@ -48,7 +48,7 @@ class MovablePoint : UIImageView {
 		var point: CGPoint?
 		if frame.maxY > superview!.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-				self.center.y = self.superview!.frame.height - self.frame.height/2 - 85
+				self.center.y = self.superview!.frame.height - self.frame.height/2 - 88.5
 			})
 			point = center
 		}

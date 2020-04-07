@@ -15,9 +15,9 @@ class VerticalSlider : UIView {
 		case right
 	}
 	
-	var isActive: Bool = true
+	var isActive: Bool = false
 	private var min, max: CGFloat
-	private(set) var value: CGFloat
+	var value: CGFloat
 	private var translationX: CGFloat!
 	private var filledView: UIView!
 	
