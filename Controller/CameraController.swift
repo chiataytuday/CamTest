@@ -38,8 +38,8 @@ class CameraController: UIViewController {
 		setupButtons()
 		attachActions()
 		setupVerticalSliders()
-		setupSecondary()
 		cam = Camera(self)
+		setupSecondary()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -130,7 +130,8 @@ extension CameraController {
 		view.addSubview(exposurePointView)
 		
 		blurEffectView.frame = view.bounds
-		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
+		view.addSubview(blurEffectView)
+//		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
 	}
 	
 	private func attachActions() {
