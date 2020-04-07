@@ -14,7 +14,7 @@ class RecordButton : SquareButton {
 		let circle = UIView()
 		circle.translatesAutoresizingMaskIntoConstraints = false
 		circle.isUserInteractionEnabled = false
-		circle.backgroundColor = Colors.red
+		circle.backgroundColor = .systemRed
 		circle.layer.cornerRadius = 10
 		NSLayoutConstraint.activate([
 			circle.widthAnchor.constraint(equalToConstant: 20),
@@ -28,7 +28,7 @@ class RecordButton : SquareButton {
 		square.translatesAutoresizingMaskIntoConstraints = false
 		square.isUserInteractionEnabled = false
 		square.backgroundColor = .systemRed
-		square.layer.cornerRadius = 6
+		square.layer.cornerRadius = 10
 		NSLayoutConstraint.activate([
 			square.widthAnchor.constraint(equalToConstant: 20),
 			square.heightAnchor.constraint(equalToConstant: 20)
@@ -40,6 +40,7 @@ class RecordButton : SquareButton {
 	
 	init(size: CGSize, radius: CGFloat) {
 		super.init(size: size)
+		backgroundColor = .systemBackground
 		layer.cornerRadius = radius
 		clipsToBounds = true
 		
@@ -68,11 +69,13 @@ class RecordButton : SquareButton {
 	func touchUp(camIsRecording: Bool) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
 		
-		let radius: CGFloat = camIsRecording ? 10 : 3.25
+		let circleRadius: CGFloat = camIsRecording ? 10 : 3.25
+		let pulsatingRadius: CGFloat = camIsRecording ? 10 : 6
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.redCircle.transform = .identity
-			self.redCircle.layer.cornerRadius = radius
+			self.redCircle.layer.cornerRadius = circleRadius
 		})
+		pulsatingSquare.layer.cornerRadius = pulsatingRadius
 		
 		if !camIsRecording {
 			UIView.animate(withDuration: 0.65, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {

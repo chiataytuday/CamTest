@@ -35,14 +35,14 @@ class RangeSlider : UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		center = frame.origin
-		backgroundColor = .black
+		backgroundColor = .systemBackground
 		layer.cornerRadius = frame.height/2
 		setupSubviews()
 	}
 	
 	private func setupSubviews() {
 		path = UIView()
-		path.backgroundColor = Colors.gray5.withAlphaComponent(0.38)
+		path.backgroundColor = UIColor.systemGray2.withAlphaComponent(0.38)
 		path.frame.size = CGSize(width: frame.width - frame.height, height: 2)
 		path.center = CGPoint(x: frame.width/2, y: frame.height/2)
 		path.layer.cornerRadius = path.frame.height/2
@@ -81,7 +81,7 @@ class RangeSlider : UIView {
 		path.addSubview(endPoint)
 		
 		range = UIView(frame: CGRect(origin: CGPoint(x: self.beginPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.beginPoint.center.x, height: self.path.frame.height)))
-		range.backgroundColor = Colors.gray5
+		range.backgroundColor = .systemGray2
 		path.addSubview(range)
 	}
 	

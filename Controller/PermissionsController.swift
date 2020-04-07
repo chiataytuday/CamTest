@@ -16,7 +16,7 @@ class PermissionsController: UIViewController {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
-		label.textColor = Colors.gray3
+		label.textColor = .systemGray2
 		label.font = UIFont.systemFont(ofSize: 18, weight: .light)
 		label.alpha = 0
 		return label
@@ -26,7 +26,7 @@ class PermissionsController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .black
+		view.backgroundColor = .systemBackground
 		setupView()
 	}
 	
@@ -119,9 +119,6 @@ class PermissionsController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 26, weight: .light), forImageIn: .normal)
 		button.setImage(UIImage(systemName: imageName), for: .normal)
-		button.tintColor = Colors.gray5
-		button.layer.borderWidth = 1.5
-		button.layer.borderColor = Colors.gray2.cgColor
 		button.layer.cornerRadius = 17.5
 		button.alpha = 0
 		button.adjustsImageWhenHighlighted = false
@@ -150,13 +147,11 @@ class PermissionsController: UIViewController {
 		DispatchQueue.main.async {
 			switch accessGranted {
 				case true:
-					button.backgroundColor = Colors.gray5
-					button.layer.borderColor = Colors.gray5.cgColor
-					button.tintColor = .black
+					button.backgroundColor = .systemGray5
+					button.tintColor = .systemGray
 				case false:
-					button.backgroundColor = .black
-					button.layer.borderColor = Colors.gray2.cgColor
-					button.tintColor = Colors.gray5
+					button.backgroundColor = .systemGray
+					button.tintColor = .systemGray5
 			}
 			
 			if PermissionsController.grantedCount() == 3 {

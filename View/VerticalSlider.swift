@@ -31,10 +31,10 @@ class VerticalSlider : UIView {
 		min = 0; max = 1; value = max
 		super.init(frame: CGRect(origin: .zero, size: size))
 		roundCorners(corners: .allCorners, radius: frame.width/2)
-		backgroundColor = .black
+		backgroundColor = .systemBackground
 		
 		filledView = UIView(frame: bounds)
-		filledView.backgroundColor = .white
+		filledView.backgroundColor = .systemGray4
 		addSubview(filledView)
 	}
 	
@@ -54,7 +54,7 @@ class VerticalSlider : UIView {
 	func setImage(_ systemName: String) {
 		let image = UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
 		imageView = UIImageView(image: image)
-		imageView?.tintColor = Colors.gray3
+		imageView?.tintColor = .systemGray
 		
 		imageView?.center = CGPoint(x: filledView.frame.midX, y: filledView.frame.maxY - imageView!.frame.height/2 - 8)
 		insertSubview(imageView!, aboveSubview: filledView)

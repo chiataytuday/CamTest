@@ -33,7 +33,7 @@ class CameraController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .black
+		view.backgroundColor = .systemBackground
 		
 		setupButtons()
 		attachActions()
@@ -131,7 +131,6 @@ extension CameraController {
 		
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
-//		view.insertSubview(blurEffectView, belowSubview: exposurePointView)
 	}
 	
 	private func attachActions() {
@@ -250,7 +249,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()
-				let error = Notification(text: "Something went wrong", color: Colors.red)
+				let error = Notification(text: "Something went wrong", color: .systemRed)
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
 				error.show(for: 1)

@@ -31,11 +31,11 @@ class PlayerController: UIViewController {
 		button.setImage(UIImage(systemName: "arrow.down"), for: .normal)
 		button.setTitle("Save", for: .normal)
 		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-		button.setTitleColor(Colors.gray5, for: .normal)
+		button.setTitleColor(.systemGray, for: .normal)
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
-		button.backgroundColor = .black
-		button.tintColor = Colors.gray5
+		button.backgroundColor = .systemBackground
+		button.tintColor = .systemGray
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -45,8 +45,8 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = Colors.gray3
-		button.backgroundColor = .black
+		button.tintColor = .systemGray3
+		button.backgroundColor = .systemBackground
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -56,8 +56,8 @@ class PlayerController: UIViewController {
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "scissors"), for: .normal)
-		button.tintColor = Colors.gray3
-		button.backgroundColor = .black
+		button.tintColor = .systemGray3
+		button.backgroundColor = .systemBackground
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -79,7 +79,7 @@ class PlayerController: UIViewController {
 		transitioningDelegate = self
 		super.viewDidLoad()
 		view.clipsToBounds = true
-		view.backgroundColor = .black
+		view.backgroundColor = .systemBackground
 	}
 	
 	override func viewDidLayoutSubviews() {
@@ -93,7 +93,7 @@ class PlayerController: UIViewController {
 		saveButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
 		NSLayoutConstraint.activate([
 			saveButton.widthAnchor.constraint(equalToConstant: 100),
-			saveButton.heightAnchor.constraint(equalToConstant: 48),
+			saveButton.heightAnchor.constraint(equalToConstant: 46),
 		])
 		
 		backButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
@@ -101,13 +101,13 @@ class PlayerController: UIViewController {
 		backButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
 		NSLayoutConstraint.activate([
 			backButton.widthAnchor.constraint(equalToConstant: 50),
-			backButton.heightAnchor.constraint(equalToConstant: 48)
+			backButton.heightAnchor.constraint(equalToConstant: 46)
 		])
 		
 		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
 		NSLayoutConstraint.activate([
 			trimButton.widthAnchor.constraint(equalToConstant: 50),
-			trimButton.heightAnchor.constraint(equalToConstant: 48)
+			trimButton.heightAnchor.constraint(equalToConstant: 46)
 		])
 		
 		btnStackView = UIStackView(arrangedSubviews: [saveButton, trimButton, backButton])
@@ -165,19 +165,20 @@ class PlayerController: UIViewController {
 		})
 	}
 	
-	
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		let args: (UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (Colors.gray1, -45, 0.1, .linear, 1) : (.black, 0, 0.075, .easeIn, 0)
+		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) : (.systemBackground, .systemGray3, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
+		trimButton.tintColor = args.1
+		trimButton.setTitleColor(args.1, for: .normal)
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.1)
-			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.1)
+			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.2)
+			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.2)
 		})
-		UIViewPropertyAnimator(duration: args.2, curve: args.3) {
-			self.rangeSlider.alpha = args.4
+		UIViewPropertyAnimator(duration: args.3, curve: args.4) {
+			self.rangeSlider.alpha = args.5
 		}.startAnimation()
 	}
 
@@ -199,7 +200,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveLinear, .allowUserInteraction], animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.view.layer.cornerRadius = 18
-			sender?.backgroundColor = Colors.gray1
+			sender?.backgroundColor = .systemGray5
 		})
 	}
 	
@@ -207,7 +208,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.view.transform = .identity
 			self.view.layer.cornerRadius = 0
-			sender?.backgroundColor = .black
+			sender?.backgroundColor = .systemBackground
 		})
 	}
 	
