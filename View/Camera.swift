@@ -13,7 +13,7 @@ class Camera {
 	let captureDevice: AVCaptureDevice
 	let movieFileOutput: AVCaptureMovieFileOutput
 	private let captureSession: AVCaptureSession
-	private let previewLayer: AVCaptureVideoPreviewLayer
+	private var previewLayer: AVCaptureVideoPreviewLayer!
 	private var path: URL!
 	
 	private let durationBar: UIView = {
@@ -27,7 +27,7 @@ class Camera {
 	var durationAnim: UIViewPropertyAnimator?
 	
 	
-	init() {
+	init(_ vc: UIViewController) {
 		captureSession = AVCaptureSession()
 		captureSession.beginConfiguration()
 		captureSession.automaticallyConfiguresApplicationAudioSession = false
@@ -58,7 +58,17 @@ class Camera {
 		previewLayer.connection?.videoOrientation = .portrait
 		
 		captureSession.commitConfiguration()
-		captureSession.startRunning()
+		
+		vc.view.addSubview(durationBar)
+		durationBar.frame.origin.y = vc.view.frame.height - durationBar.frame.height
+		
+		DispatchQueue.global().async {
+			self.captureSession.startRunning()
+			DispatchQueue.main.async {
+				self.previewLayer.frame = vc.view.frame
+				vc.view.layer.insertSublayer(self.previewLayer, at: 0)
+			}
+		}
 	}
 	
 	func attach(to view: UIView) {

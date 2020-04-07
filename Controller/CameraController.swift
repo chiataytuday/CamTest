@@ -35,12 +35,11 @@ class CameraController: UIViewController {
 		super.viewDidLoad()
 		view.backgroundColor = .black
 		
-		cam = Camera()
-		cam.attach(to: view)
 		setupButtons()
 		attachActions()
 		setupVerticalSliders()
 		setupSecondary()
+		cam = Camera(self)
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
