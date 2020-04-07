@@ -103,6 +103,13 @@ class VerticalSlider : UIView {
 		delegate?()
 	}
 	
+	func set(value: CGFloat) {
+		let height = (value-min)/(max-min)*frame.height
+		filledView.frame.size.height = height
+		filledView.frame.origin.y = frame.height - filledView.frame.height
+		self.value = value
+	}
+	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(translationX: self.translationX, y: 0)

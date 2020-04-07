@@ -194,8 +194,8 @@ extension CameraController {
 	}
 	
 	@objc private func onOffManualLens() {
+		lensSlider.set(value: CGFloat(cam.lensPosition()))
 		if lensBtn.isActive {
-			lensSlider.value = CGFloat(cam.lensPosition())
 			cam.setLensLocked(at: Float(lensSlider.value))
 			lensSlider.isActive = true
 		} else {
