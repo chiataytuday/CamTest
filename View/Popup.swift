@@ -33,12 +33,12 @@ class Popup : UIView {
 	init() {
 		valueLabel.frame.origin.x = imageView.frame.width + 5
 		let contentRect = CGRect(origin: .zero, size: CGSize(width: imageView.frame.width + 5 + valueLabel.frame.width, height: imageView.frame.height))
-		super.init(frame: contentRect.insetBy(dx: -16, dy: -7.25))
+		super.init(frame: contentRect.insetBy(dx: -13.5, dy: -6.5))
 		
 		// Compensate insets by moving subviews
 		for subview in [imageView, valueLabel] {
-			subview.frame.origin.x += 16
-			subview.center.y = center.y + 7.25
+			subview.frame.origin.x += 13.5
+			subview.center.y = center.y + 6.5
 		}
 		addSubview(imageView); addSubview(valueLabel)
 		

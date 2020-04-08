@@ -70,7 +70,7 @@ class StatusBar : UIStackView {
 	
 	func animate(_ item: UIButton, _ isHidden: Bool) {
 		let alpha: CGFloat = isHidden ? 0 : 1
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0, options: [], animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
 			item.isHidden = isHidden
 			item.alpha = alpha
 		})

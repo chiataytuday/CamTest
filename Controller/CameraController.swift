@@ -80,13 +80,13 @@ extension CameraController {
 		recordBtn = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
 		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
-			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		let xOffset = (view.frame.width/2 - 31.25)/2
-		torchBtn = SquareButton(size: CGSize(width: 46, height: 46), "bolt.fill")
-		lockBtn = SquareButton(size: CGSize(width: 46, height: 46), "lock.fill")
+		torchBtn = SquareButton(size: CGSize(width: 46, height: 45), "bolt.fill")
+		lockBtn = SquareButton(size: CGSize(width: 46, height: 45), "lock.fill")
 		toolsGroup = GroupView(buttons: [torchBtn, lockBtn])
 		view.addSubview(toolsGroup)
 		NSLayoutConstraint.activate([
@@ -94,8 +94,8 @@ extension CameraController {
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
 		])
 		
-		exposureBtn = SquareButton(size: CGSize(width: 46, height: 46), "sun.max.fill")
-		lensBtn = SquareButton(size: CGSize(width: 46, height: 46), "scope")
+		exposureBtn = SquareButton(size: CGSize(width: 46, height: 45), "sun.max.fill")
+		lensBtn = SquareButton(size: CGSize(width: 46, height: 45), "scope")
 		optionsGroup = GroupView(buttons: [exposureBtn, lensBtn])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
