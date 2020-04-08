@@ -1,5 +1,5 @@
 //
-//  CircularProgressBar.swift
+//  ClockwiseProgressBar.swift
 //  Flaneur
 //
 //  Created by debavlad on 05.04.2020.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CircularProgressBar : UIView {
+class ClockwiseProgressBar : UIView {
 	
 	private let filledShapeLayer: CAShapeLayer = {
 		let shapeLayer = CAShapeLayer()

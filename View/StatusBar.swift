@@ -8,26 +8,6 @@
 
 import UIKit
 
-
-
-//class StatusItem : UIView {
-//
-//	init(_ color: UIColor) {
-//		super.init(frame: .zero)
-//		translatesAutoresizingMaskIntoConstraints = false
-//		NSLayoutConstraint.activate([
-//			widthAnchor.constraint(equalToConstant: 45),
-//			heightAnchor.constraint(equalToConstant: 25)
-//		])
-//		backgroundColor = .systemYellow
-//		layer.cornerRadius = 7
-//	}
-//
-//	required init?(coder: NSCoder) {
-//		fatalError("init(coder:) has not been implemented")
-//	}
-//}
-
 class StatusBar : UIStackView {
 	
 	var torchItem, lockItem, exposureItem, lensItem: UIButton!
@@ -38,52 +18,61 @@ class StatusBar : UIStackView {
 		heightAnchor.constraint(equalToConstant: 25).isActive = true
 		distribution = .equalCentering
 		spacing = 6
-		
+		setupSubviews()
+	}
+	
+	private func setupSubviews() {
 		torchItem = createButton("bolt.fill")
+		addArrangedSubview(torchItem)
 		lockItem = createButton("lock.fill")
+		addArrangedSubview(lockItem)
 		exposureItem = createButton("sun.max.fill")
+		addArrangedSubview(exposureItem)
 		lensItem = createButton("scope")
-		addArrangedSubviews([torchItem, lockItem, exposureItem, lensItem])
+		addArrangedSubview(lensItem)
 	}
 	
 	private func createButton(_ imageName: String) -> UIButton {
 		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15))
-		let button = UIButton(type: .custom)
-		button.backgroundColor = .systemYellow
-		button.tintColor = .systemBackground
-		button.layer.cornerRadius = 7.5
-		button.isUserInteractionEnabled = false
-		button.setImage(image, for: .normal)
-		button.isHidden = true
+		let btn = UIButton(type: .custom)
+		btn.backgroundColor = .systemYellow
+		btn.tintColor = .systemBackground
+		btn.layer.cornerRadius = 7.5
+		btn.isUserInteractionEnabled = false
+		btn.setImage(image, for: .normal)
+		btn.isHidden = true
 		NSLayoutConstraint.activate([
-			button.heightAnchor.constraint(equalToConstant: 25),
-			button.widthAnchor.constraint(equalToConstant: 45)
+			btn.heightAnchor.constraint(equalToConstant: 25),
+			btn.widthAnchor.constraint(equalToConstant: 45)
 		])
-		return button
-	}
-	
-	private func addArrangedSubviews(_ views: [UIView]) {
-		for subview in views {
-			addArrangedSubview(subview)
-		}
+		return btn
 	}
 	
 	func animate(_ item: UIButton, _ isHidden: Bool) {
 		let alpha: CGFloat = isHidden ? 0 : 1
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
 			item.isHidden = isHidden
 			item.alpha = alpha
 		})
 	}
 	
-	func hide() {
-		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-			self.alpha = 0
+	required init(coder: NSCoder) {
+		fatalError("init(coder:) has not been implemented")
+	}
+}
+
+extension UIView {
+	func show() {
+		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = .identity
+			self.alpha = 1
 		})
 	}
 	
-	required init(coder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
+	func hide() {
+		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+			self.alpha = 0
+		})
 	}
 }

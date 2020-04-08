@@ -24,7 +24,6 @@ class VerticalSlider : UIView {
 	private var touchOffset: CGFloat?
 	private var imageView: UIImageView?
 	var delegate: (() -> ())?
-	var popup: Popup?
 	
 	
 	init(_ size: CGSize) {
@@ -77,10 +76,6 @@ class VerticalSlider : UIView {
 			self.transform = .identity
 		})
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
-		popup?.setImage(imageView!.image!)
-		let rounded = floor(value*10)/10
-		popup?.setValue(rounded)
-		popup?.show()
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -98,8 +93,6 @@ class VerticalSlider : UIView {
 		}.startAnimation()
 		
 		value = ratio*(max-min)+min
-		let rounded = floor(value*10)/10
-		popup?.setValue(rounded)
 		delegate?()
 	}
 	
@@ -114,7 +107,6 @@ class VerticalSlider : UIView {
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = CGAffineTransform(translationX: self.translationX, y: 0)
 		})
-		popup?.hide()
 	}
 	
 	required init?(coder: NSCoder) {

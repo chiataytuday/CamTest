@@ -16,7 +16,7 @@ class CameraController: UIViewController {
 	private var exposureSlider, lensSlider: VerticalSlider!
 	private var torchBtn, lockBtn, exposureBtn, lensBtn: SquareButton!
 	private var recordBtn: RecordButton!
-	private var toolsGroup, optionsGroup: GroupView!
+	private var toolsGroup, optionsGroup: ButtonsGroup!
 	private var exposurePointView: MovablePoint!
 	private var statusBar: StatusBar!
 	
@@ -87,7 +87,7 @@ extension CameraController {
 		let xOffset = (view.frame.width/2 - 31.25)/2
 		torchBtn = SquareButton(size: CGSize(width: 46, height: 45), "bolt.fill")
 		lockBtn = SquareButton(size: CGSize(width: 46, height: 45), "lock.fill")
-		toolsGroup = GroupView(buttons: [torchBtn, lockBtn])
+		toolsGroup = ButtonsGroup(buttons: [torchBtn, lockBtn])
 		view.addSubview(toolsGroup)
 		NSLayoutConstraint.activate([
 			toolsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
@@ -96,7 +96,7 @@ extension CameraController {
 		
 		exposureBtn = SquareButton(size: CGSize(width: 46, height: 45), "sun.max.fill")
 		lensBtn = SquareButton(size: CGSize(width: 46, height: 45), "scope")
-		optionsGroup = GroupView(buttons: [exposureBtn, lensBtn])
+		optionsGroup = ButtonsGroup(buttons: [exposureBtn, lensBtn])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
 			optionsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
@@ -106,18 +106,12 @@ extension CameraController {
 	}
 	
 	private func setupVerticalSliders() {
-		let popup = Popup()
-		let popupY = UIApplication.shared.windows[0].safeAreaInsets.top + 65
-		popup.center = CGPoint(x: view.center.x, y: popupY)
-		view.addSubview(popup)
-		
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280))
 		exposureSlider.range(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.delegate = { [weak self] in
 			self?.cam.setTargetBias(Float(self!.exposureSlider.value))
 		}
-		exposureSlider.popup = popup
 		view.addSubview(exposureSlider)
 		exposureSlider.align(to: .left)
 		
@@ -127,7 +121,6 @@ extension CameraController {
 		lensSlider.delegate = { [weak self] in
 			self?.cam.setLensLocked(at: Float(self!.lensSlider.value))
 		}
-		lensSlider.popup = popup
 		view.addSubview(lensSlider)
 		lensSlider.align(to: .right)
 	}
@@ -267,7 +260,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				let error = Notification(text: "Something went wrong", color: .systemRed)
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
-				error.show(for: 1)
+				error.present(for: 1)
 			}
 		}
 	}
