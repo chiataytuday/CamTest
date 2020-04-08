@@ -18,6 +18,7 @@ class CameraController: UIViewController {
 	private var recordBtn: RecordButton!
 	private var toolsGroup, optionsGroup: GroupView!
 	private var exposurePointView: MovablePoint!
+	private var statusBar: StatusBar!
 	
 	private var activeSlider: VerticalSlider?
 	private var playerController: PlayerController?
@@ -68,6 +69,14 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	private func setupButtons() {
+		statusBar = StatusBar()
+		view.addSubview(statusBar)
+		let statusY = UIApplication.shared.windows[0].safeAreaInsets.top + 25
+		NSLayoutConstraint.activate([
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: statusY),
+			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+		])
+		
 		recordBtn = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
 		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
@@ -98,7 +107,7 @@ extension CameraController {
 	
 	private func setupVerticalSliders() {
 		let popup = Popup()
-		let popupY = UIApplication.shared.windows[0].safeAreaInsets.top + 25
+		let popupY = UIApplication.shared.windows[0].safeAreaInsets.top + 65
 		popup.center = CGPoint(x: view.center.x, y: popupY)
 		view.addSubview(popup)
 		
@@ -161,7 +170,7 @@ extension CameraController {
 				self?.recordTouchUp()
 			})
 			cam.durationAnim?.startAnimation()
-			optionsGroup.hide(); toolsGroup.hide()
+			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide()
 		} else {
 			view.isUserInteractionEnabled = false
 			cam.stopRecording()
@@ -172,6 +181,7 @@ extension CameraController {
 		let isLocked = cam.captureDevice.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		User.shared.exposureMode = mode
+		statusBar.animate(statusBar.lockItem, isLocked)
 		cam.setExposure(mode)
 	}
 	
@@ -179,10 +189,12 @@ extension CameraController {
 		let torchEnabled = cam.captureDevice.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		User.shared.torchEnabled = !torchEnabled
+		statusBar.animate(statusBar.torchItem, torchEnabled)
 		cam.setTorch(mode)
 	}
 	
 	@objc private func onOffManualExposure() {
+		statusBar.animate(statusBar.exposureItem, exposureSlider.isActive)
 		if exposureBtn.isActive {
 			cam.setTargetBias(Float(exposureSlider.value))
 			exposureSlider.isActive = true
@@ -193,6 +205,7 @@ extension CameraController {
 	}
 	
 	@objc private func onOffManualLens() {
+		statusBar.animate(statusBar.lensItem, lensSlider.isActive)
 		lensSlider.set(value: CGFloat(cam.lensPosition()))
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
@@ -230,6 +243,8 @@ extension CameraController {
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
 		optionsGroup.show(); toolsGroup.show()
+		statusBar.transform = .identity
+		statusBar.alpha = 1
 		playerController = nil
 	}
 }
