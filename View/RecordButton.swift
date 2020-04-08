@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RecordButton : SquareButton {
+class RecordButton : CustomButton {
 	
 	private let redCircle: UIView = {
 		let circle = UIView()
@@ -38,8 +38,8 @@ class RecordButton : SquareButton {
 	}()
 	
 	
-	init(size: CGSize, radius: CGFloat) {
-		super.init(size: size)
+	init(_ size: ButtonSize, radius: CGFloat) {
+		super.init(size)
 		backgroundColor = .systemBackground
 		layer.cornerRadius = radius
 		clipsToBounds = true

@@ -8,11 +8,11 @@
 
 import UIKit
 
-class SquareButton : UIButton {
+class CustomButton : UIButton {
 	
 	private(set) var isActive: Bool
 	
-	func setActive(_ active: Bool) {
+	func setState(_ active: Bool) {
 		isActive = active
 		
 		if active == true {
@@ -24,10 +24,14 @@ class SquareButton : UIButton {
 		}
 	}
 	
-	init(size: CGSize, _ systemImageName: String? = nil, _ isActive: Bool = false) {
+	enum ButtonSize {
+		case small, big
+	}
+	
+	init(_ buttonSize: ButtonSize, _ systemImageName: String? = nil, _ isActive: Bool = false) {
 		self.isActive = isActive
 		super.init(frame: .zero)
-		setActive(isActive)
+		setState(isActive)
 		translatesAutoresizingMaskIntoConstraints = false
 		if let systemName = systemImageName {
 			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
@@ -36,6 +40,7 @@ class SquareButton : UIButton {
 			imageView?.clipsToBounds = false
 		}
 		
+		let size = buttonSize == .small ? CGSize(width: 46, height: 45) : CGSize(width: 62, height: 60)
 		NSLayoutConstraint.activate([
 			widthAnchor.constraint(equalToConstant: size.width),
 			heightAnchor.constraint(equalToConstant: size.height)
@@ -49,7 +54,7 @@ class SquareButton : UIButton {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 
 		isActive = !isActive
-		setActive(isActive)
+		setState(isActive)
 		
 		imageView?.transform = CGAffineTransform(rotationAngle: .pi/2.5)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 1, options: [.curveLinear, .allowUserInteraction], animations: {

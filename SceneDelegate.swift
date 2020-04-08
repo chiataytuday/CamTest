@@ -17,13 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		window = self.window ?? UIWindow()
 		window?.windowScene = scene as? UIWindowScene
 		
-		let vc: UIViewController
-		if PermissionsController.grantedCount() < 3 {
-			vc = PermissionsController()
-		} else {
-			vc = CameraController()
-		}
+		let vc = PermissionsController.grantedCount() < 3 ? PermissionsController() : CameraController()
 		vc.modalPresentationStyle = .fullScreen
+		
 		window?.rootViewController = vc
 		window?.makeKeyAndVisible()
 		

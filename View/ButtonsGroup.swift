@@ -10,7 +10,7 @@ import UIKit
 
 class ButtonsGroup : UIStackView {
 	
-	init(buttons: [SquareButton]) {
+	init(_ buttons: [CustomButton]) {
 		super.init(frame: .zero)
 		buttons.forEach { addArrangedSubview($0) }
 		translatesAutoresizingMaskIntoConstraints = false

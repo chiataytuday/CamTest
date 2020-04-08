@@ -14,7 +14,7 @@ class CameraController: UIViewController {
 	
 	private var cam: Camera!
 	private var exposureSlider, lensSlider: VerticalSlider!
-	private var torchBtn, lockBtn, exposureBtn, lensBtn: SquareButton!
+	private var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	private var recordBtn: RecordButton!
 	private var toolsGroup, optionsGroup: ButtonsGroup!
 	private var exposurePointView: MovablePoint!
@@ -37,10 +37,10 @@ class CameraController: UIViewController {
 		view.backgroundColor = .systemBackground
 		
 		setupButtons()
-		attachActions()
-		setupVerticalSliders()
+		targetActions()
+		setupSliders()
 		cam = Camera(self)
-		setupSecondary()
+		setupAdditional()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -69,43 +69,34 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	private func setupButtons() {
-		statusBar = StatusBar()
-		view.addSubview(statusBar)
-		let statusY = UIApplication.shared.windows[0].safeAreaInsets.top + 25
-		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: statusY),
-			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-		])
-		
-		recordBtn = RecordButton(size: CGSize(width: 62.5, height: 60), radius: 23)
+		recordBtn = RecordButton(.big, radius: 23)
 		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
 			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		let xOffset = (view.frame.width/2 - 31.25)/2
-		torchBtn = SquareButton(size: CGSize(width: 46, height: 45), "bolt.fill")
-		lockBtn = SquareButton(size: CGSize(width: 46, height: 45), "lock.fill")
-		toolsGroup = ButtonsGroup(buttons: [torchBtn, lockBtn])
+		torchBtn = CustomButton(.small, "bolt.fill")
+		lockBtn = CustomButton(.small, "lock.fill")
+		toolsGroup = ButtonsGroup([torchBtn, lockBtn])
 		view.addSubview(toolsGroup)
+		let widthQuarter = (view.frame.width/2 - 31.25)/2
 		NSLayoutConstraint.activate([
 			toolsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
-			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: xOffset)
+			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
 		])
 		
-		exposureBtn = SquareButton(size: CGSize(width: 46, height: 45), "sun.max.fill")
-		lensBtn = SquareButton(size: CGSize(width: 46, height: 45), "scope")
-		optionsGroup = ButtonsGroup(buttons: [exposureBtn, lensBtn])
+		exposureBtn = CustomButton(.small, "sun.max.fill")
+		lensBtn = CustomButton(.small, "scope")
+		optionsGroup = ButtonsGroup([exposureBtn, lensBtn])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
 			optionsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
-			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -xOffset)
+			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
 		])
-		
 	}
 	
-	private func setupVerticalSliders() {
+	private func setupSliders() {
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280))
 		exposureSlider.range(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
@@ -125,7 +116,14 @@ extension CameraController {
 		lensSlider.align(to: .right)
 	}
 	
-	private func setupSecondary() {
+	private func setupAdditional() {
+		statusBar = StatusBar()
+		view.addSubview(statusBar)
+		NSLayoutConstraint.activate([
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+		])
+		
 		exposurePointView = MovablePoint()
 		exposurePointView.center = view.center
 		exposurePointView.cam = cam
@@ -135,7 +133,7 @@ extension CameraController {
 		view.addSubview(blurEffectView)
 	}
 	
-	private func attachActions() {
+	private func targetActions() {
 		for btn in [lockBtn, recordBtn, torchBtn, exposureBtn, lensBtn] {
 			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
 		}
