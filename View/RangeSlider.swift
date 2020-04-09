@@ -35,7 +35,7 @@ class RangeSlider : UIView {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		center = frame.origin
-		backgroundColor = .systemBackground
+		backgroundColor = .systemGray6
 		layer.cornerRadius = frame.height/2
 		setupSubviews()
 	}

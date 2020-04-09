@@ -40,7 +40,7 @@ class RecordButton : CustomButton {
 	
 	init(_ size: ButtonSize, radius: CGFloat) {
 		super.init(size)
-		backgroundColor = .systemBackground
+		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
 		clipsToBounds = true
 		

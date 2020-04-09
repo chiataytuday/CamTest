@@ -33,11 +33,11 @@ class StatusBar : UIStackView {
 	}
 	
 	private func createItem(_ imageName: String) -> UIButton {
-		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15))
+		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 14))
 		let item = UIButton(type: .custom)
 		item.backgroundColor = .systemYellow
-		item.tintColor = .systemBackground
-		item.layer.cornerRadius = 7.5
+		item.tintColor = .black
+		item.layer.cornerRadius = 10
 		item.isUserInteractionEnabled = false
 		item.setImage(image, for: .normal)
 		item.isHidden = true

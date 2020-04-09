@@ -17,7 +17,7 @@ class CameraController: UIViewController {
 	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
 	var exposureSlider, lensSlider: VerticalSlider!
-	var exposurePointView: MovablePoint!
+	var exposurePoint, lensPoint: MovablePoint!
 	var statusBar: StatusBar!
 	
 	var activeSlider: VerticalSlider?
@@ -125,10 +125,27 @@ extension CameraController {
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		exposurePointView = MovablePoint()
-		exposurePointView.center = view.center
-		exposurePointView.cam = cam
-		view.addSubview(exposurePointView)
+		exposurePoint = MovablePoint("sun.max.fill")
+		exposurePoint.center = view.center
+		exposurePoint.moved = { [weak self] in
+			self?.cam.setExposure(.autoExpose, self!.exposurePoint.center)
+		}
+		exposurePoint.ended = { [weak self] in
+			self?.cam.setExposure(User.shared.exposureMode, self!.exposurePoint.center)
+		}
+		exposurePoint.cam = cam
+		view.addSubview(exposurePoint)
+		
+		lensPoint = MovablePoint("scope")
+		lensPoint.center = view.center
+		lensPoint.moved = { [weak self] in
+			self?.cam.setLensAuto(.autoFocus, self!.lensPoint.center)
+		}
+		lensPoint.ended = { [weak self] in
+			self?.cam.setLensAuto(User.shared.focusMode, self!.lensPoint.center)
+		}
+		lensPoint.cam = cam
+		view.addSubview(lensPoint)
 		
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
@@ -201,10 +218,16 @@ extension CameraController {
 		statusBar.fade(statusBar.lens, lensSlider.isActive)
 		let lensPosition = cam.captureDevice.lensPosition
 		lensSlider.set(value: CGFloat(lensPosition))
+		
+		let isLocked = cam.captureDevice.focusMode == .locked
+		let mode: AVCaptureDevice.FocusMode = isLocked ? .autoFocus : .locked
+		User.shared.focusMode = mode
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
+			lensPoint.hide()
 		} else {
-			cam.setLensAuto()
+			cam.setLensAuto(.autoFocus, lensPoint.center)
+			lensPoint.show()
 		}
 		lensSlider.isActive = lensBtn.isActive
 	}

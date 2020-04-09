@@ -34,7 +34,7 @@ class PlayerController: UIViewController {
 		button.setTitleColor(.systemGray, for: .normal)
 		button.imageEdgeInsets.left = -8
 		button.titleEdgeInsets.right = -8
-		button.backgroundColor = .systemBackground
+		button.backgroundColor = .systemGray6
 		button.tintColor = .systemGray
 		button.adjustsImageWhenHighlighted = false
 		return button
@@ -46,7 +46,7 @@ class PlayerController: UIViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "xmark"), for: .normal)
 		button.tintColor = .systemGray3
-		button.backgroundColor = .systemBackground
+		button.backgroundColor = .systemGray6
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -57,7 +57,7 @@ class PlayerController: UIViewController {
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
 		button.setImage(UIImage(systemName: "scissors"), for: .normal)
 		button.tintColor = .systemGray3
-		button.backgroundColor = .systemBackground
+		button.backgroundColor = .systemGray6
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
@@ -168,7 +168,7 @@ class PlayerController: UIViewController {
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) : (.systemBackground, .systemGray3, 0, 0.075, .easeIn, 0)
+		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) : (.systemGray6, .systemGray3, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
 		trimButton.tintColor = args.1
@@ -208,7 +208,7 @@ class PlayerController: UIViewController {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.view.transform = .identity
 			self.view.layer.cornerRadius = 0
-			sender?.backgroundColor = .systemBackground
+			sender?.backgroundColor = .systemGray6
 		})
 	}
 	

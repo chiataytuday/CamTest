@@ -56,6 +56,7 @@ class Camera {
 		
 		if let connection = movieFileOutput.connection(with: .video), movieFileOutput.availableVideoCodecTypes.contains(.h264) {
 			movieFileOutput.setOutputSettings([AVVideoCodecKey : AVVideoCodecType.h264], for: connection)
+			connection.preferredVideoStabilizationMode = .cinematic
 		}
 		
 		previewView = PreviewView(session: captureSession)
@@ -144,11 +145,12 @@ class Camera {
 		}
 	}
 	
-	func setLensAuto() {
-		if captureDevice.isFocusModeSupported(.continuousAutoFocus) {
+	func setLensAuto(_ mode: AVCaptureDevice.FocusMode,_ point: CGPoint) {
+		if captureDevice.isFocusModeSupported(mode) {
 			do {
 				try captureDevice.lockForConfiguration()
-				captureDevice.focusMode = .continuousAutoFocus
+				captureDevice.focusPointOfInterest = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+				captureDevice.focusMode = mode
 				captureDevice.unlockForConfiguration()
 			} catch {
 				print(error.localizedDescription)

@@ -12,10 +12,12 @@ class User {
 	static let shared = User()
 	
 	var exposureMode: AVCaptureDevice.ExposureMode
+	var focusMode: AVCaptureDevice.FocusMode
 	var torchEnabled: Bool
 	
 	private init() {
 		exposureMode = .continuousAutoExposure
+		focusMode = .autoFocus
 		torchEnabled = false
 	}
 }

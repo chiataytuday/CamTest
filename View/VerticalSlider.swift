@@ -30,7 +30,7 @@ class VerticalSlider : UIView {
 		min = 0; max = 1; value = max
 		super.init(frame: CGRect(origin: .zero, size: size))
 		roundCorners(corners: .allCorners, radius: frame.width/2)
-		backgroundColor = .systemBackground
+		backgroundColor = .systemGray6
 		
 		filledView = UIView(frame: bounds)
 		filledView.backgroundColor = .systemGray4
@@ -88,7 +88,7 @@ class VerticalSlider : UIView {
 		}
 		
 		let ratio = filledView.frame.size.height/frame.size.height
-		UIViewPropertyAnimator(duration: 0.08, curve: .linear) {
+		UIViewPropertyAnimator(duration: 0.05, curve: .linear) {
 			self.filledView.frame = CGRect(origin: CGPoint(x: 0, y: self.frame.height), size: CGSize(width: self.frame.width, height: height))
 		}.startAnimation()
 		

@@ -20,7 +20,7 @@ class CustomButton : UIButton {
 			backgroundColor = .systemGray5
 		} else {
 			tintColor = .systemGray3
-			backgroundColor = .systemBackground
+			backgroundColor = .systemGray6
 		}
 	}
 	

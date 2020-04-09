@@ -12,12 +12,21 @@ class MovablePoint : UIImageView {
 	
 	var cam: Camera?
 	var touchOffset: CGPoint?
+	var moved, ended: (() -> ())?
 	
-	init() {
+	init(_ innerImageName: String?) {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
 		tintColor = .systemYellow
+		
+		if let imageName = innerImageName {
+			let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .light))
+			let imageView = UIImageView(image: image)
+			imageView.tintColor = .systemYellow
+			imageView.center = center
+			addSubview(imageView)
+		}
 	}
 	
 	required init?(coder: NSCoder) {
@@ -39,20 +48,18 @@ class MovablePoint : UIImageView {
 			UIViewPropertyAnimator(duration: 0.05, curve: .easeOut) {
 				self.frame.origin = CGPoint(x: touchPoint.x - offset.x, y: touchPoint.y - offset.y)
 			}.startAnimation()
-			cam?.setExposure(.autoExpose, center)
+			moved?()
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		touchOffset = nil
-		var point: CGPoint?
 		if frame.maxY > superview!.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-				self.center.y = self.superview!.frame.height - self.frame.height/2 - 88.5
+				self.center.y = self.superview!.frame.height - self.frame.height/2 - 83.5
 			})
-			point = center
 		}
-		cam?.setExposure(User.shared.exposureMode, point)
+		ended?()
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.transform = .identity
 		})
