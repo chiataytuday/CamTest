@@ -16,15 +16,15 @@ class PlayerController: UIViewController {
 	var exportPath: TemporaryFileURL?
 	
 	var player: AVQueuePlayer!
-	private var playerItem: AVPlayerItem!
-	private var playerLayer: AVPlayerLayer!
-	private var btnStackView: UIStackView!
-	private var rangeSlider: RangeSlider!
+	var playerItem: AVPlayerItem!
+	var playerLayer: AVPlayerLayer!
+	var btnStackView: UIStackView!
+	var rangeSlider: RangeSlider!
 	
-	private var observer: NSKeyValueObservation?
-	private var timer: Timer?
+	var observer: NSKeyValueObservation?
+	var timer: Timer?
 	
-	private let saveButton: UIButton = {
+	let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
@@ -40,7 +40,7 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	private let backButton: UIButton = {
+	let backButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
@@ -51,7 +51,7 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	private let trimButton: UIButton = {
+	let trimButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)

@@ -10,7 +10,7 @@ import UIKit
 
 class ClockwiseProgressBar : UIView {
 	
-	private let filledShapeLayer: CAShapeLayer = {
+	let filledShapeLayer: CAShapeLayer = {
 		let shapeLayer = CAShapeLayer()
 		shapeLayer.fillColor = UIColor.clear.cgColor
 		shapeLayer.strokeColor = UIColor.white.cgColor

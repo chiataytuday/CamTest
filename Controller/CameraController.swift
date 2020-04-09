@@ -12,16 +12,16 @@ import AudioToolbox
 
 class CameraController: UIViewController {
 	
-	private var cam: Camera!
-	private var exposureSlider, lensSlider: VerticalSlider!
-	private var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
-	private var recordBtn: RecordButton!
-	private var toolsGroup, optionsGroup: ButtonsGroup!
-	private var exposurePointView: MovablePoint!
-	private var statusBar: StatusBar!
+	var cam: Camera!
+	var exposureSlider, lensSlider: VerticalSlider!
+	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
+	var recordBtn: RecordButton!
+	var toolsGroup, optionsGroup: ButtonsGroup!
+	var exposurePointView: MovablePoint!
+	var statusBar: StatusBar!
 	
-	private var activeSlider: VerticalSlider?
-	private var playerController: PlayerController?
+	var activeSlider: VerticalSlider?
+	var playerController: PlayerController?
 	var recordPath: TemporaryFileURL?
 	
 	let blurEffectView: UIVisualEffectView = {
@@ -39,7 +39,8 @@ class CameraController: UIViewController {
 		setupButtons()
 		targetActions()
 		setupSliders()
-		cam = Camera(self)
+		cam = Camera()
+		cam.attachPreview(to: view)
 		setupAdditional()
 	}
 	
@@ -197,7 +198,8 @@ extension CameraController {
 	
 	@objc private func onOffManualLens() {
 		statusBar.animate(statusBar.lensItem, lensSlider.isActive)
-		lensSlider.set(value: CGFloat(cam.lensPosition()))
+		let lensPosition = cam.captureDevice.lensPosition
+		lensSlider.set(value: CGFloat(lensPosition))
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
 			lensSlider.isActive = true
@@ -215,11 +217,11 @@ extension CameraController {
 		} else if cam.isRecording {
 			recordTouchUp()
 		}
-		cam.stopSession()
+		cam.captureSession.stopRunning()
 	}
 	
 	@objc private func didBecomeActive() {
-		cam.startSession()
+		cam.captureSession.startRunning()
 		if let vc = presentedViewController as? PlayerController {
 			vc.player.play()
 		} else if User.shared.torchEnabled {
@@ -228,6 +230,7 @@ extension CameraController {
 	}
 	
 	func resetView() {
+		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
 		view.isUserInteractionEnabled = true
 		if User.shared.torchEnabled {
 			cam.setTorch(.on)
@@ -250,6 +253,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
+			self?.cam.previewView.videoPreviewLayer.connection?.isEnabled = false
 			self?.recordPath = nil
 			if ready {
 				self?.present(playerController!, animated: true)

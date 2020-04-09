@@ -20,14 +20,14 @@ class RangeSlider : UIView {
 		}
 	}
 	
-	private var touchOffset: CGFloat?
-	private(set) var beginPoint, endPoint: RangePoint!
-	private var activeRangePoint, unactiveRangePoint: RangePoint?
-	private var pointWidth: CGFloat!
-	private var minDistance: CGFloat!
-	private var path, range: UIView!
+	var touchOffset: CGFloat?
+	var beginPoint, endPoint: RangePoint!
+	var activeRangePoint, unactiveRangePoint: RangePoint?
+	var pointWidth: CGFloat!
+	var minDistance: CGFloat!
+	var path, range: UIView!
 	
-	private var midOfRange: CGFloat {
+	var midOfRange: CGFloat {
 		return (beginPoint.center.x + endPoint.center.x)/2
 	}
 	

@@ -10,7 +10,7 @@ import UIKit
 
 class CustomButton : UIButton {
 	
-	private(set) var isActive: Bool
+	var isActive: Bool
 	
 	func setState(_ active: Bool) {
 		isActive = active

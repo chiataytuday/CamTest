@@ -16,13 +16,13 @@ class VerticalSlider : UIView {
 	}
 	
 	var isActive: Bool = false
-	private var min, max: CGFloat
+	var min, max: CGFloat
 	var value: CGFloat
-	private var translationX: CGFloat!
-	private var filledView: UIView!
+	var translationX: CGFloat!
+	var filledView: UIView!
 	
-	private var touchOffset: CGFloat?
-	private var imageView: UIImageView?
+	var touchOffset: CGFloat?
+	var imageView: UIImageView?
 	var delegate: (() -> ())?
 	
 	

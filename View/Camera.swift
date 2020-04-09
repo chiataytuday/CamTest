@@ -10,81 +10,79 @@ import UIKit
 import AVFoundation
 
 class Camera {
-	let captureDevice: AVCaptureDevice
-	let movieFileOutput: AVCaptureMovieFileOutput
-	private let captureSession: AVCaptureSession
-	private var previewLayer: AVCaptureVideoPreviewLayer!
-	private var path: URL!
 	
-	private let durationBar: UIView = {
+	var captureDevice: AVCaptureDevice!
+	var movieFileOutput: AVCaptureMovieFileOutput!
+	var captureSession: AVCaptureSession
+	var previewView: PreviewView!
+	
+	let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
 		bar.backgroundColor = .systemRed
 		bar.layer.cornerRadius = bar.frame.height/2
 		return bar
 	}()
 	
-	private(set) var isRecording = false
 	var durationAnim: UIViewPropertyAnimator?
+	var isRecording = false
 	
 	
-	init(_ vc: UIViewController) {
+	init() {
 		captureSession = AVCaptureSession()
 		captureSession.beginConfiguration()
 		captureSession.automaticallyConfiguresApplicationAudioSession = false
 		captureSession.sessionPreset = .hd1920x1080
 		
-		captureDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .back).devices.first!
-		
+		captureDevice = bestDevice(in: .back)
+		let audioDevice = AVCaptureDevice.default(for: .audio)
 		movieFileOutput = AVCaptureMovieFileOutput()
 		movieFileOutput.movieFragmentInterval = .invalid
-		
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: captureDevice)
-			captureSession.addInput(deviceInput)
-			let audioDevice = AVCaptureDevice.default(for: .audio)
+			if captureSession.canAddInput(deviceInput) {
+				captureSession.addInput(deviceInput)
+			}
 			let audioInput = try AVCaptureDeviceInput(device: audioDevice!)
-			captureSession.addInput(audioInput)
-			captureSession.addOutput(movieFileOutput)
-		} catch {}
-		
-		let connection = movieFileOutput.connection(with: .video)
-		connection!.preferredVideoStabilizationMode = .cinematic
-		if movieFileOutput.availableVideoCodecTypes.contains(.h264) {
-			movieFileOutput.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.h264], for: connection!)
+			if captureSession.canAddInput(audioInput) {
+				captureSession.addInput(audioInput)
+			}
+			if captureSession.canAddOutput(movieFileOutput) {
+				captureSession.addOutput(movieFileOutput)
+			}
+		} catch {
+			print(error.localizedDescription)
 		}
-		
-		previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-		previewLayer.videoGravity = .resizeAspectFill
-		previewLayer.connection?.videoOrientation = .portrait
-		
 		captureSession.commitConfiguration()
 		
-		vc.view.addSubview(durationBar)
-		durationBar.frame.origin.y = vc.view.frame.height - durationBar.frame.height
-		
-		DispatchQueue.global().async {
-			self.captureSession.startRunning()
-			DispatchQueue.main.async {
-				self.previewLayer.frame = vc.view.frame
-				vc.view.layer.insertSublayer(self.previewLayer, at: 0)
-			}
+		if let connection = movieFileOutput.connection(with: .video), movieFileOutput.availableVideoCodecTypes.contains(.h264) {
+			movieFileOutput.setOutputSettings([AVVideoCodecKey : AVVideoCodecType.h264], for: connection)
 		}
-	}
-	
-	func attach(to view: UIView) {
-		previewLayer.frame = view.frame
-		view.layer.insertSublayer(previewLayer, at: 0)
 		
-		view.addSubview(durationBar)
-		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
-	}
-	
-	func startSession() {
+		previewView = PreviewView(session: captureSession)
+		previewView.videoPreviewLayer.videoGravity = .resizeAspectFill
+		previewView.videoPreviewLayer.connection?.videoOrientation = .portrait
+		
 		captureSession.startRunning()
 	}
 	
-	func stopSession() {
-		captureSession.stopRunning()
+	private func bestDevice(in position: AVCaptureDevice.Position) -> AVCaptureDevice {
+		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
+		[.builtInTrueDepthCamera, .builtInDualCamera, .builtInWideAngleCamera],
+		mediaType: .video, position: .back)
+		
+		let devices = discoverySession.devices
+		guard !devices.isEmpty else { fatalError("Missing capture devices.") }
+		return devices.first { (device) -> Bool in
+			device.position == position
+		}!
+	}
+	
+	func attachPreview(to view: UIView) {
+		previewView.frame = view.frame
+		view.insertSubview(previewView, at: 0)
+		
+		view.addSubview(durationBar)
+		durationBar.frame.origin.y = view.frame.height - durationBar.frame.height
 	}
 	
 	func startRecording(to recordURL: URL, _ delegate: AVCaptureFileOutputRecordingDelegate?) {
@@ -92,7 +90,7 @@ class Camera {
 		movieFileOutput.startRecording(to: recordURL, recordingDelegate: delegate!)
 		
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: { [weak self] in
-			self?.durationBar.frame.size.width = self!.previewLayer.frame.width
+			self?.durationBar.frame.size.width = self!.previewView.frame.width
 		})
 	}
 	
@@ -109,14 +107,18 @@ class Camera {
 	
 	
 	func setExposure(_ mode: AVCaptureDevice.ExposureMode, _ point: CGPoint? = nil) {
-		do {
-			try captureDevice.lockForConfiguration()
-			if let point = point {
-				captureDevice.exposurePointOfInterest = previewLayer.captureDevicePointConverted(fromLayerPoint: point)
+		if captureDevice.isExposureModeSupported(mode) {
+			do {
+				try captureDevice.lockForConfiguration()
+				if let p = point, captureDevice.isExposurePointOfInterestSupported {
+					captureDevice.exposurePointOfInterest = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: p)
+				}
+				captureDevice.exposureMode = mode
+				captureDevice.unlockForConfiguration()
+			} catch {
+				print(error.localizedDescription)
 			}
-			captureDevice.exposureMode = mode
-			captureDevice.unlockForConfiguration()
-		} catch {}
+		}
 	}
 	
 	func setTargetBias(_ bias: Float) {
@@ -124,34 +126,44 @@ class Camera {
 			try captureDevice.lockForConfiguration()
 			captureDevice.setExposureTargetBias(bias, completionHandler: nil)
 			captureDevice.unlockForConfiguration()
-		} catch {}
+		} catch {
+			print(error.localizedDescription)
+		}
 	}
 	
 	func setLensLocked(at pos: Float) {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.setFocusModeLocked(lensPosition: pos, completionHandler: nil)
-			captureDevice.unlockForConfiguration()
-		} catch {}
-	}
-	
-	func lensPosition() -> Float {
-		return captureDevice.lensPosition
+		if captureDevice.isFocusModeSupported(.locked) {
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.setFocusModeLocked(lensPosition: pos, completionHandler: nil)
+				captureDevice.unlockForConfiguration()
+			} catch {
+				print(error.localizedDescription)
+			}
+		}
 	}
 	
 	func setLensAuto() {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.focusMode = .continuousAutoFocus
-			captureDevice.unlockForConfiguration()
-		} catch {}
+		if captureDevice.isFocusModeSupported(.continuousAutoFocus) {
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.focusMode = .continuousAutoFocus
+				captureDevice.unlockForConfiguration()
+			} catch {
+				print(error.localizedDescription)
+			}
+		}
 	}
 	
 	func setTorch(_ mode: AVCaptureDevice.TorchMode) {
-		do {
-			try captureDevice.lockForConfiguration()
-			captureDevice.torchMode = mode
-			captureDevice.unlockForConfiguration()
-		} catch {}
+		if captureDevice.isTorchModeSupported(mode) {
+			do {
+				try captureDevice.lockForConfiguration()
+				captureDevice.torchMode = mode
+				captureDevice.unlockForConfiguration()
+			} catch {
+				print(error.localizedDescription)
+			}
+		}
 	}
 }

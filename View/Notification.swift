@@ -10,7 +10,7 @@ import UIKit
 
 class Notification : UIView {
 	
-	private let infoLabel: UILabel = {
+	let infoLabel: UILabel = {
 		let label = UILabel()
 		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
 		label.textColor = .white
