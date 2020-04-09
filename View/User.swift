@@ -17,7 +17,7 @@ class User {
 	
 	private init() {
 		exposureMode = .continuousAutoExposure
-		focusMode = .autoFocus
+		focusMode = .continuousAutoFocus
 		torchEnabled = false
 	}
 }

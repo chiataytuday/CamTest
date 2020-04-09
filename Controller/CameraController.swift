@@ -138,12 +138,10 @@ extension CameraController {
 		
 		lensPoint = MovablePoint("scope")
 		lensPoint.center = view.center
-		lensPoint.moved = { [weak self] in
+		lensPoint.ended = { [weak self] in
 			self?.cam.setLensAuto(.autoFocus, self!.lensPoint.center)
 		}
-		lensPoint.ended = { [weak self] in
-			self?.cam.setLensAuto(User.shared.focusMode, self!.lensPoint.center)
-		}
+		lensPoint.alpha = 0
 		lensPoint.cam = cam
 		view.addSubview(lensPoint)
 		
@@ -219,15 +217,15 @@ extension CameraController {
 		let lensPosition = cam.captureDevice.lensPosition
 		lensSlider.set(value: CGFloat(lensPosition))
 		
-		let isLocked = cam.captureDevice.focusMode == .locked
-		let mode: AVCaptureDevice.FocusMode = isLocked ? .autoFocus : .locked
+		let isLocked = cam.captureDevice.focusMode != .continuousAutoFocus
+		let mode: AVCaptureDevice.FocusMode = isLocked ? .continuousAutoFocus : .locked
 		User.shared.focusMode = mode
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
-			lensPoint.hide()
-		} else {
-			cam.setLensAuto(.autoFocus, lensPoint.center)
 			lensPoint.show()
+		} else {
+			cam.setLensAuto(mode, lensPoint.center)
+			lensPoint.hide()
 		}
 		lensSlider.isActive = lensBtn.isActive
 	}
