@@ -13,10 +13,10 @@ import AudioToolbox
 class CameraController: UIViewController {
 	
 	var cam: Camera!
-	var exposureSlider, lensSlider: VerticalSlider!
-	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var recordBtn: RecordButton!
+	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
+	var exposureSlider, lensSlider: VerticalSlider!
 	var exposurePointView: MovablePoint!
 	var statusBar: StatusBar!
 	
@@ -172,41 +172,41 @@ extension CameraController {
 	@objc private func changeExposureMode() {
 		let isLocked = cam.captureDevice.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
-		User.shared.exposureMode = mode
-		statusBar.animate(statusBar.lockItem, isLocked)
-		cam.setExposure(mode)
+		cam.setExposure(mode) {
+			User.shared.exposureMode = mode
+			self.statusBar.fade(self.statusBar.lock, isLocked)
+		}
 	}
 	
 	@objc private func changeTorchMode() {
 		let torchEnabled = cam.captureDevice.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
-		User.shared.torchEnabled = !torchEnabled
-		statusBar.animate(statusBar.torchItem, torchEnabled)
-		cam.setTorch(mode)
-	}
-	
-	@objc private func onOffManualExposure() {
-		statusBar.animate(statusBar.exposureItem, exposureSlider.isActive)
-		if exposureBtn.isActive {
-			cam.setTargetBias(Float(exposureSlider.value))
-			exposureSlider.isActive = true
-		} else {
-			cam.setTargetBias(0)
-			exposureSlider.isActive = false
+		cam.setTorch(mode) {
+			User.shared.torchEnabled = !torchEnabled
+			self.statusBar.fade(self.statusBar.torch, torchEnabled)
 		}
 	}
 	
+	@objc private func onOffManualExposure() {
+		statusBar.fade(statusBar.exposure, exposureSlider.isActive)
+		if exposureBtn.isActive {
+			cam.setTargetBias(Float(exposureSlider.value))
+		} else {
+			cam.setTargetBias(0)
+		}
+		exposureSlider.isActive = exposureBtn.isActive
+	}
+	
 	@objc private func onOffManualLens() {
-		statusBar.animate(statusBar.lensItem, lensSlider.isActive)
+		statusBar.fade(statusBar.lens, lensSlider.isActive)
 		let lensPosition = cam.captureDevice.lensPosition
 		lensSlider.set(value: CGFloat(lensPosition))
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
-			lensSlider.isActive = true
 		} else {
 			cam.setLensAuto()
-			lensSlider.isActive = false
 		}
+		lensSlider.isActive = lensBtn.isActive
 	}
 	
 	// MARK: - Secondary methods

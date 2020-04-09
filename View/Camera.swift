@@ -106,8 +106,9 @@ class Camera {
 	}
 	
 	
-	func setExposure(_ mode: AVCaptureDevice.ExposureMode, _ point: CGPoint? = nil) {
+	func setExposure(_ mode: AVCaptureDevice.ExposureMode, _ point: CGPoint? = nil, _ handler: (() -> ())? = nil) {
 		if captureDevice.isExposureModeSupported(mode) {
+			handler?()
 			do {
 				try captureDevice.lockForConfiguration()
 				if let p = point, captureDevice.isExposurePointOfInterestSupported {
@@ -155,8 +156,9 @@ class Camera {
 		}
 	}
 	
-	func setTorch(_ mode: AVCaptureDevice.TorchMode) {
+	func setTorch(_ mode: AVCaptureDevice.TorchMode, _ handler: (() -> ())? = nil) {
 		if captureDevice.isTorchModeSupported(mode) {
+			handler?()
 			do {
 				try captureDevice.lockForConfiguration()
 				captureDevice.torchMode = mode

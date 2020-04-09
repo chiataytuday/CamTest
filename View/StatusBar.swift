@@ -10,7 +10,7 @@ import UIKit
 
 class StatusBar : UIStackView {
 	
-	var torchItem, lockItem, exposureItem, lensItem: UIButton!
+	var torch, lock, exposure, lens: UIButton!
 	
 	init() {
 		super.init(frame: .zero)
@@ -22,38 +22,41 @@ class StatusBar : UIStackView {
 	}
 	
 	private func setupSubviews() {
-		torchItem = createButton("bolt.fill")
-		addArrangedSubview(torchItem)
-		lockItem = createButton("lock.fill")
-		addArrangedSubview(lockItem)
-		exposureItem = createButton("sun.max.fill")
-		addArrangedSubview(exposureItem)
-		lensItem = createButton("scope")
-		addArrangedSubview(lensItem)
+		torch = createItem("bolt.fill")
+		addArrangedSubview(torch)
+		lock = createItem("lock.fill")
+		addArrangedSubview(lock)
+		exposure = createItem("sun.max.fill")
+		addArrangedSubview(exposure)
+		lens = createItem("scope")
+		addArrangedSubview(lens)
 	}
 	
-	private func createButton(_ imageName: String) -> UIButton {
+	private func createItem(_ imageName: String) -> UIButton {
 		let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 15))
-		let btn = UIButton(type: .custom)
-		btn.backgroundColor = .systemYellow
-		btn.tintColor = .systemBackground
-		btn.layer.cornerRadius = 7.5
-		btn.isUserInteractionEnabled = false
-		btn.setImage(image, for: .normal)
-		btn.isHidden = true
+		let item = UIButton(type: .custom)
+		item.backgroundColor = .systemYellow
+		item.tintColor = .systemBackground
+		item.layer.cornerRadius = 7.5
+		item.isUserInteractionEnabled = false
+		item.setImage(image, for: .normal)
+		item.isHidden = true
 		NSLayoutConstraint.activate([
-			btn.heightAnchor.constraint(equalToConstant: 25),
-			btn.widthAnchor.constraint(equalToConstant: 45)
+			item.heightAnchor.constraint(equalToConstant: 25),
+			item.widthAnchor.constraint(equalToConstant: 45)
 		])
-		return btn
+		return item
 	}
 	
-	func animate(_ item: UIButton, _ isHidden: Bool) {
-		let alpha: CGFloat = isHidden ? 0 : 1
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-			item.isHidden = isHidden
-			item.alpha = alpha
+	func fade(_ item: UIButton, _ out: Bool) {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
+			item.isHidden = out
 		})
+		
+		let args: (TimeInterval, UIView.AnimationCurve, CGFloat) = out ? (0.075, .easeIn, 0) : (0.1, .linear, 1)
+		UIViewPropertyAnimator(duration: args.0, curve: args.1) {
+			item.alpha = args.2
+		}.startAnimation()
 	}
 	
 	required init(coder: NSCoder) {
