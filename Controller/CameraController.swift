@@ -49,6 +49,9 @@ class CameraController: UIViewController {
 		if let s = touchX > view.frame.width/2 ? lensSlider : exposureSlider, s.isActive {
 			activeSlider = s
 		}
+		if activeSlider == lensSlider {
+			lensSlider.set(value: CGFloat(cam.captureDevice.lensPosition))
+		}
 		activeSlider?.touchesBegan(touches, with: event)
 	}
 	
@@ -73,7 +76,7 @@ extension CameraController {
 		recordBtn = RecordButton(.big, radius: 23)
 		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
-			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
@@ -121,7 +124,7 @@ extension CameraController {
 		statusBar = StatusBar()
 		view.addSubview(statusBar)
 		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
