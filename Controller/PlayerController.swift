@@ -32,35 +32,49 @@ class PlayerController: UIViewController {
 		button.setTitle("Save", for: .normal)
 		button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
 		button.setTitleColor(.systemGray, for: .normal)
-		button.imageEdgeInsets.left = -8
-		button.titleEdgeInsets.right = -8
+		button.imageEdgeInsets.left = -14
+		button.titleEdgeInsets.right = -2
 		button.backgroundColor = .systemGray6
 		button.tintColor = .systemGray
 		button.adjustsImageWhenHighlighted = false
 		return button
 	}()
 	
-	let backButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-		button.tintColor = .systemGray3
-		button.backgroundColor = .systemGray6
-		button.adjustsImageWhenHighlighted = false
-		return button
-	}()
+	let backButton = CustomButton(.small, "xmark")
+	let trimButton = CustomButton(.small, "scissors")
+	let muteButton = CustomButton(.small, "speaker.slash.fill")
+//	let backButton: UIButton = {
+//		let button = UIButton(type: .custom)
+//		button.translatesAutoresizingMaskIntoConstraints = false
+//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
+//		button.setImage(UIImage(systemName: "xmark"), for: .normal)
+//		button.tintColor = .systemGray3
+//		button.backgroundColor = .systemGray6
+//		button.adjustsImageWhenHighlighted = false
+//		return button
+//	}()
 	
-	let trimButton: UIButton = {
-		let button = UIButton(type: .custom)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-		button.setImage(UIImage(systemName: "scissors"), for: .normal)
-		button.tintColor = .systemGray3
-		button.backgroundColor = .systemGray6
-		button.adjustsImageWhenHighlighted = false
-		return button
-	}()
+//	let trimButton: UIButton = {
+//		let button = UIButton(type: .custom)
+//		button.translatesAutoresizingMaskIntoConstraints = false
+//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
+//		button.setImage(UIImage(systemName: "scissors"), for: .normal)
+//		button.tintColor = .systemGray3
+//		button.backgroundColor = .systemGray6
+//		button.adjustsImageWhenHighlighted = false
+//		return button
+//	}()
+	
+//	let muteButton: UIButton = {
+//		let button = UIButton(type: .custom)
+//		button.translatesAutoresizingMaskIntoConstraints = false
+//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
+//		button.setImage(UIImage(systemName: "speaker.slash.fill"), for: .normal)
+//		button.tintColor = .systemGray3
+//		button.backgroundColor = .systemGray6
+//		button.adjustsImageWhenHighlighted = false
+//		return button
+//	}()
 	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
@@ -83,8 +97,8 @@ class PlayerController: UIViewController {
 	}
 	
 	override func viewDidLayoutSubviews() {
-		saveButton.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
-		backButton.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
+		btnStackView.arrangedSubviews.first!.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
+		btnStackView.arrangedSubviews.last!.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
 	}
 	
 	private func setupSubviews() {
@@ -92,25 +106,17 @@ class PlayerController: UIViewController {
 		saveButton.addTarget(self, action: #selector(saveButtonUpInside(sender:)), for: .touchUpInside)
 		saveButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
 		NSLayoutConstraint.activate([
-			saveButton.widthAnchor.constraint(equalToConstant: 100),
-			saveButton.heightAnchor.constraint(equalToConstant: 46),
+			saveButton.widthAnchor.constraint(equalToConstant: 90),
+			saveButton.heightAnchor.constraint(equalToConstant: 45),
 		])
 		
 		backButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
 		backButton.addTarget(self, action: #selector(backButtonUpInside(sender:)), for: .touchUpInside)
 		backButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
-		NSLayoutConstraint.activate([
-			backButton.widthAnchor.constraint(equalToConstant: 50),
-			backButton.heightAnchor.constraint(equalToConstant: 46)
-		])
-		
+		muteButton.addTarget(self, action: #selector(muteButtonDown(sender:)), for: .touchDown)
 		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
-		NSLayoutConstraint.activate([
-			trimButton.widthAnchor.constraint(equalToConstant: 50),
-			trimButton.heightAnchor.constraint(equalToConstant: 46)
-		])
 		
-		btnStackView = UIStackView(arrangedSubviews: [saveButton, trimButton, backButton])
+		btnStackView = UIStackView(arrangedSubviews: [backButton, saveButton, trimButton, muteButton])
 		btnStackView.translatesAutoresizingMaskIntoConstraints = false
 		btnStackView.alignment = .center
 		btnStackView.distribution = .fillProportionally
@@ -165,10 +171,20 @@ class PlayerController: UIViewController {
 		})
 	}
 	
+	@objc private func muteButtonDown(sender: UIButton) {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+		player.isMuted = !player.isMuted
+		let args: (UIColor, UIColor) = player.isMuted ? (.systemGray5, .systemGray2) : (.systemGray6, .systemGray3)
+		sender.backgroundColor = args.0
+		sender.tintColor = args.1
+	}
+	
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		rangeSlider.isPresented = !rangeSlider.isPresented
-		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) = rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) : (.systemGray6, .systemGray3, 0, 0.075, .easeIn, 0)
+		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) =
+			rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) :
+				(.systemGray6, .systemGray3, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
 		trimButton.tintColor = args.1
