@@ -218,15 +218,23 @@ class PlayerController: UIViewController {
 	}
 	
 	private func saveVideoToLibrary() {
-		let asset = playerItem.asset
-		let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1920x1080)
+		let timeRange = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
+		
+		let rawAsset = playerItem.asset
+		var assetToSave: AVAsset = rawAsset
+		if player.isMuted {
+			let videoTrack = rawAsset.tracks(withMediaType: .video).first
+			let composition = AVMutableComposition()
+			let compVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
+			compVideoTrack!.preferredTransform = videoTrack!.preferredTransform
+			_ = try? compVideoTrack!.insertTimeRange(timeRange, of: videoTrack!, at: .zero)
+			assetToSave = composition
+		}
+		let exportSession = AVAssetExportSession(asset: assetToSave, presetName: AVAssetExportPreset1920x1080)
 		exportPath = TemporaryFileURL(extension: "mp4")
 		exportSession?.outputURL = exportPath?.contentURL
 		exportSession?.outputFileType = .mp4
-		
-		let timeRange = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
 		exportSession?.timeRange = timeRange
-		
 		exportSession?.exportAsynchronously(completionHandler: {
 			if exportSession?.status == .completed {
 				UISaveVideoAtPathToSavedPhotosAlbum(self.exportPath!.contentURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
