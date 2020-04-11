@@ -10,26 +10,21 @@ import UIKit
 
 class StatusBar : UIStackView {
 	
-	var torch, lock, exposure, lens: UIButton!
+	var dict: [String : UIButton]
 	
-	init() {
+	init(contentsOf imageNames: [String]) {
+		dict = [String : UIButton]()
 		super.init(frame: .zero)
 		translatesAutoresizingMaskIntoConstraints = false
 		heightAnchor.constraint(equalToConstant: 25).isActive = true
 		distribution = .equalCentering
 		spacing = 6
-		setupSubviews()
-	}
-	
-	private func setupSubviews() {
-		torch = createItem("bolt.fill")
-		addArrangedSubview(torch)
-		lock = createItem("lock.fill")
-		addArrangedSubview(lock)
-		exposure = createItem("sun.max.fill")
-		addArrangedSubview(exposure)
-		lens = createItem("scope")
-		addArrangedSubview(lens)
+		
+		for imageName in imageNames {
+			let item = createItem(imageName)
+			dict[imageName] = item
+			addArrangedSubview(item)
+		}
 	}
 	
 	private func createItem(_ imageName: String) -> UIButton {
@@ -48,14 +43,17 @@ class StatusBar : UIStackView {
 		return item
 	}
 	
-	func fade(_ item: UIButton, _ out: Bool) {
+	func setVisiblity(for imageName: String, _ isVisible: Bool) {
+		guard dict.keys.contains(imageName) else { return }
+		
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
-			item.isHidden = out
+			self.dict[imageName]?.isHidden = isVisible
+			self.layoutIfNeeded()
 		})
 		
-		let args: (TimeInterval, UIView.AnimationCurve, CGFloat) = out ? (0.075, .easeIn, 0) : (0.1, .linear, 1)
+		let args: (TimeInterval, UIView.AnimationCurve, CGFloat) = isVisible ? (0.075, .easeIn, 0) : (0.1, .linear, 1)
 		UIViewPropertyAnimator(duration: args.0, curve: args.1) {
-			item.alpha = args.2
+			self.dict[imageName]?.alpha = args.2
 		}.startAnimation()
 	}
 	

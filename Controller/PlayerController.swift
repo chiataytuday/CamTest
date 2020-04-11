@@ -18,7 +18,6 @@ class PlayerController: UIViewController {
 	var player: AVQueuePlayer!
 	var playerItem: AVPlayerItem!
 	var playerLayer: AVPlayerLayer!
-	var btnStackView: UIStackView!
 	var rangeSlider: RangeSlider!
 	
 	var observer: NSKeyValueObservation?
@@ -40,41 +39,9 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	let backButton = CustomButton(.small, "xmark")
-	let trimButton = CustomButton(.small, "scissors")
-	let muteButton = CustomButton(.small, "speaker.slash.fill")
-//	let backButton: UIButton = {
-//		let button = UIButton(type: .custom)
-//		button.translatesAutoresizingMaskIntoConstraints = false
-//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-//		button.setImage(UIImage(systemName: "xmark"), for: .normal)
-//		button.tintColor = .systemGray3
-//		button.backgroundColor = .systemGray6
-//		button.adjustsImageWhenHighlighted = false
-//		return button
-//	}()
-	
-//	let trimButton: UIButton = {
-//		let button = UIButton(type: .custom)
-//		button.translatesAutoresizingMaskIntoConstraints = false
-//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-//		button.setImage(UIImage(systemName: "scissors"), for: .normal)
-//		button.tintColor = .systemGray3
-//		button.backgroundColor = .systemGray6
-//		button.adjustsImageWhenHighlighted = false
-//		return button
-//	}()
-	
-//	let muteButton: UIButton = {
-//		let button = UIButton(type: .custom)
-//		button.translatesAutoresizingMaskIntoConstraints = false
-//		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-//		button.setImage(UIImage(systemName: "speaker.slash.fill"), for: .normal)
-//		button.tintColor = .systemGray3
-//		button.backgroundColor = .systemGray6
-//		button.adjustsImageWhenHighlighted = false
-//		return button
-//	}()
+	var backButton, trimButton, muteButton: CustomButton!
+	var btnGroup: ButtonsGroup!
+	var statusBar: StatusBar!
 	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
@@ -96,35 +63,31 @@ class PlayerController: UIViewController {
 		view.backgroundColor = .systemBackground
 	}
 	
-	override func viewDidLayoutSubviews() {
-		btnStackView.arrangedSubviews.first!.roundCorners(corners: [.topLeft, .bottomLeft], radius: 16)
-		btnStackView.arrangedSubviews.last!.roundCorners(corners: [.topRight, .bottomRight], radius: 16)
-	}
-	
-	private func setupSubviews() {
-		saveButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
-		saveButton.addTarget(self, action: #selector(saveButtonUpInside(sender:)), for: .touchUpInside)
-		saveButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
+	private func setupButtons() {
+		backButton = CustomButton(.small, "xmark")
+		trimButton = CustomButton(.small, "scissors")
+		muteButton = CustomButton(.small, "speaker.slash.fill")
+		btnGroup = ButtonsGroup([backButton, trimButton, muteButton])
+		view.addSubview(btnGroup)
 		NSLayoutConstraint.activate([
-			saveButton.widthAnchor.constraint(equalToConstant: 90),
-			saveButton.heightAnchor.constraint(equalToConstant: 45),
+			btnGroup.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30)
 		])
 		
-		backButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
-		backButton.addTarget(self, action: #selector(backButtonUpInside(sender:)), for: .touchUpInside)
-		backButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
-		muteButton.addTarget(self, action: #selector(muteButtonDown(sender:)), for: .touchDown)
-		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
-		
-		btnStackView = UIStackView(arrangedSubviews: [backButton, saveButton, trimButton, muteButton])
-		btnStackView.translatesAutoresizingMaskIntoConstraints = false
-		btnStackView.alignment = .center
-		btnStackView.distribution = .fillProportionally
-		btnStackView.spacing = -1
-		view.addSubview(btnStackView)
+		saveButton.layer.cornerRadius = 22.5
+		view.addSubview(saveButton)
 		NSLayoutConstraint.activate([
-			btnStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			btnStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
+			saveButton.widthAnchor.constraint(equalToConstant: 110),
+			saveButton.heightAnchor.constraint(equalToConstant: 45),
+			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30)
+		])
+		
+		statusBar = StatusBar(contentsOf: ["scissors", "speaker.slash.fill"])
+		view.addSubview(statusBar)
+		NSLayoutConstraint.activate([
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x,
@@ -134,6 +97,17 @@ class PlayerController: UIViewController {
 		
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
+	}
+	
+	private func targetActions() {
+		saveButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
+		saveButton.addTarget(self, action: #selector(saveButtonUpInside(sender:)), for: .touchUpInside)
+		saveButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
+		backButton.addTarget(self, action: #selector(decreaseViewSize(sender:)), for: .touchDown)
+		backButton.addTarget(self, action: #selector(backButtonUpInside(sender:)), for: .touchUpInside)
+		backButton.addTarget(self, action: #selector(resetViewSize(sender:)), for: .touchUpOutside)
+		muteButton.addTarget(self, action: #selector(muteButtonDown(sender:)), for: .touchDown)
+		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
 	}
 	
 	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
@@ -147,7 +121,8 @@ class PlayerController: UIViewController {
 		view.layer.addSublayer(playerLayer)
 		
 		// Buttons & slider
-		setupSubviews()
+		setupButtons()
+		targetActions()
 		
 		// Register events
 		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
@@ -171,9 +146,11 @@ class PlayerController: UIViewController {
 		})
 	}
 	
-	@objc private func muteButtonDown(sender: UIButton) {
+	@objc private func muteButtonDown(sender: CustomButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+		statusBar.setVisiblity(for: "speaker.slash.fill", player.isMuted)
 		player.isMuted = !player.isMuted
+		
 		let args: (UIColor, UIColor) = player.isMuted ? (.systemGray5, .systemGray2) : (.systemGray6, .systemGray3)
 		sender.backgroundColor = args.0
 		sender.tintColor = args.1
@@ -181,6 +158,7 @@ class PlayerController: UIViewController {
 	
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+		statusBar.setVisiblity(for: "scissors", rangeSlider.isPresented)
 		rangeSlider.isPresented = !rangeSlider.isPresented
 		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) =
 			rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) :
@@ -190,7 +168,8 @@ class PlayerController: UIViewController {
 		trimButton.tintColor = args.1
 		trimButton.setTitleColor(args.1, for: .normal)
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.btnStackView.transform = CGAffineTransform(translationX: 0, y: args.2)
+			self.btnGroup.transform = CGAffineTransform(translationX: 0, y: args.2)
+			self.saveButton.transform = CGAffineTransform(translationX: 0, y: args.2)
 			self.rangeSlider.transform = CGAffineTransform(translationX: 0, y: args.2)
 		})
 		UIViewPropertyAnimator(duration: args.3, curve: args.4) {

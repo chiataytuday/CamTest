@@ -121,7 +121,7 @@ extension CameraController {
 	}
 	
 	private func setupAdditional() {
-		statusBar = StatusBar()
+		statusBar = StatusBar(contentsOf: ["bolt.fill", "lock.fill", "sun.max.fill", "scope"])
 		view.addSubview(statusBar)
 		NSLayoutConstraint.activate([
 			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -192,7 +192,7 @@ extension CameraController {
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
 		cam.setExposure(mode) {
 			User.shared.exposureMode = mode
-			self.statusBar.fade(self.statusBar.lock, isLocked)
+			self.statusBar.setVisiblity(for: "lock.fill", isLocked)
 		}
 	}
 	
@@ -201,12 +201,12 @@ extension CameraController {
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
 		cam.setTorch(mode) {
 			User.shared.torchEnabled = !torchEnabled
-			self.statusBar.fade(self.statusBar.torch, torchEnabled)
+			self.statusBar.setVisiblity(for: "bolt.fill", torchEnabled)
 		}
 	}
 	
 	@objc private func onOffManualExposure() {
-		statusBar.fade(statusBar.exposure, exposureSlider.isActive)
+		statusBar.setVisiblity(for: "sun.max.fill", exposureSlider.isActive)
 		if exposureBtn.isActive {
 			cam.setTargetBias(Float(exposureSlider.value))
 		} else {
@@ -216,7 +216,7 @@ extension CameraController {
 	}
 	
 	@objc private func onOffManualLens() {
-		statusBar.fade(statusBar.lens, lensSlider.isActive)
+		statusBar.setVisiblity(for: "scope", lensSlider.isActive)
 		let lensPosition = cam.captureDevice.lensPosition
 		lensSlider.set(value: CGFloat(lensPosition))
 		

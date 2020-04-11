@@ -15,6 +15,7 @@ class ButtonsGroup : UIStackView {
 		buttons.forEach { addArrangedSubview($0) }
 		translatesAutoresizingMaskIntoConstraints = false
 		distribution = .fillProportionally
+		spacing = -1
 	}
 	
 	override func layoutSubviews() {
