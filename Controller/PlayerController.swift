@@ -197,7 +197,7 @@ class PlayerController: UIViewController {
 	
 	@objc private func decreaseViewSize(sender: UIButton?) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: [], animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .allowUserInteraction, animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 			self.view.layer.cornerRadius = 18
 			sender?.backgroundColor = .systemGray5
@@ -205,7 +205,7 @@ class PlayerController: UIViewController {
 	}
 	
 	@objc private func resetViewSize(sender: UIButton?) {
-		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: [], animations: {
+		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {
 			self.view.transform = .identity
 			self.view.layer.cornerRadius = 0
 			sender?.backgroundColor = .systemGray6
