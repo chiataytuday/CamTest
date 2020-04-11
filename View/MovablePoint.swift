@@ -21,7 +21,7 @@ class MovablePoint : UIImageView {
 		tintColor = .systemYellow
 		
 		if let imageName = innerImageName {
-			let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .light))
+			let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .thin))
 			let imageView = UIImageView(image: image)
 			imageView.tintColor = .systemYellow
 			imageView.center = center
@@ -35,7 +35,7 @@ class MovablePoint : UIImageView {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchPoint = touches.first!.location(in: superview!)
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
 		})
 		touchOffset = CGPoint(x: touchPoint.x - frame.origin.x, y: touchPoint.y - frame.origin.y)
@@ -60,7 +60,7 @@ class MovablePoint : UIImageView {
 			})
 		}
 		ended?()
-		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseOut, .allowUserInteraction], animations: {
 			self.transform = .identity
 		})
 	}
