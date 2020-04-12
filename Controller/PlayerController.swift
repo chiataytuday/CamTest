@@ -220,26 +220,29 @@ class PlayerController: UIViewController {
 	private func saveVideoToLibrary() {
 		let timeRange = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
 		
-		let rawAsset = playerItem.asset
-		var assetToSave: AVAsset = rawAsset
-		if player.isMuted {
-			let videoTrack = rawAsset.tracks(withMediaType: .video).first
-			let composition = AVMutableComposition()
-			let compVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
-			compVideoTrack!.preferredTransform = videoTrack!.preferredTransform
-			_ = try? compVideoTrack!.insertTimeRange(timeRange, of: videoTrack!, at: .zero)
-			assetToSave = composition
-		}
-		let exportSession = AVAssetExportSession(asset: assetToSave, presetName: AVAssetExportPreset1920x1080)
-		exportPath = TemporaryFileURL(extension: "mp4")
-		exportSession?.outputURL = exportPath?.contentURL
-		exportSession?.outputFileType = .mp4
-		exportSession?.timeRange = timeRange
-		exportSession?.exportAsynchronously(completionHandler: {
-			if exportSession?.status == .completed {
-				UISaveVideoAtPathToSavedPhotosAlbum(self.exportPath!.contentURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
+		DispatchQueue.global(qos: .background).async {
+			let rawAsset = self.playerItem.asset
+			var assetToSave: AVAsset = rawAsset
+			if self.player.isMuted {
+				let videoTrack = rawAsset.tracks(withMediaType: .video).first
+				let composition = AVMutableComposition()
+				let compVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
+				compVideoTrack!.preferredTransform = videoTrack!.preferredTransform
+				let fullTimeRange = CMTimeRange(start: .zero, duration: rawAsset.duration)
+				_ = try? compVideoTrack!.insertTimeRange(fullTimeRange, of: videoTrack!, at: .zero)
+				assetToSave = composition
 			}
-		})
+			let exportSession = AVAssetExportSession(asset: assetToSave, presetName: AVAssetExportPreset1920x1080)
+			self.exportPath = TemporaryFileURL(extension: "mp4")
+			exportSession?.outputURL = self.exportPath?.contentURL
+			exportSession?.outputFileType = .mp4
+			exportSession?.timeRange = timeRange
+			exportSession?.exportAsynchronously(completionHandler: {
+				if exportSession?.status == .completed {
+					UISaveVideoAtPathToSavedPhotosAlbum(self.exportPath!.contentURL.path, self, #selector(self.video(videoPath:didFinishSavingWithError:contextInfo:)), nil)
+				}
+			})
+		}
 	}
 	
 	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
