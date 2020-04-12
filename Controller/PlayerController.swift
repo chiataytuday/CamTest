@@ -140,7 +140,9 @@ class PlayerController: UIViewController {
 			self?.observer?.invalidate()
 			if item.status == .readyToPlay {
 				self?.rangeSlider.videoPlayer = self?.player
-				self?.player.play()
+				if UIApplication.shared.applicationState == .active {
+					self?.player.play()
+				}
 			}
 			handler(item.status == .readyToPlay)
 		})

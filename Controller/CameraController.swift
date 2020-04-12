@@ -166,6 +166,7 @@ extension CameraController {
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
 	}
 	
 	// MARK: - Buttons' handlers
@@ -236,20 +237,25 @@ extension CameraController {
 	// MARK: - Secondary methods
 	
 	@objc private func didEnterBackground() {
-		if let vc = presentedViewController as? PlayerController {
-			vc.player.pause()
-		} else if cam.isRecording {
-			recordTouchUp()
-		}
 		cam.captureSession.stopRunning()
 	}
 	
 	@objc private func didBecomeActive() {
+		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
 		cam.captureSession.startRunning()
 		if let vc = presentedViewController as? PlayerController {
 			vc.player.play()
 		} else if User.shared.torchEnabled {
 			cam.setTorch(.on)
+		}
+	}
+	
+	@objc private func willResignActive() {
+		cam.previewView.videoPreviewLayer.connection?.isEnabled = false
+		if let vc = presentedViewController as? PlayerController {
+			vc.player.pause()
+		} else if cam.isRecording {
+			recordTouchUp()
 		}
 	}
 	

@@ -18,12 +18,12 @@ class MovablePoint : UIImageView {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
-		tintColor = .systemYellow
+		tintColor = Colors.yellow
 		
 		if let imageName = innerImageName {
 			let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .thin))
 			let imageView = UIImageView(image: image)
-			imageView.tintColor = .systemYellow
+			imageView.tintColor = tintColor
 			imageView.center = center
 			addSubview(imageView)
 		}
