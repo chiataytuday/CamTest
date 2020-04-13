@@ -13,7 +13,6 @@ class Camera {
 	
 	var captureDevice: AVCaptureDevice!
 	var movieFileOutput = AVCaptureMovieFileOutput()
-	var photoFileOutput = AVCapturePhotoOutput()
 	var captureSession = AVCaptureSession()
 	var previewView: PreviewView!
 	
@@ -47,9 +46,6 @@ class Camera {
 			}
 			if captureSession.canAddOutput(movieFileOutput) {
 				captureSession.addOutput(movieFileOutput)
-			}
-			if captureSession.canAddOutput(photoFileOutput) {
-				captureSession.addOutput(photoFileOutput)
 			}
 		} catch {
 			print(error.localizedDescription)
@@ -89,8 +85,6 @@ class Camera {
 	}
 	
 	func startRecording(to recordURL: URL, _ delegate: AVCaptureFileOutputRecordingDelegate?) {
-		let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])
-		photoFileOutput.capturePhoto(with: settings, delegate: delegate as! AVCapturePhotoCaptureDelegate)
 		isRecording = true
 		movieFileOutput.startRecording(to: recordURL, recordingDelegate: delegate!)
 		
