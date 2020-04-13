@@ -297,3 +297,23 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 		}
 	}
 }
+
+extension UIView {
+	func show() {
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
+			self.transform = .identity
+		})
+		UIViewPropertyAnimator(duration: 0.075, curve: .easeOut) {
+			self.alpha = 1
+		}.startAnimation()
+	}
+	
+	func hide() {
+		UIView.animate(withDuration: 0.12, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
+			self.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+		})
+		UIViewPropertyAnimator(duration: 0.06, curve: .easeIn) {
+			self.alpha = 0
+		}.startAnimation()
+	}
+}

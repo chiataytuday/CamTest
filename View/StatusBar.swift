@@ -62,19 +62,3 @@ class StatusBar : UIStackView {
 		fatalError("init(coder:) has not been implemented")
 	}
 }
-
-extension UIView {
-	func show() {
-		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = .identity
-			self.alpha = 1
-		})
-	}
-	
-	func hide() {
-		UIView.animate(withDuration: 0.15, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-			self.alpha = 0
-		})
-	}
-}
