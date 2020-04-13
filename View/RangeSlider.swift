@@ -51,9 +51,6 @@ class RangeSlider: UIView {
 		addSubview(path)
 		
 		minDistance = path.frame.width/8
-		let duration = videoPlayer?.currentItem?.duration.seconds
-		let timescale = videoPlayer?.currentItem?.asset.duration.timescale
-		
 		initialPointWidth = 10
 		startPoint = RangePoint(diameter: initialPointWidth)
 		startPoint.center.y = path.frame.height/2
@@ -63,8 +60,8 @@ class RangeSlider: UIView {
 		}
 		startPoint.applyToPlayer = { [weak self] in
 			var coef = Double((self!.startPoint.center.x - self!.initialPointWidth/2)/self!.path.frame.width)
-			coef *= duration!
-			self?.startPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: timescale!)
+			coef *= self!.videoPlayer!.currentItem!.duration.seconds
+			self?.startPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
 			self?.videoPlayer?.seek(to: self!.startPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(startPoint)
@@ -78,8 +75,8 @@ class RangeSlider: UIView {
 		}
 		endPoint.applyToPlayer = { [weak self] in
 			var coef = Double((self!.endPoint.center.x + self!.initialPointWidth/2)/self!.path.frame.width)
-			coef *= duration!
-			self?.endPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: timescale!)
+			coef *= self!.videoPlayer!.currentItem!.duration.seconds
+			self?.endPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
 			self?.videoPlayer?.seek(to: self!.endPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(endPoint)
