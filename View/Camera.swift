@@ -12,8 +12,9 @@ import AVFoundation
 class Camera {
 	
 	var captureDevice: AVCaptureDevice!
-	var movieFileOutput: AVCaptureMovieFileOutput!
-	var captureSession: AVCaptureSession
+	var movieFileOutput = AVCaptureMovieFileOutput()
+	var photoFileOutput = AVCapturePhotoOutput()
+	var captureSession = AVCaptureSession()
 	var previewView: PreviewView!
 	
 	let durationBar: UIView = {
@@ -28,14 +29,12 @@ class Camera {
 	
 	
 	init() {
-		captureSession = AVCaptureSession()
 		captureSession.beginConfiguration()
 		captureSession.automaticallyConfiguresApplicationAudioSession = false
 		captureSession.sessionPreset = .hd1920x1080
 		
 		captureDevice = bestDevice(in: .back)
 		let audioDevice = AVCaptureDevice.default(for: .audio)
-		movieFileOutput = AVCaptureMovieFileOutput()
 		movieFileOutput.movieFragmentInterval = .invalid
 		do {
 			let deviceInput = try AVCaptureDeviceInput(device: captureDevice)
@@ -48,6 +47,9 @@ class Camera {
 			}
 			if captureSession.canAddOutput(movieFileOutput) {
 				captureSession.addOutput(movieFileOutput)
+			}
+			if captureSession.canAddOutput(photoFileOutput) {
+				captureSession.addOutput(photoFileOutput)
 			}
 		} catch {
 			print(error.localizedDescription)
@@ -87,6 +89,8 @@ class Camera {
 	}
 	
 	func startRecording(to recordURL: URL, _ delegate: AVCaptureFileOutputRecordingDelegate?) {
+		let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])
+		photoFileOutput.capturePhoto(with: settings, delegate: delegate as! AVCapturePhotoCaptureDelegate)
 		isRecording = true
 		movieFileOutput.startRecording(to: recordURL, recordingDelegate: delegate!)
 		

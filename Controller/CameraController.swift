@@ -14,6 +14,7 @@ class CameraController: UIViewController {
 	
 	var cam: Camera!
 	var recordBtn: RecordButton!
+	var photoBtn: PhotoButton!
 	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
 	var exposureSlider, lensSlider: VerticalSlider!
@@ -78,6 +79,14 @@ extension CameraController {
 		NSLayoutConstraint.activate([
 			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+		])
+		recordBtn.isHidden = true
+		
+		photoBtn = PhotoButton(.big, radius: 23)
+		view.addSubview(photoBtn)
+		NSLayoutConstraint.activate([
+			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		torchBtn = CustomButton(.small, "bolt.fill")
@@ -295,6 +304,13 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				error.show(for: 1)
 			}
 		}
+	}
+}
+
+extension CameraController: AVCapturePhotoCaptureDelegate {
+	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+		guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return}
+		UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
 	}
 }
 

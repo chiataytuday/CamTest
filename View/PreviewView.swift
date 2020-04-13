@@ -10,6 +10,7 @@ import AVFoundation
 import UIKit
 
 class PreviewView : UIView {
+	
 	init(session: AVCaptureSession) {
 		super.init(frame: .zero)
 		videoPreviewLayer.session = session

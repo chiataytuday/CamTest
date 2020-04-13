@@ -10,7 +10,7 @@ import UIKit
 
 class RecordButton : CustomButton {
 	
-	private let redView: UIView = {
+	private let circleView: UIView = {
 		let circle = UIView()
 		circle.translatesAutoresizingMaskIntoConstraints = false
 		circle.isUserInteractionEnabled = false
@@ -44,13 +44,13 @@ class RecordButton : CustomButton {
 		layer.cornerRadius = radius
 		clipsToBounds = true
 		
-		addSubview(redView)
+		addSubview(circleView)
 		NSLayoutConstraint.activate([
-			redView.centerXAnchor.constraint(equalTo: centerXAnchor),
-			redView.centerYAnchor.constraint(equalTo: centerYAnchor)
+			circleView.centerXAnchor.constraint(equalTo: centerXAnchor),
+			circleView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 		
-		redView.addSubview(pulsatingView)
+		circleView.addSubview(pulsatingView)
 		NSLayoutConstraint.activate([
 			pulsatingView.centerXAnchor.constraint(equalTo: centerXAnchor),
 			pulsatingView.centerYAnchor.constraint(equalTo: centerYAnchor)
@@ -58,10 +58,10 @@ class RecordButton : CustomButton {
 	}
 	
 	@objc override func touchDown() {
-		redView.transform = .identity
+		circleView.transform = .identity
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.redView.transform = CGAffineTransform(translationX: 0, y: 5)
+			self.circleView.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75)
 		})
 	}
@@ -72,8 +72,8 @@ class RecordButton : CustomButton {
 		let circleRadius: CGFloat = camIsRecording ? 10 : 3.25
 		let pulsatingRadius: CGFloat = camIsRecording ? 10 : 6
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-			self.redView.transform = .identity
-			self.redView.layer.cornerRadius = circleRadius
+			self.circleView.transform = .identity
+			self.circleView.layer.cornerRadius = circleRadius
 		})
 		pulsatingView.layer.cornerRadius = pulsatingRadius
 		

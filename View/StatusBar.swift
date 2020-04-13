@@ -10,11 +10,9 @@ import UIKit
 
 class StatusBar : UIStackView {
 	
-//	subscript?
-	var dict: [String : UIButton]
+	var dict = [String : UIButton]()
 	
 	init(contentsOf imageNames: [String]) {
-		dict = [String : UIButton]()
 		super.init(frame: .zero)
 		translatesAutoresizingMaskIntoConstraints = false
 		heightAnchor.constraint(equalToConstant: 25).isActive = true
