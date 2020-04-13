@@ -9,26 +9,28 @@
 import UIKit
 import AVFoundation
 
-class RangeSlider : UIView {
+class RangeSlider: UIView {
 	
-	var isPresented = false
+	var isShown = false
 	var looper: AVPlayerLooper?
 	var videoPlayer: AVQueuePlayer? {
-		willSet {
-			beginPoint.time = .zero
-			endPoint.time = CMTimeMakeWithSeconds(newValue!.currentItem!.duration.seconds, preferredTimescale: newValue!.currentItem!.asset.duration.timescale)
+		willSet(player) {
+			startPoint.time = .zero
+			let duration = player?.currentItem?.duration.seconds
+			let timescale = player?.currentItem?.asset.duration.timescale
+			endPoint.time = CMTimeMakeWithSeconds(duration!, preferredTimescale: timescale!)
 		}
 	}
 	
 	var touchOffset: CGFloat?
-	var beginPoint, endPoint: RangePoint!
-	var activeRangePoint, unactiveRangePoint: RangePoint?
-	var pointWidth: CGFloat!
+	var startPoint, endPoint: RangePoint!
+	var activePoint, inactivePoint: RangePoint?
+	var initialPointWidth: CGFloat!
 	var minDistance: CGFloat!
 	var path, range: UIView!
 	
-	var midOfRange: CGFloat {
-		return (beginPoint.center.x + endPoint.center.x)/2
+	var centerOfRange: CGFloat {
+		return (startPoint.center.x + endPoint.center.x)/2
 	}
 	
 	
@@ -49,94 +51,96 @@ class RangeSlider : UIView {
 		addSubview(path)
 		
 		minDistance = path.frame.width/8
+		let duration = videoPlayer?.currentItem?.duration.seconds
+		let timescale = videoPlayer?.currentItem?.asset.duration.timescale
 		
-		pointWidth = 10
-		beginPoint = RangePoint(pointWidth)
-		beginPoint.center.y = path.frame.height/2
-		beginPoint.minX = pointWidth/2
-		beginPoint.setMax = { [weak self] in
-			self?.beginPoint.maxX = self!.endPoint.center.x - self!.minDistance
+		initialPointWidth = 10
+		startPoint = RangePoint(diameter: initialPointWidth)
+		startPoint.center.y = path.frame.height/2
+		startPoint.minX = initialPointWidth/2
+		startPoint.setMaxX = { [weak self] in
+			self?.startPoint.maxX = self!.endPoint.center.x - self!.minDistance
 		}
-		beginPoint.applyToPlayer = { [weak self] in
-			var sec = Double((self!.beginPoint.center.x - self!.pointWidth/2)/self!.path.frame.width)
-			sec *= self!.videoPlayer!.currentItem!.duration.seconds
-			self?.beginPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
-			self?.videoPlayer?.seek(to: self!.beginPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
+		startPoint.applyToPlayer = { [weak self] in
+			var coef = Double((self!.startPoint.center.x - self!.initialPointWidth/2)/self!.path.frame.width)
+			coef *= duration!
+			self?.startPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: timescale!)
+			self?.videoPlayer?.seek(to: self!.startPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
-		path.addSubview(beginPoint)
+		path.addSubview(startPoint)
 		
-		endPoint = RangePoint(pointWidth)
+		endPoint = RangePoint(diameter: initialPointWidth)
 		endPoint.center.x = path.frame.width - endPoint.frame.width/2
 		endPoint.center.y = path.frame.height/2
-		endPoint.maxX = path.frame.width - pointWidth/2
-		endPoint.setMin = { [weak self] in
-			self?.endPoint.minX = self!.beginPoint.center.x + self!.minDistance
+		endPoint.maxX = path.frame.width - initialPointWidth/2
+		endPoint.setMinX = { [weak self] in
+			self?.endPoint.minX = self!.startPoint.center.x + self!.minDistance
 		}
 		endPoint.applyToPlayer = { [weak self] in
-			var sec = Double((self!.endPoint.center.x + self!.pointWidth/2)/self!.path.frame.width)
-			sec *= self!.videoPlayer!.currentItem!.duration.seconds
-			self?.endPoint.time = CMTimeMakeWithSeconds(sec, preferredTimescale: self!.videoPlayer!.currentItem!.asset.duration.timescale)
+			var coef = Double((self!.endPoint.center.x + self!.initialPointWidth/2)/self!.path.frame.width)
+			coef *= duration!
+			self?.endPoint.time = CMTimeMakeWithSeconds(coef, preferredTimescale: timescale!)
 			self?.videoPlayer?.seek(to: self!.endPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 		}
 		path.addSubview(endPoint)
 		
-		range = UIView(frame: CGRect(origin: CGPoint(x: self.beginPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.beginPoint.center.x, height: self.path.frame.height)))
+		range = UIView(frame: CGRect(origin: CGPoint(x: self.startPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.startPoint.center.x, height: self.path.frame.height)))
 		range.backgroundColor = .systemGray2
 		path.addSubview(range)
 	}
 	
+	private func movePoint(to x: CGFloat) {
+		activePoint?.setMinX?()
+		activePoint?.setMaxX?()
+		
+		var pos = x
+		if x <= activePoint!.minX {
+			pos = activePoint!.minX
+		} else if x >= activePoint!.maxX {
+			pos = activePoint!.maxX
+		}
+		
+		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) {
+			self.activePoint?.center.x = pos
+			self.range.frame = CGRect(origin: CGPoint(x: self.startPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.startPoint.center.x, height: self.path.frame.height))
+		}.startAnimation()
+	}
+	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchX = touches.first!.location(in: self).x
-		if touchX < midOfRange {
-			activeRangePoint = beginPoint
-			unactiveRangePoint = endPoint
+		if touchX < centerOfRange {
+			activePoint = startPoint
+			inactivePoint = endPoint
 		} else {
-			activeRangePoint = endPoint
-			unactiveRangePoint = beginPoint
+			activePoint = endPoint
+			inactivePoint = startPoint
 		}
-		touchOffset = touchX - activeRangePoint!.center.x
+		touchOffset = touchX - activePoint!.center.x
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		videoPlayer?.pause()
 		
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {
-			self.activeRangePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
+			self.activePoint?.transform = CGAffineTransform(scaleX: 1.35, y: 1.35)
 		})
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchX = touches.first!.location(in: self).x
 		let x = touchX - touchOffset!
-		setPointPosition(x)
-		activeRangePoint?.applyToPlayer()
-	}
-	
-	private func setPointPosition(_ x: CGFloat) {
-		activeRangePoint?.setMin?()
-		activeRangePoint?.setMax?()
-		
-		var pos = x
-		if x <= activeRangePoint!.minX {
-			pos = activeRangePoint!.minX
-		} else if x >= activeRangePoint!.maxX {
-			pos = activeRangePoint!.maxX
-		}
-		
-		UIViewPropertyAnimator(duration: 0.04, curve: .easeOut) {
-			self.activeRangePoint?.center.x = pos
-			self.range.frame = CGRect(origin: CGPoint(x: self.beginPoint.center.x, y: 0), size: CGSize(width: self.endPoint.center.x - self.beginPoint.center.x, height: self.path.frame.height))
-		}.startAnimation()
+		movePoint(to: x)
+		activePoint?.applyToPlayer()
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [], animations: {
-			self.activeRangePoint?.transform = .identity
+			self.activePoint?.transform = .identity
 		})
 		
 		self.videoPlayer?.currentItem?.forwardPlaybackEndTime = endPoint.time
 		videoPlayer?.play()
 		touchOffset = nil
-		activeRangePoint = nil
-		unactiveRangePoint = nil
+		activePoint = nil
+		inactivePoint = nil
 	}
 	
 	required init?(coder: NSCoder) {

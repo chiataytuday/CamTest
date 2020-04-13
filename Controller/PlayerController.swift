@@ -126,7 +126,7 @@ class PlayerController: UIViewController {
 		
 		// Register events
 		NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: .main) { [weak self] (_) in
-			self?.player.seek(to: self!.rangeSlider.beginPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
+			self?.player.seek(to: self!.rangeSlider.startPoint.time, toleranceBefore: .zero, toleranceAfter: .zero)
 			self?.player.play()
 		}
 		timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false, block: { [weak self] (t) in
@@ -160,10 +160,10 @@ class PlayerController: UIViewController {
 	
 	@objc private func trimButtonDown(sender: UIButton) {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
-		statusBar.setVisiblity(for: "scissors", rangeSlider.isPresented)
-		rangeSlider.isPresented = !rangeSlider.isPresented
+		statusBar.setVisiblity(for: "scissors", rangeSlider.isShown)
+		rangeSlider.isShown = !rangeSlider.isShown
 		let args: (UIColor, UIColor, CGFloat, Double, UIView.AnimationCurve, CGFloat) =
-			rangeSlider.isPresented ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) :
+			rangeSlider.isShown ? (.systemGray5, .systemGray2, -43, 0.1, .linear, 1) :
 				(.systemGray6, .systemGray3, 0, 0.075, .easeIn, 0)
 		
 		trimButton.backgroundColor = args.0
@@ -220,7 +220,7 @@ class PlayerController: UIViewController {
 	}
 	
 	private func saveVideoToLibrary() {
-		let timeRange = CMTimeRange(start: rangeSlider.beginPoint.time, end: rangeSlider.endPoint.time)
+		let timeRange = CMTimeRange(start: rangeSlider.startPoint.time, end: rangeSlider.endPoint.time)
 		
 		DispatchQueue.global(qos: .background).async {
 			let rawAsset = self.playerItem.asset
@@ -253,13 +253,13 @@ class PlayerController: UIViewController {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if rangeSlider.isPresented {
+		if rangeSlider.isShown {
 			rangeSlider.touchesBegan(touches, with: event)
 		}
 	}
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-		if rangeSlider.isPresented {
+		if rangeSlider.isShown {
 			rangeSlider.touchesMoved(touches, with: event)
 		}
 	}

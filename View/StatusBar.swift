@@ -10,6 +10,7 @@ import UIKit
 
 class StatusBar : UIStackView {
 	
+//	subscript?
 	var dict: [String : UIButton]
 	
 	init(contentsOf imageNames: [String]) {
@@ -46,7 +47,7 @@ class StatusBar : UIStackView {
 	func setVisiblity(for imageName: String, _ isVisible: Bool) {
 		guard dict.keys.contains(imageName) else { return }
 		
-		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 1, options: [], animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
 			self.dict[imageName]?.isHidden = isVisible
 			self.layoutIfNeeded()
 		})

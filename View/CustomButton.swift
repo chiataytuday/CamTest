@@ -12,6 +12,30 @@ class CustomButton : UIButton {
 	
 	var isActive: Bool
 	
+	enum Size {
+		case small, big
+	}
+	
+	init(_ size: Size, _ symbolName: String? = nil, _ isActive: Bool = false) {
+		self.isActive = isActive
+		super.init(frame: .zero)
+		setState(isActive)
+		translatesAutoresizingMaskIntoConstraints = false
+		if let name = symbolName {
+			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
+			setImage(UIImage(systemName: name), for: .normal)
+			adjustsImageWhenHighlighted = false
+			imageView?.clipsToBounds = false
+		}
+		
+		let rect = size == .small ? CGSize(width: 46, height: 45) :
+			CGSize(width: 62, height: 60)
+		NSLayoutConstraint.activate([
+			widthAnchor.constraint(equalToConstant: rect.width),
+			heightAnchor.constraint(equalToConstant: rect.height)
+		])
+	}
+	
 	func setState(_ active: Bool) {
 		isActive = active
 		
@@ -22,29 +46,6 @@ class CustomButton : UIButton {
 			tintColor = .systemGray3
 			backgroundColor = .systemGray6
 		}
-	}
-	
-	enum ButtonSize {
-		case small, big
-	}
-	
-	init(_ buttonSize: ButtonSize, _ systemImageName: String? = nil, _ isActive: Bool = false) {
-		self.isActive = isActive
-		super.init(frame: .zero)
-		setState(isActive)
-		translatesAutoresizingMaskIntoConstraints = false
-		if let systemName = systemImageName {
-			setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
-			setImage(UIImage(systemName: systemName), for: .normal)
-			adjustsImageWhenHighlighted = false
-			imageView?.clipsToBounds = false
-		}
-		
-		let size = buttonSize == .small ? CGSize(width: 46, height: 45) : CGSize(width: 62, height: 60)
-		NSLayoutConstraint.activate([
-			widthAnchor.constraint(equalToConstant: size.width),
-			heightAnchor.constraint(equalToConstant: size.height)
-		])
 	}
 	
 	@objc func touchDown() {

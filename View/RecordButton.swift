@@ -10,7 +10,7 @@ import UIKit
 
 class RecordButton : CustomButton {
 	
-	private let redCircle: UIView = {
+	private let redView: UIView = {
 		let circle = UIView()
 		circle.translatesAutoresizingMaskIntoConstraints = false
 		circle.isUserInteractionEnabled = false
@@ -23,7 +23,7 @@ class RecordButton : CustomButton {
 		return circle
 	}()
 	
-	private let pulsatingSquare: UIView = {
+	private let pulsatingView: UIView = {
 		let square = UIView()
 		square.translatesAutoresizingMaskIntoConstraints = false
 		square.isUserInteractionEnabled = false
@@ -38,30 +38,30 @@ class RecordButton : CustomButton {
 	}()
 	
 	
-	init(_ size: ButtonSize, radius: CGFloat) {
+	init(_ size: Size, radius: CGFloat) {
 		super.init(size)
 		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
 		clipsToBounds = true
 		
-		addSubview(redCircle)
+		addSubview(redView)
 		NSLayoutConstraint.activate([
-			redCircle.centerXAnchor.constraint(equalTo: centerXAnchor),
-			redCircle.centerYAnchor.constraint(equalTo: centerYAnchor)
+			redView.centerXAnchor.constraint(equalTo: centerXAnchor),
+			redView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 		
-		redCircle.addSubview(pulsatingSquare)
+		redView.addSubview(pulsatingView)
 		NSLayoutConstraint.activate([
-			pulsatingSquare.centerXAnchor.constraint(equalTo: centerXAnchor),
-			pulsatingSquare.centerYAnchor.constraint(equalTo: centerYAnchor)
+			pulsatingView.centerXAnchor.constraint(equalTo: centerXAnchor),
+			pulsatingView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 	}
 	
 	@objc override func touchDown() {
-		redCircle.transform = .identity
+		redView.transform = .identity
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			self.redCircle.transform = CGAffineTransform(translationX: 0, y: 5)
+			self.redView.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75)
 		})
 	}
@@ -72,19 +72,19 @@ class RecordButton : CustomButton {
 		let circleRadius: CGFloat = camIsRecording ? 10 : 3.25
 		let pulsatingRadius: CGFloat = camIsRecording ? 10 : 6
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-			self.redCircle.transform = .identity
-			self.redCircle.layer.cornerRadius = circleRadius
+			self.redView.transform = .identity
+			self.redView.layer.cornerRadius = circleRadius
 		})
-		pulsatingSquare.layer.cornerRadius = pulsatingRadius
+		pulsatingView.layer.cornerRadius = pulsatingRadius
 		
 		if !camIsRecording {
 			UIView.animate(withDuration: 0.6, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
-				self.pulsatingSquare.transform = CGAffineTransform(scaleX: 2, y: 2)
+				self.pulsatingView.transform = CGAffineTransform(scaleX: 2, y: 2)
 			})
 		} else {
-			pulsatingSquare.layer.removeAllAnimations()
+			pulsatingView.layer.removeAllAnimations()
 			UIView.animate(withDuration: 0.12, delay: 0, options: .curveEaseOut, animations: {
-				self.pulsatingSquare.transform = .identity
+				self.pulsatingView.transform = .identity
 			})
 		}
 	}

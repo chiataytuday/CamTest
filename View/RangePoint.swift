@@ -9,14 +9,14 @@
 import UIKit
 import AVFoundation
 
-class RangePoint : UIView {
+class RangePoint: UIView {
 	
-	var applyToPlayer: (() -> ())!
-	var setMin, setMax: (() -> ())?
 	var minX, maxX: CGFloat!
+	var setMinX, setMaxX: (() -> ())?
+	var applyToPlayer: (() -> ())!
 	var time: CMTime!
 	
-	init(_ diameter: CGFloat) {
+	init(diameter: CGFloat) {
 		super.init(frame: CGRect(origin: .zero, size: CGSize(width: diameter, height: diameter)))
 		backgroundColor = .systemGray2
 		layer.cornerRadius = diameter/2

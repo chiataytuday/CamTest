@@ -8,31 +8,31 @@
 
 import UIKit
 
-class Notification : UIView {
+class Notification: UIView {
 	
-	let infoLabel: UILabel = {
-		let label = UILabel()
-		label.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
-		label.textColor = .white
-		return label
+	let label: UILabel = {
+		let lbl = UILabel()
+		lbl.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
+		lbl.textColor = .white
+		return lbl
 	}()
 	
-	init(text: String, color: UIColor = .black) {
-		infoLabel.text = text
-		infoLabel.sizeToFit()
+	init(text: String) {
+		label.text = text
+		label.sizeToFit()
 		
-		let margin: (x: CGFloat, y: CGFloat) = (16, 8)
-		super.init(frame: infoLabel.frame.insetBy(dx: -margin.x, dy: -margin.y))
-		infoLabel.frame.origin.x += margin.x
-		infoLabel.frame.origin.y += margin.y
-		addSubview(infoLabel)
+		let padding: (x: CGFloat, y: CGFloat) = (16, 8)
+		super.init(frame: label.frame.insetBy(dx: -padding.x, dy: -padding.y))
+		label.frame.origin.x += padding.x
+		label.frame.origin.y += padding.y
+		addSubview(label)
 		
-		backgroundColor = color
+		backgroundColor = .systemRed
 		layer.cornerRadius = frame.height/2
 		alpha = 0
 	}
 	
-	func present(for duration: TimeInterval) {
+	func show(for duration: TimeInterval) {
 		transform = CGAffineTransform(translationX: 0, y: 15)
 		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
 			self.transform = .identity

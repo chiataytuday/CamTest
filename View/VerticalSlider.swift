@@ -10,12 +10,12 @@ import UIKit
 
 class VerticalSlider : UIView {
 	
-	enum AlignmentSide {
+	enum Alignment {
 		case left
 		case right
 	}
 	
-	var isActive: Bool = false
+	var isActive = false
 	var min, max: CGFloat
 	var value: CGFloat
 	var translationX: CGFloat!
@@ -37,7 +37,7 @@ class VerticalSlider : UIView {
 		addSubview(filledView)
 	}
 	
-	func align(to side: AlignmentSide) {
+	func align(to side: Alignment) {
 		guard let superview = superview else { return }
 		center.y = superview.frame.midY
 		if side == .left {
@@ -50,8 +50,8 @@ class VerticalSlider : UIView {
 		transform = CGAffineTransform(translationX: translationX, y: 0)
 	}
 	
-	func setImage(_ systemName: String) {
-		let image = UIImage(systemName: systemName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
+	func setImage(_ symbolName: String) {
+		let image = UIImage(systemName: symbolName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .light))
 		imageView = UIImageView(image: image)
 		imageView?.tintColor = .systemGray
 		

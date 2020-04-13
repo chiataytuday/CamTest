@@ -46,11 +46,11 @@ class CameraController: UIViewController {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let touchX = touches.first!.location(in: view).x
-		if let s = touchX > view.frame.width/2 ? lensSlider : exposureSlider, s.isActive {
-			activeSlider = s
-		}
-		if activeSlider == lensSlider {
-			lensSlider.set(value: CGFloat(cam.captureDevice.lensPosition))
+		if let slider = touchX > view.frame.width/2 ? lensSlider : exposureSlider, slider.isActive {
+			activeSlider = slider
+			if activeSlider == lensSlider {
+				lensSlider.set(value: CGFloat(cam.captureDevice.lensPosition))
+			}
 		}
 		activeSlider?.touchesBegan(touches, with: event)
 	}
@@ -128,7 +128,7 @@ extension CameraController {
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		exposurePoint = MovablePoint("sun.max.fill")
+		exposurePoint = MovablePoint(symbolName: "sun.max.fill")
 		exposurePoint.center = view.center
 		exposurePoint.moved = { [weak self] in
 			self?.cam.setExposure(.autoExpose, self!.exposurePoint.center)
@@ -139,7 +139,7 @@ extension CameraController {
 		exposurePoint.cam = cam
 		view.addSubview(exposurePoint)
 		
-		lensPoint = MovablePoint("scope")
+		lensPoint = MovablePoint(symbolName: "scope")
 		lensPoint.center = view.center
 		lensPoint.ended = { [weak self] in
 			self?.cam.setLensAuto(.autoFocus, self!.lensPoint.center)
@@ -289,10 +289,10 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				self?.present(playerController!, animated: true)
 			} else {
 				self?.resetView()
-				let error = Notification(text: "Something went wrong", color: .systemRed)
+				let error = Notification(text: "Something went wrong")
 				error.center = CGPoint(x: self!.view.center.x, y: self!.view.frame.height - 130)
 				self?.view.addSubview(error)
-				error.present(for: 1)
+				error.show(for: 1)
 			}
 		}
 	}

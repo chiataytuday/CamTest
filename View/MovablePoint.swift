@@ -14,14 +14,14 @@ class MovablePoint : UIImageView {
 	var touchOffset: CGPoint?
 	var moved, ended: (() -> ())?
 	
-	init(_ innerImageName: String?) {
+	init(symbolName: String? = nil) {
 		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
 		tintColor = .systemYellow
 		
-		if let imageName = innerImageName {
-			let image = UIImage(systemName: imageName, withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .thin))
+		if let name = symbolName {
+			let image = UIImage(systemName: name, withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .thin))
 			let imageView = UIImageView(image: image)
 			imageView.tintColor = .systemYellow
 			imageView.center = center
