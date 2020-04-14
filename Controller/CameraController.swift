@@ -13,6 +13,7 @@ import AudioToolbox
 class CameraController: UIViewController {
 	
 	var cam: Camera!
+	var photoBtn: PhotoButton!
 	var recordBtn: RecordButton!
 	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
@@ -30,6 +31,13 @@ class CameraController: UIViewController {
 		effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
 		effectView.alpha = 0
 		return effectView
+	}()
+	
+	var blackView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .black
+		view.alpha = 0
+		return view
 	}()
 	
 	override func viewDidLoad() {
@@ -73,11 +81,22 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	private func setupButtons() {
+		blackView.frame = view.frame
+		view.addSubview(blackView)
+		
 		recordBtn = RecordButton(.big, radius: 23)
 		view.addSubview(recordBtn)
 		NSLayoutConstraint.activate([
 			recordBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+		])
+		
+		recordBtn.isHidden = true
+		photoBtn = PhotoButton(.big, radius: 23, view: blackView)
+		view.addSubview(photoBtn)
+		NSLayoutConstraint.activate([
+			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		torchBtn = CustomButton(.small, "bolt.fill")
@@ -153,10 +172,11 @@ extension CameraController {
 	}
 	
 	private func targetActions() {
-		for btn in [lockBtn, recordBtn, torchBtn, exposureBtn, lensBtn] {
+		for btn in [lockBtn, recordBtn, torchBtn, exposureBtn, lensBtn, photoBtn] {
 			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
 		}
 		
+		photoBtn.addTarget(photoBtn, action: #selector(photoBtn.touchUp), for: [.touchUpInside, .touchUpOutside])
 		lockBtn.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
 		torchBtn.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
 		exposureBtn.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)
@@ -295,6 +315,13 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 				error.show(for: 1)
 			}
 		}
+	}
+}
+
+extension CameraController: AVCapturePhotoCaptureDelegate {
+	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+		guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
+		UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
 	}
 }
 

@@ -12,6 +12,7 @@ import AVFoundation
 class Camera {
 	
 	var captureDevice: AVCaptureDevice!
+	var photoOutput = AVCapturePhotoOutput()
 	var movieFileOutput = AVCaptureMovieFileOutput()
 	var captureSession = AVCaptureSession()
 	var previewView: PreviewView!
@@ -46,6 +47,9 @@ class Camera {
 			}
 			if captureSession.canAddOutput(movieFileOutput) {
 				captureSession.addOutput(movieFileOutput)
+			}
+			if captureSession.canAddOutput(photoOutput) {
+				captureSession.addOutput(photoOutput)
 			}
 		} catch {
 			print(error.localizedDescription)
@@ -91,6 +95,11 @@ class Camera {
 		durationAnim = UIViewPropertyAnimator(duration: 15, curve: .linear, animations: { [weak self] in
 			self?.durationBar.frame.size.width = self!.previewView.frame.width
 		})
+	}
+	
+	func takeShot(_ delegate: AVCapturePhotoCaptureDelegate) {
+		let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])
+		photoOutput.capturePhoto(with: settings, delegate: delegate)
 	}
 	
 	func stopRecording() {

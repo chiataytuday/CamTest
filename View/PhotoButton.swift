@@ -16,7 +16,7 @@ class PhotoButton: CustomButton {
 		let circle = UIView()
 		circle.translatesAutoresizingMaskIntoConstraints = false
 		circle.isUserInteractionEnabled = false
-		circle.backgroundColor = .systemGray
+		circle.backgroundColor = .label
 		circle.layer.cornerRadius = 10
 		NSLayoutConstraint.activate([
 			circle.widthAnchor.constraint(equalToConstant: 20),
@@ -31,7 +31,7 @@ class PhotoButton: CustomButton {
 		super.init(size)
 		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
-		clipsToBounds = true
+//		clipsToBounds = true
 		blackView = view
 		
 		addSubview(circleView)
@@ -41,6 +41,7 @@ class PhotoButton: CustomButton {
 		])
 		
 		let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressHandler))
+		longPressRecognizer.minimumPressDuration = 0.35
 		addGestureRecognizer(longPressRecognizer)
 	}
 	
@@ -61,17 +62,19 @@ class PhotoButton: CustomButton {
 	
 	override func touchDown() {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
-		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0, options: [], animations: {
-			self.circleView.transform = CGAffineTransform(scaleX: 0.75, y: 0.75)
+		circleView.backgroundColor = .systemGray
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
+			self.circleView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
 		})
-		self.blackView?.alpha = 1
-		UIViewPropertyAnimator(duration: 0.2, curve: .easeOut) {
+		self.blackView?.alpha = 0.75
+		UIViewPropertyAnimator(duration: 0.3, curve: .easeOut) {
 			self.blackView?.alpha = 0
 		}.startAnimation()
 	}
 	
 	@objc func touchUp() {
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
+			self.circleView.backgroundColor = .label
 			self.circleView.transform = .identity
 		})
 	}
