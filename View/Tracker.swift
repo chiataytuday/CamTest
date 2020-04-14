@@ -64,7 +64,7 @@ class Tracker: UIView {
 	}
 	
 	func fadeOut() {
-		UIView.animate(withDuration: 0.25, delay: 0.25, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+		UIView.animate(withDuration: 0.25, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			self.alpha = 0
 		}) { _ in
 			self.setLabel(number: 0)

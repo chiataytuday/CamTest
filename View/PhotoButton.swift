@@ -7,10 +7,12 @@
 //
 
 import UIKit
+import AVFoundation
 
 class PhotoButton: CustomButton {
 	
 	var timer: Timer?
+	var cam: Camera?
 	
 	private let circleView: UIView = {
 		let circle = UIView()
@@ -29,8 +31,10 @@ class PhotoButton: CustomButton {
 	private var tracker: Tracker?
 	private var longPressRecognizer: UILongPressGestureRecognizer!
 	var count = 0
+	var delegate: AVCapturePhotoCaptureDelegate?
 	
-	init(_ size: Size, radius: CGFloat, view: UIView, tracker: Tracker) {
+	init(_ size: Size, radius: CGFloat, view: UIView, tracker: Tracker, delegate: AVCapturePhotoCaptureDelegate) {
+		self.delegate = delegate
 		super.init(size)
 		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
@@ -54,10 +58,10 @@ class PhotoButton: CustomButton {
 			case .began:
 				count = 0
 				self.tracker?.fadeIn()
-				timer = Timer.scheduledTimer(withTimeInterval: 0.11, repeats: true, block: { (_) in
-					UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
-					self.tracker?.setLabel(number: self.count)
-					self.count += 1
+				timer = Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true, block: { (_) in
+					if self.count < self.tracker!.maxNumber {
+						self.takePhoto()
+					}
 				})
 			case .ended:
 				timer?.invalidate()
@@ -69,7 +73,19 @@ class PhotoButton: CustomButton {
 		}
 	}
 	
+	func takePhoto() {
+		cam?.takeShot(delegate!)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		tracker?.setLabel(number: count)
+		count += 1
+	}
+	
 	override func touchDown() {
+		autoresizesSubviews = false
+		UIViewPropertyAnimator(duration: 0.2, curve: .easeOut) {
+			self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+		}.startAnimation()
+		
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		circleView.backgroundColor = .systemGray
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
@@ -82,6 +98,10 @@ class PhotoButton: CustomButton {
 	}
 	
 	@objc func touchUp() {
+		UIViewPropertyAnimator(duration: 0.15, curve: .easeOut) {
+			self.transform = .identity
+		}.startAnimation()
+		
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
 			self.circleView.backgroundColor = .label
 			self.circleView.transform = .identity

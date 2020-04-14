@@ -48,6 +48,7 @@ class CameraController: UIViewController {
 		targetActions()
 		setupSliders()
 		cam = Camera()
+		photoBtn.cam = cam
 		cam.attachPreview(to: view)
 		setupAdditional()
 	}
@@ -107,7 +108,7 @@ extension CameraController {
 		view.addSubview(tracker)
 		
 		recordBtn.isHidden = true
-		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker)
+		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker, delegate: self)
 		view.addSubview(photoBtn)
 		NSLayoutConstraint.activate([
 			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
@@ -326,7 +327,9 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 extension CameraController: AVCapturePhotoCaptureDelegate {
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 		guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
-		UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+		DispatchQueue.global(qos: .background).async {
+			UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+		}
 	}
 }
 
