@@ -26,13 +26,17 @@ class PhotoButton: CustomButton {
 	}()
 	
 	private var blackView: UIView?
+	private var tracker: Tracker?
+	private var longPressRecognizer: UILongPressGestureRecognizer!
+	var count = 0
 	
-	init(_ size: Size, radius: CGFloat, view: UIView) {
+	init(_ size: Size, radius: CGFloat, view: UIView, tracker: Tracker) {
 		super.init(size)
 		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
 //		clipsToBounds = true
 		blackView = view
+		self.tracker = tracker
 		
 		addSubview(circleView)
 		NSLayoutConstraint.activate([
@@ -40,7 +44,7 @@ class PhotoButton: CustomButton {
 			circleView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 		
-		let longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressHandler))
+		longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressHandler))
 		longPressRecognizer.minimumPressDuration = 0.35
 		addGestureRecognizer(longPressRecognizer)
 	}
@@ -48,12 +52,17 @@ class PhotoButton: CustomButton {
 	@objc func longPressHandler(sender: UILongPressGestureRecognizer) {
 		switch (sender.state) {
 			case .began:
-				timer = Timer.scheduledTimer(withTimeInterval: 0.12, repeats: true, block: { (_) in
+				count = 0
+				self.tracker?.fadeIn()
+				timer = Timer.scheduledTimer(withTimeInterval: 0.11, repeats: true, block: { (_) in
 					UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
+					self.tracker?.setLabel(number: self.count)
+					self.count += 1
 				})
 			case .ended:
 				timer?.invalidate()
 				timer = nil
+				self.tracker?.fadeOut()
 				touchUp()
 			default:
 				break

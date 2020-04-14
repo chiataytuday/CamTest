@@ -81,6 +81,7 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	private func setupButtons() {
+		
 		blackView.frame = view.frame
 		view.addSubview(blackView)
 		
@@ -91,14 +92,6 @@ extension CameraController {
 			recordBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
-		recordBtn.isHidden = true
-		photoBtn = PhotoButton(.big, radius: 23, view: blackView)
-		view.addSubview(photoBtn)
-		NSLayoutConstraint.activate([
-			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-		])
-		
 		torchBtn = CustomButton(.small, "bolt.fill")
 		lockBtn = CustomButton(.small, "lock.fill")
 		toolsGroup = ButtonsGroup([torchBtn, lockBtn])
@@ -107,6 +100,18 @@ extension CameraController {
 		NSLayoutConstraint.activate([
 			toolsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
+		])
+		
+		let trackerPos = CGPoint(x: view.center.x, y: view.frame.height - 120)
+		let tracker = Tracker(center: trackerPos, maxNumber: 30)
+		view.addSubview(tracker)
+		
+		recordBtn.isHidden = true
+		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker)
+		view.addSubview(photoBtn)
+		NSLayoutConstraint.activate([
+			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
 		exposureBtn = CustomButton(.small, "sun.max.fill")
