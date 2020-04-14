@@ -104,7 +104,7 @@ extension CameraController {
 		])
 		
 		let trackerPos = CGPoint(x: view.center.x, y: view.frame.height - 120)
-		let tracker = Tracker(center: trackerPos, maxNumber: 30)
+		let tracker = Tracker(center: trackerPos, maxNumber: 20)
 		view.addSubview(tracker)
 		
 		recordBtn.isHidden = true

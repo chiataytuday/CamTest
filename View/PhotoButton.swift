@@ -49,7 +49,7 @@ class PhotoButton: CustomButton {
 		])
 		
 		longPressRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(longPressHandler))
-		longPressRecognizer.minimumPressDuration = 0.35
+		longPressRecognizer.minimumPressDuration = 0.2
 		addGestureRecognizer(longPressRecognizer)
 	}
 	
@@ -86,15 +86,16 @@ class PhotoButton: CustomButton {
 			self.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
 		}.startAnimation()
 		
+		takePhoto()
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		circleView.backgroundColor = .systemGray
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
 			self.circleView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
 		})
-		self.blackView?.alpha = 0.75
-		UIViewPropertyAnimator(duration: 0.3, curve: .easeOut) {
+		self.blackView!.alpha = 0.75
+		UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut, animations: {
 			self.blackView?.alpha = 0
-		}.startAnimation()
+		})
 	}
 	
 	@objc func touchUp() {

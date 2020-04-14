@@ -23,7 +23,7 @@ class Tracker: UIView {
 	
 	private let filledView: UIView = {
 		let view = UIView()
-		view.backgroundColor = UIColor.systemGray5.withAlphaComponent(0.5)
+		view.backgroundColor = .systemGray5
 		return view
 	}()
 	
@@ -31,8 +31,8 @@ class Tracker: UIView {
 		self.maxNumber = maxNumber
 		super.init(frame: CGRect(origin: .zero, size: CGSize(width: 40, height: 25)))
 		self.center = center
-		backgroundColor = UIColor.systemGray6.withAlphaComponent(0.5)
-		layer.cornerRadius = 10
+		backgroundColor = .systemGray6
+		layer.cornerRadius = 12.5
 		clipsToBounds = true
 		alpha = 0
 		
@@ -44,7 +44,7 @@ class Tracker: UIView {
 	
 	func setLabel(number: Int) {
 		guard number <= maxNumber else { return }
-		numLabel.text = "\(number)"
+		numLabel.text = "\(number + 1)"
 		numLabel.sizeToFit()
 		numLabel.center.x = frame.width/2
 		
