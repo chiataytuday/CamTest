@@ -57,16 +57,16 @@ class PhotoButton: CustomButton {
 		switch (sender.state) {
 			case .began:
 				count = 0
-				self.tracker?.fadeIn()
-				timer = Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true, block: { (_) in
-					if self.count < self.tracker!.maxNumber {
+				tracker?.fadeIn()
+				timer = Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true, block: { _ in
+					if self.count + 1 < self.tracker!.maxNumber {
 						self.takePhoto()
 					}
 				})
 			case .ended:
-				timer?.invalidate()
+				timer!.invalidate()
 				timer = nil
-				self.tracker?.fadeOut()
+				tracker?.fadeOut()
 				touchUp()
 			default:
 				break
@@ -75,9 +75,9 @@ class PhotoButton: CustomButton {
 	
 	func takePhoto() {
 		cam?.takeShot(delegate!)
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
-		tracker?.setLabel(number: count)
 		count += 1
+		tracker?.setLabel(number: count)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 	}
 	
 	override func touchDown() {

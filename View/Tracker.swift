@@ -43,12 +43,12 @@ class Tracker: UIView {
 	}
 	
 	func setLabel(number: Int) {
-		guard number <= maxNumber else { return }
+		guard number < maxNumber else { return }
 		numLabel.text = "\(number + 1)"
 		numLabel.sizeToFit()
 		numLabel.center.x = frame.width/2
 		
-		let width = frame.width/CGFloat(maxNumber)*CGFloat(number)
+		let width = frame.width/CGFloat(maxNumber)*CGFloat(number + 1)
 		UIViewPropertyAnimator(duration: 0.12, curve: .easeOut) {
 			self.filledView.frame.size.width = width
 			self.filledView.frame.origin.x = 0
@@ -56,6 +56,7 @@ class Tracker: UIView {
 	}
 	
 	func fadeIn() {
+		self.setLabel(number: 0)
 		transform = CGAffineTransform(translationX: 0, y: 15)
 		UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
 			self.transform = .identity
@@ -66,9 +67,7 @@ class Tracker: UIView {
 	func fadeOut() {
 		UIView.animate(withDuration: 0.25, delay: 0.2, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
 			self.alpha = 0
-		}) { _ in
-			self.setLabel(number: 0)
-		}
+		})
 	}
 	
 	required init?(coder: NSCoder) {
