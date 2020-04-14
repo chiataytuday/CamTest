@@ -66,7 +66,7 @@ class Camera {
 	
 	private func bestDevice(in position: AVCaptureDevice.Position) -> AVCaptureDevice {
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:
-		[.builtInTrueDepthCamera, .builtInDualCamera, .builtInWideAngleCamera],
+		[.builtInWideAngleCamera],
 		mediaType: .video, position: .back)
 		
 		let devices = discoverySession.devices

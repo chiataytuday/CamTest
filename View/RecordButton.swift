@@ -78,7 +78,7 @@ class RecordButton : CustomButton {
 		pulsatingView.layer.cornerRadius = pulsatingRadius
 		
 		if !camIsRecording {
-			UIView.animate(withDuration: 0.6, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
+			UIView.animate(withDuration: 0.56, delay: 0, options: [.curveEaseOut, .repeat, .autoreverse], animations: {
 				self.pulsatingView.transform = CGAffineTransform(scaleX: 2, y: 2)
 			})
 		} else {

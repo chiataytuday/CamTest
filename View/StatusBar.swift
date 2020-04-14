@@ -37,7 +37,7 @@ class StatusBar : UIStackView {
 		item.isHidden = true
 		NSLayoutConstraint.activate([
 			item.heightAnchor.constraint(equalToConstant: 25),
-			item.widthAnchor.constraint(equalToConstant: 45)
+			item.widthAnchor.constraint(equalToConstant: 40)
 		])
 		return item
 	}

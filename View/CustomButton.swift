@@ -28,7 +28,7 @@ class CustomButton : UIButton {
 			imageView?.clipsToBounds = false
 		}
 		
-		let rect = size == .small ? CGSize(width: 46, height: 45) :
+		let rect = size == .small ? CGSize(width: 45, height: 44) :
 			CGSize(width: 62, height: 60)
 		NSLayoutConstraint.activate([
 			widthAnchor.constraint(equalToConstant: rect.width),
