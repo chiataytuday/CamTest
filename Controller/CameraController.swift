@@ -15,6 +15,7 @@ class CameraController: UIViewController {
 	var cam: Camera!
 	var photoBtn: PhotoButton!
 	var recordBtn: RecordButton!
+	var modeBtn: ModeButton!
 	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
 	var exposureSlider, lensSlider: VerticalSlider!
@@ -124,13 +125,12 @@ extension CameraController {
 			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
 		])
 		
-		let modeBtn = ModeButton()
+		modeBtn = ModeButton()
 		modeBtn.delegate = modeWasChanged(to:)
 		modeBtn.clipsToBounds = false
 		view.addSubview(modeBtn)
 		NSLayoutConstraint.activate([
-			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor),
-			modeBtn.bottomAnchor.constraint(equalTo: optionsGroup.topAnchor, constant: -12)
+			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor, constant: 15)
 		])
 	}
 	
@@ -172,8 +172,9 @@ extension CameraController {
 		statusBar = StatusBar(contentsOf: ["bolt.fill", "lock.fill", "sun.max.fill", "scope"])
 		view.addSubview(statusBar)
 		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			modeBtn.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
 		])
 		
 		exposurePoint = MovablePoint(symbolName: "sun.max.fill")

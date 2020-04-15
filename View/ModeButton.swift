@@ -18,7 +18,7 @@ class ModeButton: UIView {
 		let image = UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
 		let imageView = UIImageView(image: image)
 		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.frame.size = CGSize(width: 100, height: 100)
+		imageView.isUserInteractionEnabled = false
 		imageView.contentMode = .center
 		imageView.tintColor = .systemGray6
 		return imageView
@@ -33,8 +33,8 @@ class ModeButton: UIView {
 		super.init(frame: .zero)
 		translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
-			widthAnchor.constraint(equalToConstant: 40),
-			heightAnchor.constraint(equalToConstant: 40)
+			widthAnchor.constraint(equalToConstant: 70),
+			heightAnchor.constraint(equalToConstant: 70)
 		])
 		clipsToBounds = false
 		backgroundColor = .clear
@@ -49,8 +49,8 @@ class ModeButton: UIView {
 		])
 		
 		photoBtn = getButton("camera.fill", "Photo")
-		chosenBtn = photoBtn
 		videoBtn = getButton("video.fill", "Video")
+		chosenBtn = videoBtn
 		videoBtn.backgroundColor = .systemGray5
 		stackView = UIView(frame: .zero)
 		stackView.addSubview(videoBtn)
@@ -79,7 +79,7 @@ class ModeButton: UIView {
 			self.stackView.isHidden = false
 			self.stackView.transform = .identity
 			self.circleView.transform = CGAffineTransform(scaleX: 4, y: 4)
-			self.transform = CGAffineTransform(translationX: -106/3.5, y: -86/1.5)
+			self.transform = CGAffineTransform(translationX: -106/2.5, y: 86/1.25)
 			self.circleView.alpha = 0
 			self.stackView.alpha = 1
 		})
@@ -111,6 +111,10 @@ class ModeButton: UIView {
 			self.transform = .identity
 			self.stackView.alpha = 0
 		})
+	}
+	
+	override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+		touchesEnded(touches, with: event)
 	}
 	
 	private func getButton(_ symbolName: String, _ text: String) -> UIButton {
