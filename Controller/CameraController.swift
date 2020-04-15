@@ -20,6 +20,7 @@ class CameraController: UIViewController {
 	var exposureSlider, lensSlider: VerticalSlider!
 	var exposurePoint, lensPoint: MovablePoint!
 	var statusBar: StatusBar!
+	var currentMode: Mode = .video
 	
 	var activeSlider: VerticalSlider?
 	var playerController: PlayerController?
@@ -106,13 +107,13 @@ extension CameraController {
 		let tracker = Tracker(center: trackerPos, maxNumber: 20)
 		view.addSubview(tracker)
 		
-		recordBtn.isHidden = true
 		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker, delegate: self)
 		view.addSubview(photoBtn)
 		NSLayoutConstraint.activate([
 			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
+		photoBtn.isHidden = true
 		
 		exposureBtn = CustomButton(.small, "sun.max.fill")
 		lensBtn = CustomButton(.small, "scope")
@@ -122,6 +123,29 @@ extension CameraController {
 			optionsGroup.centerYAnchor.constraint(equalTo: recordBtn.centerYAnchor),
 			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
 		])
+		
+		let modeBtn = ModeButton()
+		modeBtn.delegate = modeWasChanged(to:)
+		modeBtn.clipsToBounds = false
+		view.addSubview(modeBtn)
+		NSLayoutConstraint.activate([
+			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor),
+			modeBtn.bottomAnchor.constraint(equalTo: optionsGroup.topAnchor, constant: -12)
+		])
+	}
+	
+	private func modeWasChanged(to mode: Mode) {
+		if (mode != currentMode) {
+			currentMode = mode
+			switch mode {
+				case .video:
+					photoBtn.isHidden = true
+					recordBtn.isHidden = false
+				case .photo:
+					photoBtn.isHidden = false
+					recordBtn.isHidden = true
+			}
+		}
 	}
 	
 	private func setupSliders() {

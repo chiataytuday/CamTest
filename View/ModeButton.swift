@@ -8,49 +8,78 @@
 
 import UIKit
 
+enum Mode {
+	case video, photo
+}
+
 class ModeButton: UIView {
 	
-	let circleView: UIImageView = {
-		let image = UIImage(systemName: "smallcircle.fill.circle")
+	private let circleView: UIImageView = {
+		let image = UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
 		let imageView = UIImageView(image: image)
+		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.frame.size = CGSize(width: 100, height: 100)
 		imageView.contentMode = .center
-		imageView.tintColor = .white
+		imageView.tintColor = .systemGray6
 		return imageView
 	}()
 	
-	var photoBtn, videoBtn: UIButton!
-	var stackView: UIStackView!
-	
-	var photoIsEnabled = false
+	private var photoBtn, videoBtn: UIButton!
+	private var stackView: UIView!
+	private var chosenBtn: UIButton?
+	var delegate: ((Mode) -> ())?
 	
 	init() {
-		super.init(frame: CGRect(origin: .zero, size: CGSize(width: 40, height: 40)))
-		circleView.center = center
+		super.init(frame: .zero)
+		translatesAutoresizingMaskIntoConstraints = false
+		NSLayoutConstraint.activate([
+			widthAnchor.constraint(equalToConstant: 40),
+			heightAnchor.constraint(equalToConstant: 40)
+		])
 		clipsToBounds = false
+		backgroundColor = .clear
+		setupSubviews()
+	}
+	
+	private func setupSubviews() {
 		addSubview(circleView)
-		backgroundColor = .black
+		NSLayoutConstraint.activate([
+			circleView.centerXAnchor.constraint(equalTo: centerXAnchor),
+			circleView.centerYAnchor.constraint(equalTo: centerYAnchor)
+		])
 		
 		photoBtn = getButton("camera.fill", "Photo")
+		chosenBtn = photoBtn
 		videoBtn = getButton("video.fill", "Video")
 		videoBtn.backgroundColor = .systemGray5
-		stackView = UIStackView(arrangedSubviews: [photoBtn, videoBtn])
+		stackView = UIView(frame: .zero)
+		stackView.addSubview(videoBtn)
+		stackView.addSubview(photoBtn)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.axis = .vertical
-		stackView.alpha = 0
-		addSubview(stackView)
 		stackView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+		stackView.clipsToBounds = true
+		stackView.layer.cornerRadius = 16
+		addSubview(stackView)
 		NSLayoutConstraint.activate([
+			stackView.widthAnchor.constraint(equalToConstant: 106),
+			stackView.heightAnchor.constraint(equalToConstant: 86),
 			stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-			stackView.centerYAnchor.constraint(equalTo: centerYAnchor)
+			stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+			videoBtn.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
+			videoBtn.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+			photoBtn.bottomAnchor.constraint(equalTo: stackView.centerYAnchor),
+			photoBtn.centerXAnchor.constraint(equalTo: stackView.centerXAnchor)
 		])
+		stackView.alpha = 0
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
+			self.stackView.isHidden = false
 			self.stackView.transform = .identity
 			self.circleView.transform = CGAffineTransform(scaleX: 4, y: 4)
-			self.transform = CGAffineTransform(translationX: -self.stackView.frame.width/2, y: -self.stackView.frame.height/1.5)
+			self.transform = CGAffineTransform(translationX: -106/3.5, y: -86/1.5)
 			self.circleView.alpha = 0
 			self.stackView.alpha = 1
 		})
@@ -58,20 +87,27 @@ class ModeButton: UIView {
 	
 	override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 		guard let touch = touches.first?.location(in: stackView) else { return }
-		if photoBtn.frame.contains(touch) {
+		if photoBtn.frame.contains(touch) && chosenBtn != photoBtn {
+			chosenBtn = photoBtn
+			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 			photoBtn.backgroundColor = .systemGray5
 			videoBtn.backgroundColor = .systemGray6
-		} else if videoBtn.frame.contains(touch) {
+		} else if videoBtn.frame.contains(touch) && chosenBtn != videoBtn {
+			chosenBtn = videoBtn
+			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 			videoBtn.backgroundColor = .systemGray5
 			photoBtn.backgroundColor = .systemGray6
 		}
 	}
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+		let chosenMode: Mode = chosenBtn == photoBtn ? .photo : .video
+		delegate?(chosenMode)
+		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
 			self.circleView.transform = .identity
 			self.circleView.alpha = 1
+			self.circleView.isHidden = false
 			self.transform = .identity
 			self.stackView.alpha = 0
 		})
@@ -82,17 +118,17 @@ class ModeButton: UIView {
 		btn.setImage(UIImage(systemName: symbolName), for: .normal)
 		btn.setTitle(text, for: .normal)
 		btn.setTitleColor(.systemGray, for: .normal)
-		btn.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .light)
+		btn.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .light)
+		btn.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 17), forImageIn: .normal)
 		btn.tintColor = .systemGray
 		btn.backgroundColor = .systemGray6
 		btn.imageEdgeInsets.left -= 8
 		btn.titleEdgeInsets.right -= 8
 		btn.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
-			btn.widthAnchor.constraint(equalToConstant: 110),
-			btn.heightAnchor.constraint(equalToConstant: 45)
+			btn.widthAnchor.constraint(equalToConstant: 106),
+			btn.heightAnchor.constraint(equalToConstant: 43)
 		])
-		clipsToBounds = true
 		return btn
 	}
 	
