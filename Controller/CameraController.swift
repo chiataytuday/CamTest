@@ -82,7 +82,6 @@ class CameraController: UIViewController {
 extension CameraController {
 	
 	private func setupButtons() {
-		
 		blackView.frame = view.frame
 		view.addSubview(blackView)
 		
