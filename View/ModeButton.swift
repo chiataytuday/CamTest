@@ -14,8 +14,8 @@ enum Mode {
 
 class ModeButton: UIView {
 	
-	private let circleView: UIImageView = {
-		let image = UIImage(systemName: "largecircle.fill.circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
+	let circleView: UIImageView = {
+		let image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
 		let imageView = UIImageView(image: image)
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.isUserInteractionEnabled = false

@@ -139,11 +139,21 @@ extension CameraController {
 			currentMode = mode
 			switch mode {
 				case .video:
+					modeBtn.circleView.image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
 					photoBtn.isHidden = true
 					recordBtn.isHidden = false
+					recordBtn.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+					UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
+						self.recordBtn.transform = .identity
+					})
 				case .photo:
+					modeBtn.circleView.image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .regular))
 					photoBtn.isHidden = false
 					recordBtn.isHidden = true
+					photoBtn.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
+					UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
+						self.photoBtn.transform = .identity
+					})
 			}
 		}
 	}
