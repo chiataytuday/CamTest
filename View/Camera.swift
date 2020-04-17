@@ -9,23 +9,23 @@
 import UIKit
 import AVFoundation
 
-class Camera {
+final class Camera {
 	
 	var captureDevice: AVCaptureDevice!
-	var photoOutput = AVCapturePhotoOutput()
-	var movieFileOutput = AVCaptureMovieFileOutput()
 	var captureSession = AVCaptureSession()
+	var durationAnim: UIViewPropertyAnimator?
 	var previewView: PreviewView!
+	var isRecording = false
 	
-	let durationBar: UIView = {
+	private var photoOutput = AVCapturePhotoOutput()
+	private var movieFileOutput = AVCaptureMovieFileOutput()
+	
+	private let durationBar: UIView = {
 		let bar = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 2))
 		bar.backgroundColor = .systemRed
 		bar.layer.cornerRadius = bar.frame.height/2
 		return bar
 	}()
-	
-	var durationAnim: UIViewPropertyAnimator?
-	var isRecording = false
 	
 	
 	init() {

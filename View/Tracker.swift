@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Tracker: UIView {
+final class Tracker: UIView {
 	
 	let maxNumber: Int
 	

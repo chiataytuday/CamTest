@@ -8,7 +8,7 @@
 
 import StoreKit
 
-enum Keys: String {
+fileprivate enum Keys: String {
 	case reviewActionsCount,
 	lastReviewRequestAppVersion
 }

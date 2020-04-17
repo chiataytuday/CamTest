@@ -36,7 +36,7 @@ class CustomButton : UIButton {
 		])
 	}
 	
-	func setState(_ active: Bool) {
+	private func setState(_ active: Bool) {
 		isActive = active
 		
 		if active == true {

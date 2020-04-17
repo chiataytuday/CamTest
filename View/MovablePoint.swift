@@ -8,10 +8,10 @@
 
 import UIKit
 
-class MovablePoint : UIImageView {
+final class MovablePoint : UIImageView {
 	
 	var cam: Camera?
-	var touchOffset: CGPoint?
+	private var touchOffset: CGPoint?
 	var moved, ended: (() -> ())?
 	
 	init(symbolName: String? = nil) {

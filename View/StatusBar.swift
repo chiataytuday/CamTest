@@ -8,9 +8,9 @@
 
 import UIKit
 
-class StatusBar : UIStackView {
+final class StatusBar : UIStackView {
 	
-	var dict = [String : UIButton]()
+	private var dict = [String : UIButton]()
 	
 	init(contentsOf imageNames: [String]) {
 		super.init(frame: .zero)

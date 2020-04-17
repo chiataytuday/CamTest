@@ -8,9 +8,9 @@
 
 import UIKit
 
-class Notification: UIView {
+final class Notification: UIView {
 	
-	let label: UILabel = {
+	private let label: UILabel = {
 		let lbl = UILabel()
 		lbl.font = UIFont.systemFont(ofSize: 16.5, weight: .light)
 		lbl.textColor = .white

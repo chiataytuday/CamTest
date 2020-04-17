@@ -10,9 +10,11 @@ import UIKit
 import Photos
 import AudioToolbox
 
-class PermissionsController: UIViewController {
+final class PermissionsController: UIViewController {
 	
-	let bottomLabel: UILabel = {
+	private var cameraButton, libraryButton, micButton: UIButton!
+	
+	private let bottomLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.text = "Grant to start"
@@ -22,7 +24,6 @@ class PermissionsController: UIViewController {
 		return label
 	}()
 	
-	var cameraButton, libraryButton, micButton: UIButton!
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -72,13 +73,12 @@ class PermissionsController: UIViewController {
 		animate(bottomLabel, delay: 0.23, translationY: 10)
 	}
 	
-	func animate(_ viewToAnimate: UIView, delay: TimeInterval, translationY: CGFloat) {
+	private func animate(_ viewToAnimate: UIView, delay: TimeInterval, translationY: CGFloat) {
 		UIView.animate(withDuration: 0.45, delay: delay, usingSpringWithDamping: 0.65, initialSpringVelocity: 0, options: [], animations: {
 			viewToAnimate.transform = CGAffineTransform(translationX: 0, y: translationY)
 			viewToAnimate.alpha = 1
 		})
 	}
-	
 	
 	@objc private func libraryButtonTouchDown() {
 		if PHPhotoLibrary.authorizationStatus() == .denied {

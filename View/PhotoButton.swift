@@ -9,10 +9,16 @@
 import UIKit
 import AVFoundation
 
-class PhotoButton: CustomButton {
+final class PhotoButton: CustomButton {
 	
-	var timer: Timer?
 	var cam: Camera?
+	var delegate: AVCapturePhotoCaptureDelegate?
+	var photoCounter = 0
+	
+	private var timer: Timer?
+	private var blackView: UIView?
+	private var longPressRecognizer: UILongPressGestureRecognizer!
+	private var tracker: Tracker?
 	
 	private let circleView: UIView = {
 		let circle = UIView()
@@ -27,18 +33,13 @@ class PhotoButton: CustomButton {
 		return circle
 	}()
 	
-	private var blackView: UIView?
-	private var tracker: Tracker?
-	private var longPressRecognizer: UILongPressGestureRecognizer!
-	var count = 0
-	var delegate: AVCapturePhotoCaptureDelegate?
 	
 	init(_ size: Size, radius: CGFloat, view: UIView, tracker: Tracker, delegate: AVCapturePhotoCaptureDelegate) {
 		self.delegate = delegate
 		super.init(size)
 		backgroundColor = .systemGray6
 		layer.cornerRadius = radius
-//		clipsToBounds = true
+		clipsToBounds = true
 		blackView = view
 		self.tracker = tracker
 		
@@ -53,13 +54,13 @@ class PhotoButton: CustomButton {
 		addGestureRecognizer(longPressRecognizer)
 	}
 	
-	@objc func longPressHandler(sender: UILongPressGestureRecognizer) {
+	@objc private func longPressHandler(sender: UILongPressGestureRecognizer) {
 		switch (sender.state) {
 			case .began:
-				count = 0
+				photoCounter = 0
 				tracker?.fadeIn()
 				timer = Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true, block: { _ in
-					if self.count + 1 < self.tracker!.maxNumber {
+					if self.photoCounter + 1 < self.tracker!.maxNumber {
 						self.takePhoto()
 					}
 				})
@@ -73,10 +74,10 @@ class PhotoButton: CustomButton {
 		}
 	}
 	
-	func takePhoto() {
+	private func takePhoto() {
 		cam?.takeShot(delegate!)
-		count += 1
-		tracker?.setLabel(number: count)
+		photoCounter += 1
+		tracker?.setLabel(number: photoCounter)
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 	}
 	

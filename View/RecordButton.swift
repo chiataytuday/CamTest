@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RecordButton : CustomButton {
+final class RecordButton : CustomButton {
 	
 	private let circleView: UIView = {
 		let circle = UIView()

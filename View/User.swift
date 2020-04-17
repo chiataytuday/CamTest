@@ -8,7 +8,7 @@
 
 import AVFoundation
 
-class User {
+final class User {
 	static let shared = User()
 	
 	var exposureMode: AVCaptureDevice.ExposureMode

@@ -9,10 +9,10 @@
 import UIKit
 import AVFoundation
 
-class RangeSlider: UIView {
+final class RangeSlider: UIView {
 	
 	var isShown = false
-	var looper: AVPlayerLooper?
+	var startPoint, endPoint: RangePoint!
 	var videoPlayer: AVQueuePlayer? {
 		willSet(player) {
 			startPoint.time = .zero
@@ -22,17 +22,15 @@ class RangeSlider: UIView {
 		}
 	}
 	
-	var touchOffset: CGFloat?
-	var startPoint, endPoint: RangePoint!
-	var activePoint, inactivePoint: RangePoint?
-	var initialPointWidth: CGFloat!
-	var minDistance: CGFloat!
-	var path, range: UIView!
+	private var touchOffset: CGFloat?
+	private var activePoint, inactivePoint: RangePoint?
+	private var initialPointWidth: CGFloat!
+	private var minDistance: CGFloat!
+	private var path, range: UIView!
 	
-	var centerOfRange: CGFloat {
+	private var centerOfRange: CGFloat {
 		return (startPoint.center.x + endPoint.center.x)/2
 	}
-	
 	
 	override init(frame: CGRect) {
 		super.init(frame: frame)

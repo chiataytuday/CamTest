@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ButtonsGroup : UIStackView {
+final class ButtonsGroup : UIStackView {
 	
 	init(_ buttons: [CustomButton]) {
 		super.init(frame: .zero)

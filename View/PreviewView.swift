@@ -9,7 +9,7 @@
 import AVFoundation
 import UIKit
 
-class PreviewView : UIView {
+final class PreviewView : UIView {
 	
 	init(session: AVCaptureSession) {
 		super.init(frame: .zero)

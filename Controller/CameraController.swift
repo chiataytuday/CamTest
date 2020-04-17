@@ -10,22 +10,22 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
-class CameraController: UIViewController {
+final class CameraController: UIViewController {
 	
-	var cam: Camera!
-	var photoBtn: PhotoButton!
-	var recordBtn: RecordButton!
-	var modeBtn: ModeButton!
-	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
-	var toolsGroup, optionsGroup: ButtonsGroup!
-	var exposureSlider, lensSlider: VerticalSlider!
-	var exposurePoint: MovablePoint!
-	var statusBar: StatusBar!
-	var currentMode: Mode = .photo
+	private var cam: Camera!
+	private var photoBtn: PhotoButton!
+	private var recordBtn: RecordButton!
+	private var modeBtn: ModeButton!
+	private var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
+	private var toolsGroup, optionsGroup: ButtonsGroup!
+	private var exposureSlider, lensSlider: VerticalSlider!
+	private var exposurePoint: MovablePoint!
+	private var statusBar: StatusBar!
+	private var currentMode: Mode = .photo
 	
-	var activeSlider: VerticalSlider?
-	var playerController: PlayerController?
-	var recordPath: TemporaryFileURL?
+	private var activeSlider: VerticalSlider?
+	private var playerController: PlayerController?
+	private var recordPath: TemporaryFileURL?
 	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
@@ -41,6 +41,7 @@ class CameraController: UIViewController {
 		view.alpha = 0
 		return view
 	}()
+	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()

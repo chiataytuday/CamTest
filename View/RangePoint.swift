@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class RangePoint: UIView {
+final class RangePoint: UIView {
 	
 	var minX, maxX: CGFloat!
 	var setMinX, setMaxX: (() -> ())?

@@ -8,9 +8,9 @@
 
 import UIKit
 
-class ClockwiseProgressBar : UIView {
+final class ClockwiseProgressBar : UIView {
 	
-	let filledShapeLayer: CAShapeLayer = {
+	private let filledShapeLayer: CAShapeLayer = {
 		let shapeLayer = CAShapeLayer()
 		shapeLayer.fillColor = UIColor.clear.cgColor
 		shapeLayer.strokeColor = UIColor.white.cgColor

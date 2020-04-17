@@ -8,7 +8,9 @@
 
 import UIKit
 
-class VerticalSlider : UIView {
+#warning("TO-DO: protocol activable")
+
+final class VerticalSlider : UIView {
 	
 	enum Alignment {
 		case left
@@ -16,15 +18,14 @@ class VerticalSlider : UIView {
 	}
 	
 	var isActive = false
-	var min, max: CGFloat
 	var value: CGFloat
-	var translationX: CGFloat!
-	var filledView: UIView!
-	
-	var touchOffset: CGFloat?
-	var imageView: UIImageView?
 	var delegate: (() -> ())?
 	
+	private var min, max: CGFloat
+	private var translationX: CGFloat!
+	private var touchOffset: CGFloat?
+	private var imageView: UIImageView?
+	private var filledView: UIView!
 	
 	init(_ size: CGSize) {
 		min = 0; max = 1; value = max

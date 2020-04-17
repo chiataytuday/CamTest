@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AnimationController : NSObject {
+final class AnimationController : NSObject {
 	private let animationDuration: Double
 	private let animationType: AnimationType
 	

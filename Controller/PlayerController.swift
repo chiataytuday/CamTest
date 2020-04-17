@@ -8,22 +8,22 @@
 
 import UIKit
 import AVFoundation
-import Photos
-import AssetsLibrary
 
-class PlayerController: UIViewController {
-	
-	var exportPath: TemporaryFileURL?
-	
+final class PlayerController: UIViewController {
+
 	var player: AVQueuePlayer!
-	var playerItem: AVPlayerItem!
-	var playerLayer: AVPlayerLayer!
-	var rangeSlider: RangeSlider!
+	private var playerItem: AVPlayerItem!
+	private var playerLayer: AVPlayerLayer!
+	private var observer: NSKeyValueObservation?
+	private var timer: Timer?
 	
-	var observer: NSKeyValueObservation?
-	var timer: Timer?
+	private var exportPath: TemporaryFileURL?
+	private var backButton, trimButton, muteButton: CustomButton!
+	private var rangeSlider: RangeSlider!
+	private var btnGroup: ButtonsGroup!
+	private var statusBar: StatusBar!
 	
-	let saveButton: UIButton = {
+	private let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: 18), forImageIn: .normal)
@@ -39,11 +39,7 @@ class PlayerController: UIViewController {
 		return button
 	}()
 	
-	var backButton, trimButton, muteButton: CustomButton!
-	var btnGroup: ButtonsGroup!
-	var statusBar: StatusBar!
-	
-	let blurEffectView: UIVisualEffectView = {
+	private let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: UIBlurEffect.Style.systemThickMaterial)
 		let view = UIVisualEffectView(effect: effect)
 		view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
@@ -51,16 +47,16 @@ class PlayerController: UIViewController {
 		return view
 	}()
 	
-	deinit {
-		print("OS deinits PlayerController: no leaks/allocations")
-	}
-	
 	
 	override func viewDidLoad() {
 		transitioningDelegate = self
 		super.viewDidLoad()
 		view.clipsToBounds = true
 		view.backgroundColor = .systemBackground
+	}
+	
+	deinit {
+		print("OS deinits PlayerController: no leaks/allocations")
 	}
 	
 	private func setupButtons() {
@@ -110,7 +106,7 @@ class PlayerController: UIViewController {
 		trimButton.addTarget(self, action: #selector(trimButtonDown(sender:)), for: .touchDown)
 	}
 	
-	public func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
+	func setupPlayer(_ url: URL, handler: @escaping (Bool) -> ()) {
 		// Initialize player
 		playerItem = AVPlayerItem(url: url)
 		player = AVQueuePlayer(playerItem: playerItem)
@@ -247,7 +243,7 @@ class PlayerController: UIViewController {
 		}
 	}
 	
-	@objc func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
+	@objc private func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
 		exportPath = nil
 		AppStoreReviewManager.requestReviewIfAppropriate()
 	}
