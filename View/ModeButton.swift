@@ -24,10 +24,13 @@ class ModeButton: UIView {
 		return imageView
 	}()
 	
-	private var photoBtn, videoBtn: UIButton!
 	private var stackView: UIView!
+	private var photoBtn, videoBtn: UIButton!
 	private var chosenBtn: UIButton?
 	var delegate: ((Mode) -> ())?
+	
+	private let buttonWidth: CGFloat = 106
+	private let buttonHeight: CGFloat = 43
 	
 	init() {
 		super.init(frame: .zero)
@@ -48,21 +51,24 @@ class ModeButton: UIView {
 			circleView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 		
-		photoBtn = getButton("camera.fill", "Photo")
-		videoBtn = getButton("video.fill", "Video")
+		photoBtn = modeButton("camera.fill", "Photo")
+		videoBtn = modeButton("video.fill", "Video")
 		chosenBtn = photoBtn
-		photoBtn.backgroundColor = .systemGray5
+		chosenBtn?.backgroundColor = .systemGray5
+
 		stackView = UIView(frame: .zero)
 		stackView.addSubview(videoBtn)
 		stackView.addSubview(photoBtn)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-		stackView.clipsToBounds = true
 		stackView.layer.cornerRadius = 16
+		stackView.clipsToBounds = true
+		stackView.alpha = 0
+		
 		addSubview(stackView)
 		NSLayoutConstraint.activate([
-			stackView.widthAnchor.constraint(equalToConstant: 106),
-			stackView.heightAnchor.constraint(equalToConstant: 86),
+			stackView.widthAnchor.constraint(equalToConstant: buttonWidth),
+			stackView.heightAnchor.constraint(equalToConstant: buttonHeight*2),
 			stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
 			stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
 			videoBtn.bottomAnchor.constraint(equalTo: stackView.bottomAnchor),
@@ -70,7 +76,6 @@ class ModeButton: UIView {
 			photoBtn.bottomAnchor.constraint(equalTo: stackView.centerYAnchor),
 			photoBtn.centerXAnchor.constraint(equalTo: stackView.centerXAnchor)
 		])
-		stackView.alpha = 0
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -117,7 +122,7 @@ class ModeButton: UIView {
 		touchesEnded(touches, with: event)
 	}
 	
-	private func getButton(_ symbolName: String, _ text: String) -> UIButton {
+	private func modeButton(_ symbolName: String, _ text: String) -> UIButton {
 		let btn = UIButton(type: .custom)
 		btn.setImage(UIImage(systemName: symbolName), for: .normal)
 		btn.setTitle(text, for: .normal)
@@ -130,8 +135,8 @@ class ModeButton: UIView {
 		btn.titleEdgeInsets.right -= 8
 		btn.translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
-			btn.widthAnchor.constraint(equalToConstant: 106),
-			btn.heightAnchor.constraint(equalToConstant: 43)
+			btn.widthAnchor.constraint(equalToConstant: buttonWidth),
+			btn.heightAnchor.constraint(equalToConstant: buttonHeight)
 		])
 		return btn
 	}

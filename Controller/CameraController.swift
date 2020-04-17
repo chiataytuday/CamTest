@@ -172,7 +172,7 @@ extension CameraController {
 		lensSlider.range(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
-			self?.cam.setLensLocked(at: Float(self!.lensSlider.value))
+			self?.cam.lockLens(at: Float(self!.lensSlider.value))
 		}
 		view.addSubview(lensSlider)
 		lensSlider.align(to: .right)
@@ -251,7 +251,7 @@ extension CameraController {
 	@objc private func changeTorchMode() {
 		let torchEnabled = cam.captureDevice.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
-		cam.setTorch(mode) {
+		cam.torch(mode) {
 			User.shared.torchEnabled = !torchEnabled
 			self.statusBar.setVisiblity(for: "bolt.fill", torchEnabled)
 		}
@@ -276,9 +276,9 @@ extension CameraController {
 		let mode: AVCaptureDevice.FocusMode = isLocked ? .continuousAutoFocus : .locked
 		User.shared.focusMode = mode
 		if lensBtn.isActive {
-			cam.setLensLocked(at: Float(lensSlider.value))
+			cam.lockLens(at: Float(lensSlider.value))
 		} else {
-			cam.setLensAuto(mode)
+			cam.resetLens()
 		}
 		lensSlider.isActive = lensBtn.isActive
 	}
@@ -295,7 +295,7 @@ extension CameraController {
 		if let vc = presentedViewController as? PlayerController {
 			vc.player.play()
 		} else if User.shared.torchEnabled {
-			cam.setTorch(.on)
+			cam.torch(.on)
 		}
 	}
 	
@@ -312,7 +312,7 @@ extension CameraController {
 		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
 		view.isUserInteractionEnabled = true
 		if User.shared.torchEnabled {
-			cam.setTorch(.on)
+			cam.torch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
 		optionsGroup.show(); toolsGroup.show()
@@ -327,7 +327,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		if User.shared.torchEnabled {
-			cam.setTorch(.off)
+			cam.torch(.off)
 		}
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen

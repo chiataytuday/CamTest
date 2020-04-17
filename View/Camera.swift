@@ -80,6 +80,7 @@ class Camera {
 		}!
 	}
 	
+	
 	func attachPreview(to view: UIView) {
 		previewView.frame = view.frame
 		view.insertSubview(previewView, at: 0)
@@ -113,7 +114,6 @@ class Camera {
 		})
 	}
 	
-	
 	func setExposure(_ mode: AVCaptureDevice.ExposureMode, _ point: CGPoint? = nil, _ handler: (() -> ())? = nil) {
 		if captureDevice.isExposureModeSupported(mode) {
 			handler?()
@@ -140,7 +140,7 @@ class Camera {
 		}
 	}
 	
-	func setLensLocked(at pos: Float) {
+	func lockLens(at pos: Float) {
 		if captureDevice.isFocusModeSupported(.locked) {
 			do {
 				try captureDevice.lockForConfiguration()
@@ -152,11 +152,11 @@ class Camera {
 		}
 	}
 	
-	func setLensAuto(_ mode: AVCaptureDevice.FocusMode) {
-		if captureDevice.isFocusModeSupported(mode) {
+	func resetLens() {
+		if captureDevice.isFocusModeSupported(.continuousAutoFocus) {
 			do {
 				try captureDevice.lockForConfiguration()
-				captureDevice.focusMode = mode
+				captureDevice.focusMode = .continuousAutoFocus
 				captureDevice.unlockForConfiguration()
 			} catch {
 				print(error.localizedDescription)
@@ -164,7 +164,7 @@ class Camera {
 		}
 	}
 	
-	func setTorch(_ mode: AVCaptureDevice.TorchMode, _ handler: (() -> ())? = nil) {
+	func torch(_ mode: AVCaptureDevice.TorchMode, _ handler: (() -> ())? = nil) {
 		if captureDevice.isTorchModeSupported(mode) {
 			handler?()
 			do {
