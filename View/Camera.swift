@@ -152,11 +152,10 @@ class Camera {
 		}
 	}
 	
-	func setLensAuto(_ mode: AVCaptureDevice.FocusMode,_ point: CGPoint) {
+	func setLensAuto(_ mode: AVCaptureDevice.FocusMode) {
 		if captureDevice.isFocusModeSupported(mode) {
 			do {
 				try captureDevice.lockForConfiguration()
-				captureDevice.focusPointOfInterest = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
 				captureDevice.focusMode = mode
 				captureDevice.unlockForConfiguration()
 			} catch {

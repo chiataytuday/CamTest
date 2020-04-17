@@ -19,7 +19,7 @@ class CameraController: UIViewController {
 	var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
 	var toolsGroup, optionsGroup: ButtonsGroup!
 	var exposureSlider, lensSlider: VerticalSlider!
-	var exposurePoint, lensPoint: MovablePoint!
+	var exposurePoint: MovablePoint!
 	var statusBar: StatusBar!
 	var currentMode: Mode = .photo
 	
@@ -198,15 +198,6 @@ extension CameraController {
 		exposurePoint.cam = cam
 		view.addSubview(exposurePoint)
 		
-		lensPoint = MovablePoint(symbolName: "scope")
-		lensPoint.center = view.center
-		lensPoint.ended = { [weak self] in
-			self?.cam.setLensAuto(.autoFocus, self!.lensPoint.center)
-		}
-		lensPoint.alpha = 0
-		lensPoint.cam = cam
-		view.addSubview(lensPoint)
-		
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
 	}
@@ -286,10 +277,8 @@ extension CameraController {
 		User.shared.focusMode = mode
 		if lensBtn.isActive {
 			cam.setLensLocked(at: Float(lensSlider.value))
-			lensPoint.show()
 		} else {
-			cam.setLensAuto(mode, lensPoint.center)
-			lensPoint.hide()
+			cam.setLensAuto(mode)
 		}
 		lensSlider.isActive = lensBtn.isActive
 	}
