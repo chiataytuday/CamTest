@@ -361,7 +361,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 extension CameraController: AVCapturePhotoCaptureDelegate {
 	func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
 		guard let data = photo.fileDataRepresentation(), let image = UIImage(data: data) else { return }
-		DispatchQueue.global(qos: .background).async {
+		DispatchQueue.main.async {
 			UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
 		}
 	}

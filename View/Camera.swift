@@ -100,6 +100,7 @@ final class Camera {
 	
 	func takeShot(_ delegate: AVCapturePhotoCaptureDelegate) {
 		let settings = AVCapturePhotoSettings(format: [AVVideoCodecKey : AVVideoCodecType.jpeg])
+		settings.flashMode = .off
 		photoOutput.capturePhoto(with: settings, delegate: delegate)
 	}
 	

@@ -59,9 +59,9 @@ final class PhotoButton: CustomButton {
 			case .began:
 				photoCounter = 0
 				tracker?.fadeIn()
-				timer = Timer.scheduledTimer(withTimeInterval: 0.075, repeats: true, block: { _ in
-					if self.photoCounter + 1 < self.tracker!.maxNumber {
-						self.takePhoto()
+				timer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true, block: { [weak self] _ in
+					if self!.photoCounter + 1 < self!.tracker!.maxNumber {
+						self?.takePhoto()
 					}
 				})
 			case .ended:
