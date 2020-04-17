@@ -105,7 +105,7 @@ final class PhotoButton: CustomButton {
 		}.startAnimation()
 		
 		UIView.animate(withDuration: 0.25, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0, options: .curveEaseOut, animations: {
-			self.circleView.backgroundColor = .label
+			self.circleView.backgroundColor = .secondaryLabel
 			self.circleView.transform = .identity
 		})
 	}
