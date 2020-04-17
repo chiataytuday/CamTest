@@ -8,8 +8,6 @@
 
 import UIKit
 
-#warning("TO-DO: protocol activable")
-
 final class VerticalSlider : UIView {
 	
 	enum Alignment {
