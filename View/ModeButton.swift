@@ -15,7 +15,7 @@ enum Mode {
 class ModeButton: UIView {
 	
 	let circleView: UIImageView = {
-		let image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
+		let image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
 		let imageView = UIImageView(image: image)
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		imageView.isUserInteractionEnabled = false
@@ -50,8 +50,8 @@ class ModeButton: UIView {
 		
 		photoBtn = getButton("camera.fill", "Photo")
 		videoBtn = getButton("video.fill", "Video")
-		chosenBtn = videoBtn
-		videoBtn.backgroundColor = .systemGray5
+		chosenBtn = photoBtn
+		photoBtn.backgroundColor = .systemGray5
 		stackView = UIView(frame: .zero)
 		stackView.addSubview(videoBtn)
 		stackView.addSubview(photoBtn)

@@ -21,7 +21,7 @@ class CameraController: UIViewController {
 	var exposureSlider, lensSlider: VerticalSlider!
 	var exposurePoint, lensPoint: MovablePoint!
 	var statusBar: StatusBar!
-	var currentMode: Mode = .video
+	var currentMode: Mode = .photo
 	
 	var activeSlider: VerticalSlider?
 	var playerController: PlayerController?
@@ -114,7 +114,7 @@ extension CameraController {
 			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
 			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
-		photoBtn.isHidden = true
+//		photoBtn.isHidden = true
 		
 		exposureBtn = CustomButton(.small, "sun.max.fill")
 		lensBtn = CustomButton(.small, "scope")
