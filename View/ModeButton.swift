@@ -12,22 +12,23 @@ enum Mode {
 	case video, photo
 }
 
-class ModeButton: UIView {
+final class ModeButton: UIView {
 	
-	let circleView: UIImageView = {
-		let image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
-		let imageView = UIImageView(image: image)
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		imageView.isUserInteractionEnabled = false
-		imageView.contentMode = .center
-		imageView.tintColor = .systemGray6
-		return imageView
+	let icon: UIImageView = {
+		let img = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
+		let imgView = UIImageView(image: img)
+		imgView.translatesAutoresizingMaskIntoConstraints = false
+		imgView.isUserInteractionEnabled = false
+		imgView.contentMode = .center
+		imgView.tintColor = .systemGray6
+		return imgView
 	}()
 	
 	private var stackView: UIView!
 	private var photoBtn, videoBtn: UIButton!
 	private var chosenBtn: UIButton?
-	var delegate: ((Mode) -> ())?
+	var didChange: ((Mode) -> ())?
+	var willSelect: (() -> ())?
 	
 	private let buttonWidth: CGFloat = 106
 	private let buttonHeight: CGFloat = 43
@@ -45,10 +46,10 @@ class ModeButton: UIView {
 	}
 	
 	private func setupSubviews() {
-		addSubview(circleView)
+		addSubview(icon)
 		NSLayoutConstraint.activate([
-			circleView.centerXAnchor.constraint(equalTo: centerXAnchor),
-			circleView.centerYAnchor.constraint(equalTo: centerYAnchor)
+			icon.centerXAnchor.constraint(equalTo: centerXAnchor),
+			icon.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
 		
 		photoBtn = modeButton("camera.fill", "Photo")
@@ -79,13 +80,14 @@ class ModeButton: UIView {
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+		willSelect?()
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.stackView.isHidden = false
 			self.stackView.transform = .identity
-			self.circleView.transform = CGAffineTransform(scaleX: 4, y: 4)
+			self.icon.transform = CGAffineTransform(scaleX: 4, y: 4)
 			self.transform = CGAffineTransform(translationX: -106/2.5, y: 86/1.25)
-			self.circleView.alpha = 0
+			self.icon.alpha = 0
 			self.stackView.alpha = 1
 		})
 	}
@@ -107,12 +109,12 @@ class ModeButton: UIView {
 	
 	override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
 		let chosenMode: Mode = chosenBtn == photoBtn ? .photo : .video
-		delegate?(chosenMode)
+		didChange?(chosenMode)
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-			self.circleView.transform = .identity
-			self.circleView.alpha = 1
-			self.circleView.isHidden = false
+			self.icon.transform = .identity
+			self.icon.alpha = 1
+			self.icon.isHidden = false
 			self.transform = .identity
 			self.stackView.alpha = 0
 		})
