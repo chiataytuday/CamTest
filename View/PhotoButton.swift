@@ -18,7 +18,7 @@ class PhotoButton: CustomButton {
 		let circle = UIView()
 		circle.translatesAutoresizingMaskIntoConstraints = false
 		circle.isUserInteractionEnabled = false
-		circle.backgroundColor = .label
+		circle.backgroundColor = .secondaryLabel
 		circle.layer.cornerRadius = 10
 		NSLayoutConstraint.activate([
 			circle.widthAnchor.constraint(equalToConstant: 20),
