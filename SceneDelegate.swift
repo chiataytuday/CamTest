@@ -19,7 +19,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		
 		let vc = PermissionsController.grantedCount() < 3 ? PermissionsController() : CameraController()
 		vc.modalPresentationStyle = .fullScreen
-		
+		if let window = window {
+			User.shared.hasNotch = window.safeAreaInsets.bottom > 0
+		}
 		window?.rootViewController = vc
 		window?.makeKeyAndVisible()
 		

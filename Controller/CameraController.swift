@@ -193,8 +193,9 @@ extension CameraController {
 	private func setupAdditional() {
 		statusBar = StatusBar(contentsOf: ["bolt.fill", "lock.fill", "sun.max.fill", "scope"])
 		view.addSubview(statusBar)
+		let topMargin: CGFloat = User.shared.hasNotch ? 5 : 25
 		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin),
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 			modeBtn.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
 		])
