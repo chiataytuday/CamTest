@@ -163,6 +163,7 @@ extension CameraController {
 		}
 		
 		curBtn.isUserInteractionEnabled = true
+		curBtn.backgroundColor = .systemGray5
 		UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			curBtn.transform = .identity
 			curBtn.backgroundColor = .systemGray6

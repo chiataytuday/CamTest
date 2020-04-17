@@ -20,7 +20,7 @@ final class ModeButton: UIView {
 		imgView.translatesAutoresizingMaskIntoConstraints = false
 		imgView.isUserInteractionEnabled = false
 		imgView.contentMode = .center
-		imgView.tintColor = .systemGray6
+		imgView.tintColor = .systemYellow
 		return imgView
 	}()
 	
