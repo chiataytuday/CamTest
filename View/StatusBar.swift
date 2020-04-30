@@ -31,7 +31,7 @@ final class StatusBar : UIStackView {
 		let item = UIButton(type: .custom)
 		item.backgroundColor = .systemYellow
 		item.tintColor = .black
-		item.layer.cornerRadius = 10
+		item.layer.cornerRadius = 11
 		item.isUserInteractionEnabled = false
 		item.setImage(image, for: .normal)
 		item.isHidden = true
@@ -45,7 +45,7 @@ final class StatusBar : UIStackView {
 	func setVisiblity(for imageName: String, _ isVisible: Bool) {
 		guard dict.keys.contains(imageName) else { return }
 		
-		UIView.animate(withDuration: 0.375, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
+		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.65, initialSpringVelocity: 0.5, options: [], animations: {
 			self.dict[imageName]?.isHidden = isVisible
 			self.layoutIfNeeded()
 		})

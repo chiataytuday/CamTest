@@ -139,7 +139,7 @@ extension CameraController {
 		modeBtn.clipsToBounds = false
 		view.addSubview(modeBtn)
 		NSLayoutConstraint.activate([
-			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor, constant: 12)
+			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor)
 		])
 	}
 	
@@ -149,12 +149,12 @@ extension CameraController {
 			currentMode = mode
 				switch mode {
 					case .video:
-						modeBtn.icon.image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
+						modeBtn.icon.image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .regular))
 						photoBtn.isHidden = true
 						videoBtn.isHidden = false
 						curBtn = videoBtn
 					case .photo:
-						modeBtn.icon.image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .regular))
+						modeBtn.icon.image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
 						videoBtn.isHidden = true
 						photoBtn.isHidden = false
 						curBtn = photoBtn

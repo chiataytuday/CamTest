@@ -15,13 +15,21 @@ enum Mode {
 final class ModeButton: UIView {
 	
 	let icon: UIImageView = {
-		let img = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular))
+		let img = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
 		let imgView = UIImageView(image: img)
 		imgView.translatesAutoresizingMaskIntoConstraints = false
 		imgView.isUserInteractionEnabled = false
 		imgView.contentMode = .center
-		imgView.tintColor = .systemYellow
+		imgView.tintColor = .systemGray2
 		return imgView
+	}()
+	
+	let backgroundView: UIView = {
+		let view = UIView()
+		view.backgroundColor = .systemGray6
+		view.translatesAutoresizingMaskIntoConstraints = false
+		view.layer.cornerRadius = 11
+		return view
 	}()
 	
 	private var stackView: UIView!
@@ -46,10 +54,18 @@ final class ModeButton: UIView {
 	}
 	
 	private func setupSubviews() {
-		addSubview(icon)
+		addSubview(backgroundView)
 		NSLayoutConstraint.activate([
-			icon.centerXAnchor.constraint(equalTo: centerXAnchor),
-			icon.centerYAnchor.constraint(equalTo: centerYAnchor)
+			backgroundView.widthAnchor.constraint(equalToConstant: 41),
+			backgroundView.heightAnchor.constraint(equalToConstant: 26),
+			backgroundView.centerXAnchor.constraint(equalTo: centerXAnchor),
+			backgroundView.centerYAnchor.constraint(equalTo: centerYAnchor)
+		])
+		
+		backgroundView.addSubview(icon)
+		NSLayoutConstraint.activate([
+			icon.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor),
+			icon.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor)
 		])
 		
 		photoBtn = modeButton("camera.fill", "Photo")
@@ -85,9 +101,9 @@ final class ModeButton: UIView {
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.stackView.isHidden = false
 			self.stackView.transform = .identity
-			self.icon.transform = CGAffineTransform(scaleX: 4, y: 4)
+			self.backgroundView.transform = CGAffineTransform(scaleX: 2, y: 2)
 			self.transform = CGAffineTransform(translationX: -106/2.5, y: 86/1.25)
-			self.icon.alpha = 0
+			self.backgroundView.alpha = 0
 			self.stackView.alpha = 1
 		})
 	}
@@ -112,9 +128,9 @@ final class ModeButton: UIView {
 		didChange?(chosenMode)
 		UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.stackView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-			self.icon.transform = .identity
-			self.icon.alpha = 1
-			self.icon.isHidden = false
+			self.backgroundView.transform = .identity
+			self.backgroundView.alpha = 1
+			self.backgroundView.isHidden = false
 			self.transform = .identity
 			self.stackView.alpha = 0
 		})
