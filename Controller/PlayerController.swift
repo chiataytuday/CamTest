@@ -81,8 +81,9 @@ final class PlayerController: UIViewController {
 		
 		statusBar = StatusBar(contentsOf: ["scissors", "speaker.slash.fill"])
 		view.addSubview(statusBar)
+		let topMargin: CGFloat = User.shared.hasNotch ? 5 : 25
 		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin),
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
