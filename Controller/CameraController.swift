@@ -26,6 +26,8 @@ final class CameraController: UIViewController {
 	private var activeSlider: VerticalSlider?
 	private var playerController: PlayerController?
 	private var recordPath: TemporaryFileURL?
+
+	var gridButton: UIView!
 	
 	let blurEffectView: UIVisualEffectView = {
 		let effect = UIBlurEffect(style: .regular)
@@ -46,7 +48,8 @@ final class CameraController: UIViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		view.backgroundColor = .systemBackground
-		
+
+		setupGrid()
 		setupButtons()
 		targetActions()
 		setupSliders()
@@ -91,7 +94,7 @@ extension CameraController {
 		videoBtn = RecordButton(.big, radius: 23)
 		view.addSubview(videoBtn)
 		NSLayoutConstraint.activate([
-			videoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			videoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
 			videoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		videoBtn.isHidden = true
@@ -100,7 +103,7 @@ extension CameraController {
 		lockBtn = CustomButton(.small, "lock.fill")
 		toolsGroup = ButtonsGroup([torchBtn, lockBtn])
 		view.addSubview(toolsGroup)
-		let widthQuarter = (view.frame.width/2 - 31.25)/2
+		let widthQuarter = (view.frame.width/2 - 58)/2
 		NSLayoutConstraint.activate([
 			toolsGroup.centerYAnchor.constraint(equalTo: videoBtn.centerYAnchor),
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
@@ -113,7 +116,7 @@ extension CameraController {
 		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker, delegate: self)
 		view.addSubview(photoBtn)
 		NSLayoutConstraint.activate([
-			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
 			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 		
@@ -140,6 +143,31 @@ extension CameraController {
 		view.addSubview(modeBtn)
 		NSLayoutConstraint.activate([
 			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor)
+		])
+
+
+		let icon: UIImageView = {
+			let img = UIImage(systemName: "grid", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
+			let imgView = UIImageView(image: img)
+			imgView.translatesAutoresizingMaskIntoConstraints = false
+			imgView.isUserInteractionEnabled = false
+			imgView.contentMode = .center
+			imgView.tintColor = .systemGray2
+			return imgView
+		}()
+
+		gridButton = UIView()
+		gridButton.backgroundColor = .systemGray6
+		gridButton.layer.cornerRadius = 12
+		gridButton.translatesAutoresizingMaskIntoConstraints = false
+		view.addSubview(gridButton)
+		view.addSubview(icon)
+		NSLayoutConstraint.activate([
+			gridButton.widthAnchor.constraint(equalToConstant: 41),
+			gridButton.heightAnchor.constraint(equalToConstant: 26),
+			gridButton.centerXAnchor.constraint(equalTo: torchBtn.centerXAnchor),
+			icon.centerXAnchor.constraint(equalTo: gridButton.centerXAnchor),
+			icon.centerYAnchor.constraint(equalTo: gridButton.centerYAnchor)
 		])
 	}
 	
@@ -169,9 +197,45 @@ extension CameraController {
 			curBtn.backgroundColor = .systemGray6
 		})
 	}
+
+	private func setupGrid() {
+		let offset = view.frame.width/6
+		let yset = view.frame.height/6
+		let lines = UIView(frame: view.frame)
+		lines.isUserInteractionEnabled = false
+		lines.alpha = 1
+		lines.layer.shadowColor = UIColor.black.cgColor
+		lines.layer.shadowRadius = 1.5
+		lines.layer.shadowOffset.height = -0.75
+		lines.layer.shadowOpacity = 0.4
+		lines.alpha = 0.3
+
+		let line = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
+		line.center = CGPoint(x: offset * 2, y: view.center.y)
+		line.backgroundColor = .white
+
+		let line1 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
+		line1.center = CGPoint(x: offset * 4, y: view.center.y)
+		line1.backgroundColor = .white
+
+		let line2 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
+		line2.center = CGPoint(x: view.center.x, y: yset * 2)
+		line2.backgroundColor = .white
+
+		let line3 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
+		line3.center = CGPoint(x: view.center.x, y: yset * 4)
+		line3.backgroundColor = .white
+
+		lines.addSubview(line)
+		lines.addSubview(line1)
+		lines.addSubview(line2)
+		lines.addSubview(line3)
+		lines.center = view.center
+		view.addSubview(lines)
+	}
 	
 	private func setupSliders() {
-		exposureSlider = VerticalSlider(CGSize(width: 40, height: 280))
+		exposureSlider = VerticalSlider(CGSize(width: 40, height: 300))
 		exposureSlider.range(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.delegate = { [weak self] in
@@ -180,7 +244,7 @@ extension CameraController {
 		view.addSubview(exposureSlider)
 		exposureSlider.align(to: .left)
 		
-		lensSlider = VerticalSlider(CGSize(width: 40, height: 280))
+		lensSlider = VerticalSlider(CGSize(width: 40, height: 300))
 		lensSlider.range(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
@@ -197,7 +261,8 @@ extension CameraController {
 		NSLayoutConstraint.activate([
 			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin),
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			modeBtn.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
+			modeBtn.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor),
+			gridButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
 		])
 		
 		exposurePoint = MovablePoint(symbolName: "sun.max.fill")

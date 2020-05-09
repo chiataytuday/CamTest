@@ -66,8 +66,8 @@ final class PlayerController: UIViewController {
 		btnGroup = ButtonsGroup([backButton, trimButton, muteButton])
 		view.addSubview(btnGroup)
 		NSLayoutConstraint.activate([
-			btnGroup.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30)
+			btnGroup.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25)
 		])
 		
 		saveButton.layer.cornerRadius = 22.5
@@ -75,8 +75,8 @@ final class PlayerController: UIViewController {
 		NSLayoutConstraint.activate([
 			saveButton.widthAnchor.constraint(equalToConstant: 110),
 			saveButton.heightAnchor.constraint(equalToConstant: 45),
-			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
-			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30)
+			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
+			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25)
 		])
 		
 		statusBar = StatusBar(contentsOf: ["scissors", "speaker.slash.fill"])
@@ -88,7 +88,7 @@ final class PlayerController: UIViewController {
 		])
 		
 		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x,
-			y: view.frame.height - 5, width: view.frame.width - 60, height: 30))
+			y: view.frame.height + 5, width: view.frame.width - 40, height: 30))
 		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
 		

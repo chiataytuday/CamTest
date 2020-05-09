@@ -28,7 +28,7 @@ final class ModeButton: UIView {
 		let view = UIView()
 		view.backgroundColor = .systemGray6
 		view.translatesAutoresizingMaskIntoConstraints = false
-		view.layer.cornerRadius = 11
+		view.layer.cornerRadius = 12
 		return view
 	}()
 	

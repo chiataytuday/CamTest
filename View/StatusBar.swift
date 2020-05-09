@@ -31,7 +31,7 @@ final class StatusBar : UIStackView {
 		let item = UIButton(type: .custom)
 		item.backgroundColor = .systemYellow
 		item.tintColor = .black
-		item.layer.cornerRadius = 11
+		item.layer.cornerRadius = 12
 		item.isUserInteractionEnabled = false
 		item.setImage(image, for: .normal)
 		item.isHidden = true
