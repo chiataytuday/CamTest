@@ -111,7 +111,7 @@ final class RangeSlider: UIView {
 			inactivePoint = startPoint
 		}
 		touchOffset = touchX - activePoint!.center.x
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		videoPlayer?.pause()
 		
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 0, options: .allowUserInteraction, animations: {

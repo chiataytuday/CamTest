@@ -28,6 +28,7 @@ final class CameraController: UIViewController {
 	private var recordPath: TemporaryFileURL?
 
 	var topMargin, bottomMargin: CGFloat!
+	var grid: UIView!
 
 	var gridButton: UIView!
 	
@@ -93,13 +94,6 @@ extension CameraController {
 
 		/* Define top and bottom margins for UI */
 
-//		if User.shared.hasNotch {
-//			topMargin = 5
-//			bottomMargin = 0
-//		} else {
-//			topMargin = 20
-//			bottomMargin = -20
-//		}
 		topMargin = 5
 		bottomMargin = 0
 
@@ -175,6 +169,13 @@ extension CameraController {
 			modeButton.centerXAnchor.constraint(equalTo: lensButton.centerXAnchor),
 			modeButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
 		])
+
+		gridButton = GridButton(grid)
+		view.addSubview(gridButton)
+		NSLayoutConstraint.activate([
+			gridButton.centerXAnchor.constraint(equalTo: flashButton.centerXAnchor),
+			gridButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
+		])
 	}
 
 	private func modeSelectionWillChange() {
@@ -225,40 +226,40 @@ extension CameraController {
 		/* Configure lines layer */
 
 		let offsets = CGPoint(x: view.frame.width/6, y: view.frame.height/6)
-		let lines = UIView(frame: view.frame)
-		lines.isUserInteractionEnabled = false
-		lines.layer.shadowColor = UIColor.black.cgColor
-		lines.layer.shadowRadius = 1.5
-		lines.layer.shadowOffset.height = -0.75
-		lines.layer.shadowOpacity = 0.4
-		lines.alpha = 0.3
+		grid = UIView(frame: view.frame)
+		grid.isUserInteractionEnabled = false
+		grid.layer.shadowColor = UIColor.black.cgColor
+		grid.layer.shadowRadius = 1.5
+		grid.layer.shadowOffset.height = -0.75
+		grid.layer.shadowOpacity = 0.4
+		grid.alpha = 0
 
 		/* Layout lines */
 
 		let leftLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
 		leftLine.center = CGPoint(x: offsets.x * 2, y: view.center.y)
 		leftLine.backgroundColor = .white
-		lines.addSubview(leftLine)
+		grid.addSubview(leftLine)
 
 		let rightLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
 		rightLine.center = CGPoint(x: offsets.x * 4, y: view.center.y)
 		rightLine.backgroundColor = .white
-		lines.addSubview(rightLine)
+		grid.addSubview(rightLine)
 
 		let bottomLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
 		bottomLine.center = CGPoint(x: view.center.x, y: offsets.y * 2)
 		bottomLine.backgroundColor = .white
-		lines.addSubview(bottomLine)
+		grid.addSubview(bottomLine)
 
 		let topLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
 		topLine.center = CGPoint(x: view.center.x, y: offsets.y * 4)
 		topLine.backgroundColor = .white
-		lines.addSubview(topLine)
+		grid.addSubview(topLine)
 
 		/* Add to the view */
 
-		lines.center = view.center
-		view.addSubview(lines)
+		grid.center = view.center
+		view.addSubview(grid)
 	}
 	
 	private func setupSliders() {
@@ -303,6 +304,10 @@ extension CameraController {
 	}
 	
 	private func targetActions() {
+		for btn in [lockButton, videoButton, flashButton, exposureButton, lensButton, photoButton] {
+			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
+		}
+
 		photoButton.addTarget(photoButton, action: #selector(photoButton.touchUp), for: [.touchUpInside, .touchUpOutside])
 		lockButton.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
 		flashButton.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
@@ -330,7 +335,7 @@ extension CameraController {
 				self?.captureTouchUp()
 			})
 			camera.durationAnim?.startAnimation()
-			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide(); modeButton.hide()
+			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide(); modeButton.hide(); gridButton.hide()
 		} else {
 			view.isUserInteractionEnabled = false
 			camera.stopRecording()
@@ -388,13 +393,13 @@ extension CameraController {
 	}
 	
 	@objc private func didBecomeActive() {
-//		camera.previewView.videoPreviewLayer.connection?.isEnabled = true
-//		camera.captureSession.startRunning()
-//		if let vc = presentedViewController as? PlayerController {
-//			vc.player.play()
-//		} else if User.shared.torchEnabled {
-//			camera.torch(.on)
-//		}
+		camera.previewView.videoPreviewLayer.connection?.isEnabled = true
+		camera.captureSession.startRunning()
+		if let vc = presentedViewController as? PlayerController {
+			vc.player.play()
+		} else if User.shared.torchEnabled {
+			camera.torch(.on)
+		}
 	}
 	
 	@objc private func willResignActive() {
@@ -413,7 +418,7 @@ extension CameraController {
 			camera.torch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		optionsGroup.show(); toolsGroup.show(); modeButton.show()
+		optionsGroup.show(); toolsGroup.show(); modeButton.show(); gridButton.show()
 		statusBar.transform = .identity
 		statusBar.alpha = 1
 		playerController = nil

@@ -97,7 +97,7 @@ final class ModeButton: UIView {
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
 		willSelect?()
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		UIView.animate(withDuration: 0.35, delay: 0, usingSpringWithDamping: 0.75, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
 			self.stackView.isHidden = false
 			self.stackView.transform = .identity
@@ -112,12 +112,12 @@ final class ModeButton: UIView {
 		guard let touch = touches.first?.location(in: stackView) else { return }
 		if photoBtn.frame.contains(touch) && chosenBtn != photoBtn {
 			chosenBtn = photoBtn
-			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 			photoBtn.backgroundColor = .systemGray5
 			videoBtn.backgroundColor = .systemGray6
 		} else if videoBtn.frame.contains(touch) && chosenBtn != videoBtn {
 			chosenBtn = videoBtn
-			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+			UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 			videoBtn.backgroundColor = .systemGray5
 			photoBtn.backgroundColor = .systemGray6
 		}

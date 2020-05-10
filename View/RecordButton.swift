@@ -59,7 +59,6 @@ final class RecordButton : CustomButton {
 	
 	@objc override func touchDown() {
 		circleView.transform = .identity
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
 		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.circleView.transform = CGAffineTransform(translationX: 0, y: 5)
 				.scaledBy(x: 0.75, y: 0.75)
@@ -67,7 +66,7 @@ final class RecordButton : CustomButton {
 	}
 	
 	func touchUp(camIsRecording: Bool) {
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.35)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.5)
 		
 		let circleRadius: CGFloat = camIsRecording ? 10 : 3.25
 		let pulsatingRadius: CGFloat = camIsRecording ? 10 : 6

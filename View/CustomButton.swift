@@ -34,8 +34,6 @@ class CustomButton : UIButton {
 			widthAnchor.constraint(equalToConstant: rect.width),
 			heightAnchor.constraint(equalToConstant: rect.height)
 		])
-
-		addTarget(self, action: #selector(touchDown), for: .touchDown)
 	}
 	
 	private func setState(_ active: Bool) {
@@ -54,7 +52,7 @@ class CustomButton : UIButton {
 		// shouldn't apply this in init
 		imageView?.contentMode = .center
 		// because buttons' images of launchscreen will look different
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 
 		isActive = !isActive
 		setState(isActive)

@@ -78,7 +78,7 @@ final class PhotoButton: CustomButton {
 		cam?.takeShot(delegate!)
 		photoCounter += 1
 		tracker?.setLabel(number: photoCounter)
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.3)
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.5)
 	}
 	
 	override func touchDown() {
@@ -88,7 +88,6 @@ final class PhotoButton: CustomButton {
 		}.startAnimation()
 		
 		takePhoto()
-		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		circleView.backgroundColor = .systemGray
 		UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.4, initialSpringVelocity: 1, options: [], animations: {
 			self.circleView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
