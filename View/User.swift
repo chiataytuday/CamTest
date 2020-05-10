@@ -14,7 +14,6 @@ final class User {
 	var exposureMode: AVCaptureDevice.ExposureMode
 	var focusMode: AVCaptureDevice.FocusMode
 	var torchEnabled: Bool
-	var hasNotch = false
 	
 	private init() {
 		exposureMode = .continuousAutoExposure

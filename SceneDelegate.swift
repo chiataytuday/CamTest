@@ -20,8 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		let vc = PermissionsController.grantedCount() < 3 ? PermissionsController() : CameraController()
 		vc.modalPresentationStyle = .fullScreen
 		if let window = window {
-			User.shared.hasNotch = window.safeAreaInsets.bottom > 0
-			if !User.shared.hasNotch && vc is CameraController {
+			let hasNotch = window.safeAreaInsets.bottom > 0
+			if !hasNotch && vc is CameraController {
 				vc.additionalSafeAreaInsets.top = 15
 				vc.additionalSafeAreaInsets.bottom = 20
 			}

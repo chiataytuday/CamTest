@@ -433,6 +433,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 			camera.torch(.off)
 		}
 		playerController = PlayerController()
+		playerController?.additionalSafeAreaInsets = additionalSafeAreaInsets
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
 			self?.camera.previewView.videoPreviewLayer.connection?.isEnabled = false

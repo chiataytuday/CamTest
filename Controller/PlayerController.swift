@@ -60,14 +60,17 @@ final class PlayerController: UIViewController {
 	}
 	
 	private func setupButtons() {
+		let topMargin: CGFloat = 5
+		let bottomMargin: CGFloat = 0
+
 		backButton = CustomButton(.small, "xmark")
 		trimButton = CustomButton(.small, "scissors")
 		muteButton = CustomButton(.small, "speaker.slash.fill")
 		btnGroup = ButtonsGroup([backButton, trimButton, muteButton])
 		view.addSubview(btnGroup)
 		NSLayoutConstraint.activate([
-			btnGroup.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 25)
+			btnGroup.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: bottomMargin),
+			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
 		])
 		
 		saveButton.layer.cornerRadius = 22.5
@@ -75,20 +78,21 @@ final class PlayerController: UIViewController {
 		NSLayoutConstraint.activate([
 			saveButton.widthAnchor.constraint(equalToConstant: 110),
 			saveButton.heightAnchor.constraint(equalToConstant: 45),
-			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -25)
+			saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: bottomMargin),
+			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
 		])
-		
+
+
 		statusBar = StatusBar(contentsOf: ["scissors", "speaker.slash.fill"])
 		view.addSubview(statusBar)
-		let topMargin: CGFloat = User.shared.hasNotch ? 5 : 25
 		NSLayoutConstraint.activate([
 			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin),
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
-		
+
+		let y = view.frame.height + 30 - additionalSafeAreaInsets.bottom - bottomMargin
 		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x,
-			y: view.frame.height + 5, width: view.frame.width - 40, height: 30))
+			y: y, width: view.frame.width - 40, height: 30))
 		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
 		
