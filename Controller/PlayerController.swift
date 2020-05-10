@@ -89,9 +89,12 @@ final class PlayerController: UIViewController {
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 
-		let y = view.frame.height + 30 - additionalSafeAreaInsets.bottom - bottomMargin
+		let sliderY = User.shared.deviceHasNotch ?
+			view.frame.height - additionalSafeAreaInsets.bottom - 5 :
+			view.frame.height + 7.5
+
 		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x,
-			y: y, width: view.frame.width - 40, height: 30))
+			y: sliderY, width: view.frame.width - 40, height: 30))
 		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
 		

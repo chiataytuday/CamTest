@@ -14,10 +14,12 @@ final class User {
 	var exposureMode: AVCaptureDevice.ExposureMode
 	var focusMode: AVCaptureDevice.FocusMode
 	var torchEnabled: Bool
+	var deviceHasNotch: Bool
 	
 	private init() {
 		exposureMode = .continuousAutoExposure
 		focusMode = .continuousAutoFocus
 		torchEnabled = false
+		deviceHasNotch = false
 	}
 }
