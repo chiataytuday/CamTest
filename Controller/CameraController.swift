@@ -13,10 +13,10 @@ import AudioToolbox
 final class CameraController: UIViewController {
 	
 	private var cam: Camera!
-	private var photoBtn: PhotoButton!
-	private var videoBtn: RecordButton!
-	private var modeBtn: ModeButton!
-	private var torchBtn, lockBtn, exposureBtn, lensBtn: CustomButton!
+	private var photoButton: PhotoButton!
+	private var videoButton: RecordButton!
+	private var modeButton: ModeButton!
+	private var flashButton, lockButton, exposureButton, lensButton: CustomButton!
 	private var toolsGroup, optionsGroup: ButtonsGroup!
 	private var exposureSlider, lensSlider: VerticalSlider!
 	private var exposurePoint: MovablePoint!
@@ -26,6 +26,8 @@ final class CameraController: UIViewController {
 	private var activeSlider: VerticalSlider?
 	private var playerController: PlayerController?
 	private var recordPath: TemporaryFileURL?
+
+	var topMargin, bottomMargin: CGFloat!
 
 	var gridButton: UIView!
 	
@@ -37,25 +39,24 @@ final class CameraController: UIViewController {
 		return effectView
 	}()
 	
-	var blackView: UIView = {
+	var blinkView: UIView = {
 		let view = UIView()
 		view.backgroundColor = .black
 		view.alpha = 0
 		return view
 	}()
 	
-	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .systemBackground
+		view.backgroundColor = .systemRed
 
 		setupGrid()
 		setupButtons()
 		targetActions()
 		setupSliders()
-		cam = Camera()
-		photoBtn.cam = cam
-		cam.attachPreview(to: view)
+//		cam = Camera()
+//		photoBtn.cam = cam
+//		cam.attachPreview(to: view)
 		setupAdditional()
 	}
 	
@@ -86,66 +87,137 @@ final class CameraController: UIViewController {
 
 
 extension CameraController {
-	
-	private func setupButtons() {
-		blackView.frame = view.frame
-		view.addSubview(blackView)
-		
-		videoBtn = RecordButton(.big, radius: 23)
-		view.addSubview(videoBtn)
+
+	fileprivate func setupBottomButtons() {
+
+		/* Define top and bottom margins for UI */
+
+		if User.shared.hasNotch {
+			topMargin = 5
+			bottomMargin = 0
+		} else {
+			topMargin = 20
+			bottomMargin = 20
+		}
+
+		/* Setup video button */
+
+		videoButton = RecordButton(.big, radius: 23)
+		videoButton.isHidden = true
+		view.addSubview(videoButton)
 		NSLayoutConstraint.activate([
-			videoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			videoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+			videoButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: bottomMargin),
+			videoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
-		videoBtn.isHidden = true
-		
-		torchBtn = CustomButton(.small, "bolt.fill")
-		lockBtn = CustomButton(.small, "lock.fill")
-		toolsGroup = ButtonsGroup([torchBtn, lockBtn])
+
+		/* Setup photo button */
+
+		blinkView.frame = view.frame
+		view.addSubview(blinkView)
+
+		let counterPosition = CGPoint(x: view.center.x, y: view.frame.height - 120)
+		let photoCounter = Tracker(center: counterPosition, maxNumber: 20)
+		view.addSubview(photoCounter)
+
+		photoButton = PhotoButton(.big, radius: 23, view: blinkView, tracker: photoCounter, delegate: self)
+		view.addSubview(photoButton)
+		NSLayoutConstraint.activate([
+			photoButton.bottomAnchor.constraint(equalTo: videoButton.bottomAnchor),
+			photoButton.centerXAnchor.constraint(equalTo: videoButton.centerXAnchor)
+		])
+
+		/* Setup left stackview */
+
+		flashButton = CustomButton(.small, "bolt.fill")
+		lockButton = CustomButton(.small, "lock.fill")
+		toolsGroup = ButtonsGroup([flashButton, lockButton])
 		view.addSubview(toolsGroup)
 		let widthQuarter = (view.frame.width/2 - 58)/2
 		NSLayoutConstraint.activate([
-			toolsGroup.centerYAnchor.constraint(equalTo: videoBtn.centerYAnchor),
+			toolsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
 			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
 		])
-		
-		let trackerPos = CGPoint(x: view.center.x, y: view.frame.height - 120)
-		let tracker = Tracker(center: trackerPos, maxNumber: 20)
-		view.addSubview(tracker)
-		
-		photoBtn = PhotoButton(.big, radius: 23, view: blackView, tracker: tracker, delegate: self)
-		view.addSubview(photoBtn)
-		NSLayoutConstraint.activate([
-			photoBtn.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -25),
-			photoBtn.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-		])
-		
-		exposureBtn = CustomButton(.small, "sun.max.fill")
-		lensBtn = CustomButton(.small, "scope")
-		optionsGroup = ButtonsGroup([exposureBtn, lensBtn])
+
+		/* Setup right stackview */
+
+		exposureButton = CustomButton(.small, "sun.max.fill")
+		lensButton = CustomButton(.small, "scope")
+		optionsGroup = ButtonsGroup([exposureButton, lensButton])
 		view.addSubview(optionsGroup)
 		NSLayoutConstraint.activate([
-			optionsGroup.centerYAnchor.constraint(equalTo: videoBtn.centerYAnchor),
+			optionsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
 			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
 		])
-		
-		modeBtn = ModeButton()
-		modeBtn.willSelect = { [weak self] in
-			let activeBtn = self!.currentMode == .photo ? self!.photoBtn : self!.videoBtn
-			activeBtn?.isUserInteractionEnabled = false
-			UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-				activeBtn?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-				activeBtn?.backgroundColor = .systemGray5
-			})
-		}
-		modeBtn.didChange = modeChanged(to:)
-		modeBtn.clipsToBounds = false
-		view.addSubview(modeBtn)
+	}
+
+	fileprivate func setupTopButtons() {
+
+		/* Status bar setup */
+
+		statusBar = StatusBar(contentsOf: ["bolt.fill", "lock.fill", "sun.max.fill", "scope"])
+		view.addSubview(statusBar)
 		NSLayoutConstraint.activate([
-			modeBtn.centerXAnchor.constraint(equalTo: lensBtn.centerXAnchor)
+			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin)
 		])
 
+		/* Mode button setup */
 
+		modeButton = ModeButton()
+		modeButton.willSelect = modeSelectionWillChange
+		modeButton.didChange = modeDidChange(to:)
+		modeButton.clipsToBounds = false
+		view.addSubview(modeButton)
+		NSLayoutConstraint.activate([
+			modeButton.centerXAnchor.constraint(equalTo: lensButton.centerXAnchor),
+			modeButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
+		])
+	}
+
+	fileprivate func modeSelectionWillChange() {
+		let currentButton = currentMode == .photo ? photoButton : videoButton
+		currentButton?.isUserInteractionEnabled = false
+		UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			currentButton?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+			currentButton?.backgroundColor = .systemGray5
+		})
+	}
+
+	fileprivate func modeDidChange(to mode: Mode) {
+
+		/* Change mode button icon,
+		Make selected capture button visible
+		*/
+
+		var currentButton = currentMode == .photo ? photoButton : videoButton
+		if mode != currentMode {
+			currentMode = mode
+
+			if currentMode == .video {
+				modeButton.icon.image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .regular))
+				photoButton.isHidden = true
+				videoButton.isHidden = false
+				currentButton = videoButton
+			} else {
+				modeButton.icon.image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
+				videoButton.isHidden = true
+				photoButton.isHidden = false
+				currentButton = photoButton
+			}
+			currentButton?.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
+		}
+
+		/* Animate selected capture button */
+
+		currentButton?.isUserInteractionEnabled = true
+		currentButton?.backgroundColor = .systemGray5
+		UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
+			currentButton?.transform = .identity
+			currentButton?.backgroundColor = .systemGray6
+		})
+	}
+	
+	/*private func setupButtons() {
 		let icon: UIImageView = {
 			let img = UIImage(systemName: "grid", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
 			let imgView = UIImageView(image: img)
@@ -165,38 +237,11 @@ extension CameraController {
 		NSLayoutConstraint.activate([
 			gridButton.widthAnchor.constraint(equalToConstant: 41),
 			gridButton.heightAnchor.constraint(equalToConstant: 26),
-			gridButton.centerXAnchor.constraint(equalTo: torchBtn.centerXAnchor),
+			gridButton.centerXAnchor.constraint(equalTo: flashButton.centerXAnchor),
 			icon.centerXAnchor.constraint(equalTo: gridButton.centerXAnchor),
 			icon.centerYAnchor.constraint(equalTo: gridButton.centerYAnchor)
 		])
-	}
-	
-	private func modeChanged(to mode: Mode) {
-		var curBtn: CustomButton = currentMode == .photo ? photoBtn : videoBtn
-		if mode != currentMode {
-			currentMode = mode
-				switch mode {
-					case .video:
-						modeBtn.icon.image = UIImage(systemName: "video.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 14, weight: .regular))
-						photoBtn.isHidden = true
-						videoBtn.isHidden = false
-						curBtn = videoBtn
-					case .photo:
-						modeBtn.icon.image = UIImage(systemName: "camera.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
-						videoBtn.isHidden = true
-						photoBtn.isHidden = false
-						curBtn = photoBtn
-				}
-			curBtn.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
-		}
-		
-		curBtn.isUserInteractionEnabled = true
-		curBtn.backgroundColor = .systemGray5
-		UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
-			curBtn.transform = .identity
-			curBtn.backgroundColor = .systemGray6
-		})
-	}
+	}*/
 
 	private func setupGrid() {
 		let offset = view.frame.width/6
@@ -255,16 +300,6 @@ extension CameraController {
 	}
 	
 	private func setupAdditional() {
-		statusBar = StatusBar(contentsOf: ["bolt.fill", "lock.fill", "sun.max.fill", "scope"])
-		view.addSubview(statusBar)
-		let topMargin: CGFloat = User.shared.hasNotch ? 5 : 25
-		NSLayoutConstraint.activate([
-			statusBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: topMargin),
-			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-			modeBtn.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor),
-			gridButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
-		])
-		
 		exposurePoint = MovablePoint(symbolName: "sun.max.fill")
 		exposurePoint.center = view.center
 		exposurePoint.moved = { [weak self] in
@@ -281,17 +316,17 @@ extension CameraController {
 	}
 	
 	private func targetActions() {
-		for btn in [lockBtn, videoBtn, torchBtn, exposureBtn, lensBtn, photoBtn] {
+		for btn in [lockButton, videoButton, flashButton, exposureButton, lensButton, photoButton] {
 			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
 		}
 		
-		photoBtn.addTarget(photoBtn, action: #selector(photoBtn.touchUp), for: [.touchUpInside, .touchUpOutside])
-		lockBtn.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
-		torchBtn.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
-		exposureBtn.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)
-		lensBtn.addTarget(self, action: #selector(onOffManualLens), for: .touchDown)
-		videoBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
-		videoBtn.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
+		photoButton.addTarget(photoButton, action: #selector(photoButton.touchUp), for: [.touchUpInside, .touchUpOutside])
+		lockButton.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
+		flashButton.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
+		exposureButton.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)
+		lensButton.addTarget(self, action: #selector(onOffManualLens), for: .touchDown)
+		videoButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
+		videoButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -301,7 +336,7 @@ extension CameraController {
 	// MARK: - Buttons' handlers
 	
 	@objc private func recordTouchUp() {
-		videoBtn.touchUp(camIsRecording: cam.isRecording)
+		videoButton.touchUp(camIsRecording: cam.isRecording)
 		
 		if !cam.isRecording {
 			recordPath = TemporaryFileURL(extension: "mp4")
@@ -337,12 +372,12 @@ extension CameraController {
 	
 	@objc private func onOffManualExposure() {
 		statusBar.setVisiblity(for: "sun.max.fill", exposureSlider.isActive)
-		if exposureBtn.isActive {
+		if exposureButton.isActive {
 			cam.setTargetBias(Float(exposureSlider.value))
 		} else {
 			cam.setTargetBias(0)
 		}
-		exposureSlider.isActive = exposureBtn.isActive
+		exposureSlider.isActive = exposureButton.isActive
 	}
 	
 	@objc private func onOffManualLens() {
@@ -353,12 +388,12 @@ extension CameraController {
 		let isLocked = cam.captureDevice.focusMode != .continuousAutoFocus
 		let mode: AVCaptureDevice.FocusMode = isLocked ? .continuousAutoFocus : .locked
 		User.shared.focusMode = mode
-		if lensBtn.isActive {
+		if lensButton.isActive {
 			cam.lockLens(at: Float(lensSlider.value))
 		} else {
 			cam.resetLens()
 		}
-		lensSlider.isActive = lensBtn.isActive
+		lensSlider.isActive = lensButton.isActive
 	}
 	
 	// MARK: - Secondary methods
@@ -368,13 +403,13 @@ extension CameraController {
 	}
 	
 	@objc private func didBecomeActive() {
-		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
-		cam.captureSession.startRunning()
-		if let vc = presentedViewController as? PlayerController {
-			vc.player.play()
-		} else if User.shared.torchEnabled {
-			cam.torch(.on)
-		}
+//		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
+//		cam.captureSession.startRunning()
+//		if let vc = presentedViewController as? PlayerController {
+//			vc.player.play()
+//		} else if User.shared.torchEnabled {
+//			cam.torch(.on)
+//		}
 	}
 	
 	@objc private func willResignActive() {
@@ -452,4 +487,20 @@ extension UIView {
 			self.alpha = 0
 		}.startAnimation()
 	}
+}
+
+extension UIView {
+	func attachSafelyBottomInContainer(margin: CGFloat = 0) {
+		if #available(iOS 11.0, *) {
+			self.bottomAnchor.constraint(
+				equalTo: superview!.safeAreaLayoutGuide.bottomAnchor,
+				constant: margin
+			).isActive = true
+		} else {
+			self.bottomAnchor.constraint(
+				equalTo: superview!.bottomAnchor,
+				constant: margin
+			).isActive = true
+		}
+    }
 }
