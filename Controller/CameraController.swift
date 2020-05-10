@@ -12,7 +12,7 @@ import AudioToolbox
 
 final class CameraController: UIViewController {
 	
-	private var cam: Camera!
+	private var camera: Camera!
 	private var photoButton: PhotoButton!
 	private var videoButton: RecordButton!
 	private var modeButton: ModeButton!
@@ -65,7 +65,7 @@ final class CameraController: UIViewController {
 		if let slider = touchX > view.frame.width/2 ? lensSlider : exposureSlider, slider.isActive {
 			activeSlider = slider
 			if activeSlider == lensSlider {
-				lensSlider.set(value: CGFloat(cam.captureDevice.lensPosition))
+				lensSlider.set(value: CGFloat(camera.captureDevice.lensPosition))
 			}
 		}
 		activeSlider?.touchesBegan(touches, with: event)
@@ -88,7 +88,7 @@ final class CameraController: UIViewController {
 
 extension CameraController {
 
-	fileprivate func setupBottomButtons() {
+	private func setupBottomButtons() {
 
 		/* Define top and bottom margins for UI */
 
@@ -150,7 +150,7 @@ extension CameraController {
 		])
 	}
 
-	fileprivate func setupTopButtons() {
+	private func setupTopButtons() {
 
 		/* Status bar setup */
 
@@ -174,7 +174,7 @@ extension CameraController {
 		])
 	}
 
-	fileprivate func modeSelectionWillChange() {
+	private func modeSelectionWillChange() {
 		let currentButton = currentMode == .photo ? photoButton : videoButton
 		currentButton?.isUserInteractionEnabled = false
 		UIView.animate(withDuration: 0.275, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
@@ -183,7 +183,7 @@ extension CameraController {
 		})
 	}
 
-	fileprivate func modeDidChange(to mode: Mode) {
+	private func modeDidChange(to mode: Mode) {
 
 		/* Change mode button icon,
 		Make selected capture button visible
@@ -216,110 +216,90 @@ extension CameraController {
 			currentButton?.backgroundColor = .systemGray6
 		})
 	}
-	
-	/*private func setupButtons() {
-		let icon: UIImageView = {
-			let img = UIImage(systemName: "grid", withConfiguration: UIImage.SymbolConfiguration(pointSize: 15, weight: .regular))
-			let imgView = UIImageView(image: img)
-			imgView.translatesAutoresizingMaskIntoConstraints = false
-			imgView.isUserInteractionEnabled = false
-			imgView.contentMode = .center
-			imgView.tintColor = .systemGray2
-			return imgView
-		}()
-
-		gridButton = UIView()
-		gridButton.backgroundColor = .systemGray6
-		gridButton.layer.cornerRadius = 12
-		gridButton.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(gridButton)
-		view.addSubview(icon)
-		NSLayoutConstraint.activate([
-			gridButton.widthAnchor.constraint(equalToConstant: 41),
-			gridButton.heightAnchor.constraint(equalToConstant: 26),
-			gridButton.centerXAnchor.constraint(equalTo: flashButton.centerXAnchor),
-			icon.centerXAnchor.constraint(equalTo: gridButton.centerXAnchor),
-			icon.centerYAnchor.constraint(equalTo: gridButton.centerYAnchor)
-		])
-	}*/
 
 	private func setupGrid() {
-		let offset = view.frame.width/6
-		let yset = view.frame.height/6
+
+		/* Configure lines layer */
+
+		let offsets = CGPoint(x: view.frame.width/6, y: view.frame.height/6)
 		let lines = UIView(frame: view.frame)
 		lines.isUserInteractionEnabled = false
-		lines.alpha = 1
 		lines.layer.shadowColor = UIColor.black.cgColor
 		lines.layer.shadowRadius = 1.5
 		lines.layer.shadowOffset.height = -0.75
 		lines.layer.shadowOpacity = 0.4
 		lines.alpha = 0.3
 
-		let line = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
-		line.center = CGPoint(x: offset * 2, y: view.center.y)
-		line.backgroundColor = .white
+		/* Layout lines */
 
-		let line1 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
-		line1.center = CGPoint(x: offset * 4, y: view.center.y)
-		line1.backgroundColor = .white
+		let leftLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
+		leftLine.center = CGPoint(x: offsets.x * 2, y: view.center.y)
+		leftLine.backgroundColor = .white
+		lines.addSubview(leftLine)
 
-		let line2 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
-		line2.center = CGPoint(x: view.center.x, y: yset * 2)
-		line2.backgroundColor = .white
+		let rightLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
+		rightLine.center = CGPoint(x: offsets.x * 4, y: view.center.y)
+		rightLine.backgroundColor = .white
+		lines.addSubview(rightLine)
 
-		let line3 = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
-		line3.center = CGPoint(x: view.center.x, y: yset * 4)
-		line3.backgroundColor = .white
+		let bottomLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
+		bottomLine.center = CGPoint(x: view.center.x, y: offsets.y * 2)
+		bottomLine.backgroundColor = .white
+		lines.addSubview(bottomLine)
 
-		lines.addSubview(line)
-		lines.addSubview(line1)
-		lines.addSubview(line2)
-		lines.addSubview(line3)
+		let topLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width, height: 1)))
+		topLine.center = CGPoint(x: view.center.x, y: offsets.y * 4)
+		topLine.backgroundColor = .white
+		lines.addSubview(topLine)
+
+		/* Add to the view */
+
 		lines.center = view.center
 		view.addSubview(lines)
 	}
 	
 	private func setupSliders() {
+
+		/* Exposure slider */
+
 		exposureSlider = VerticalSlider(CGSize(width: 40, height: 300))
 		exposureSlider.range(min: -3, max: 3, value: 0)
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.delegate = { [weak self] in
-			self?.cam.setTargetBias(Float(self!.exposureSlider.value))
+			self?.camera.setTargetBias(Float(self!.exposureSlider.value))
 		}
 		view.addSubview(exposureSlider)
 		exposureSlider.align(to: .left)
+
+		/* Lens slider */
 		
 		lensSlider = VerticalSlider(CGSize(width: 40, height: 300))
 		lensSlider.range(min: 0, max: 1, value: 0.4)
 		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
-			self?.cam.lockLens(at: Float(self!.lensSlider.value))
+			self?.camera.lockLens(at: Float(self!.lensSlider.value))
 		}
 		view.addSubview(lensSlider)
 		lensSlider.align(to: .right)
 	}
-	
-	private func setupAdditional() {
+
+	private func setupMovablePoints() {
 		exposurePoint = MovablePoint(symbolName: "sun.max.fill")
 		exposurePoint.center = view.center
 		exposurePoint.moved = { [weak self] in
-			self?.cam.setExposure(.autoExpose, self!.exposurePoint.center)
+			self?.camera.setExposure(.autoExpose, self!.exposurePoint.center)
 		}
 		exposurePoint.ended = { [weak self] in
-			self?.cam.setExposure(User.shared.exposureMode, self!.exposurePoint.center)
+			self?.camera.setExposure(User.shared.exposureMode, self!.exposurePoint.center)
 		}
-		exposurePoint.cam = cam
+		exposurePoint.cam = camera
 		view.addSubview(exposurePoint)
-		
+
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
 	}
 	
 	private func targetActions() {
-		for btn in [lockButton, videoButton, flashButton, exposureButton, lensButton, photoButton] {
-			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
-		}
-		
 		photoButton.addTarget(photoButton, action: #selector(photoButton.touchUp), for: [.touchUpInside, .touchUpOutside])
 		lockButton.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
 		flashButton.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
@@ -332,39 +312,41 @@ extension CameraController {
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
 	}
-	
-	// MARK: - Buttons' handlers
+
+}
+
+extension CameraController {
 	
 	@objc private func recordTouchUp() {
-		videoButton.touchUp(camIsRecording: cam.isRecording)
+		videoButton.touchUp(camIsRecording: camera.isRecording)
 		
-		if !cam.isRecording {
+		if !camera.isRecording {
 			recordPath = TemporaryFileURL(extension: "mp4")
-			cam.startRecording(to: recordPath!.contentURL, self)
-			cam.durationAnim?.addCompletion({ [weak self] _ in
+			camera.startRecording(to: recordPath!.contentURL, self)
+			camera.durationAnim?.addCompletion({ [weak self] _ in
 				self?.recordTouchUp()
 			})
-			cam.durationAnim?.startAnimation()
+			camera.durationAnim?.startAnimation()
 			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide()
 		} else {
 			view.isUserInteractionEnabled = false
-			cam.stopRecording()
+			camera.stopRecording()
 		}
 	}
 	
 	@objc private func changeExposureMode() {
-		let isLocked = cam.captureDevice.exposureMode == .locked
+		let isLocked = camera.captureDevice.exposureMode == .locked
 		let mode: AVCaptureDevice.ExposureMode = isLocked ? .continuousAutoExposure : .locked
-		cam.setExposure(mode) { [weak self] in
+		camera.setExposure(mode) { [weak self] in
 			User.shared.exposureMode = mode
 			self?.statusBar.setVisiblity(for: "lock.fill", isLocked)
 		}
 	}
 	
 	@objc private func changeTorchMode() {
-		let torchEnabled = cam.captureDevice.isTorchActive
+		let torchEnabled = camera.captureDevice.isTorchActive
 		let mode: AVCaptureDevice.TorchMode = torchEnabled ? .off : .on
-		cam.torch(mode) { [weak self] in
+		camera.torch(mode) { [weak self] in
 			User.shared.torchEnabled = !torchEnabled
 			self?.statusBar.setVisiblity(for: "bolt.fill", torchEnabled)
 		}
@@ -373,25 +355,25 @@ extension CameraController {
 	@objc private func onOffManualExposure() {
 		statusBar.setVisiblity(for: "sun.max.fill", exposureSlider.isActive)
 		if exposureButton.isActive {
-			cam.setTargetBias(Float(exposureSlider.value))
+			camera.setTargetBias(Float(exposureSlider.value))
 		} else {
-			cam.setTargetBias(0)
+			camera.setTargetBias(0)
 		}
 		exposureSlider.isActive = exposureButton.isActive
 	}
 	
 	@objc private func onOffManualLens() {
 		statusBar.setVisiblity(for: "scope", lensSlider.isActive)
-		let lensPosition = cam.captureDevice.lensPosition
+		let lensPosition = camera.captureDevice.lensPosition
 		lensSlider.set(value: CGFloat(lensPosition))
 		
-		let isLocked = cam.captureDevice.focusMode != .continuousAutoFocus
+		let isLocked = camera.captureDevice.focusMode != .continuousAutoFocus
 		let mode: AVCaptureDevice.FocusMode = isLocked ? .continuousAutoFocus : .locked
 		User.shared.focusMode = mode
 		if lensButton.isActive {
-			cam.lockLens(at: Float(lensSlider.value))
+			camera.lockLens(at: Float(lensSlider.value))
 		} else {
-			cam.resetLens()
+			camera.resetLens()
 		}
 		lensSlider.isActive = lensButton.isActive
 	}
@@ -399,7 +381,7 @@ extension CameraController {
 	// MARK: - Secondary methods
 	
 	@objc private func didEnterBackground() {
-		cam.captureSession.stopRunning()
+		camera.captureSession.stopRunning()
 	}
 	
 	@objc private func didBecomeActive() {
@@ -413,19 +395,19 @@ extension CameraController {
 	}
 	
 	@objc private func willResignActive() {
-		cam.previewView.videoPreviewLayer.connection?.isEnabled = false
+		camera.previewView.videoPreviewLayer.connection?.isEnabled = false
 		if let vc = presentedViewController as? PlayerController {
 			vc.player.pause()
-		} else if cam.isRecording {
+		} else if camera.isRecording {
 			recordTouchUp()
 		}
 	}
 	
 	func resetView() {
-		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
+		camera.previewView.videoPreviewLayer.connection?.isEnabled = true
 		view.isUserInteractionEnabled = true
 		if User.shared.torchEnabled {
-			cam.torch(.on)
+			camera.torch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
 		optionsGroup.show(); toolsGroup.show()
@@ -440,12 +422,12 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
 		
 		if User.shared.torchEnabled {
-			cam.torch(.off)
+			camera.torch(.off)
 		}
 		playerController = PlayerController()
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in
-			self?.cam.previewView.videoPreviewLayer.connection?.isEnabled = false
+			self?.camera.previewView.videoPreviewLayer.connection?.isEnabled = false
 			self?.recordPath = nil
 			if ready {
 				self?.present(playerController!, animated: true)

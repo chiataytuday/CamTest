@@ -34,6 +34,8 @@ class CustomButton : UIButton {
 			widthAnchor.constraint(equalToConstant: rect.width),
 			heightAnchor.constraint(equalToConstant: rect.height)
 		])
+
+		addTarget(self, action: #selector(touchDown), for: .touchDown)
 	}
 	
 	private func setState(_ active: Bool) {
