@@ -25,8 +25,8 @@ class GridButton: UIButton {
 
 		translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
-			widthAnchor.constraint(equalToConstant: 41),
-			heightAnchor.constraint(equalToConstant: 26)
+			widthAnchor.constraint(equalToConstant: 40),
+			heightAnchor.constraint(equalToConstant: 25)
 		])
 
 		addTarget(self, action: #selector(touchDown), for: .touchDown)

@@ -82,7 +82,6 @@ final class PlayerController: UIViewController {
 			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
 		])
 
-
 		statusBar = StatusBar(contentsOf: ["scissors", "speaker.slash.fill"])
 		view.addSubview(statusBar)
 		NSLayoutConstraint.activate([

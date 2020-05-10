@@ -56,8 +56,8 @@ final class ModeButton: UIView {
 	private func setupSubviews() {
 		addSubview(backgroundView)
 		NSLayoutConstraint.activate([
-			backgroundView.widthAnchor.constraint(equalToConstant: 41),
-			backgroundView.heightAnchor.constraint(equalToConstant: 26),
+			backgroundView.widthAnchor.constraint(equalToConstant: 40),
+			backgroundView.heightAnchor.constraint(equalToConstant: 25),
 			backgroundView.centerXAnchor.constraint(equalTo: centerXAnchor),
 			backgroundView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])
