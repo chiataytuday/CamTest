@@ -48,16 +48,17 @@ final class CameraController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .systemRed
+		view.backgroundColor = .systemBackground
 
 		setupGrid()
-		setupButtons()
+		setupBottomButtons()
+		setupTopButtons()
 		targetActions()
 		setupSliders()
-//		cam = Camera()
-//		photoBtn.cam = cam
-//		cam.attachPreview(to: view)
-		setupAdditional()
+		camera = Camera()
+		photoButton.cam = camera
+		camera.attachPreview(to: view)
+		setupMovablePoints()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -92,13 +93,15 @@ extension CameraController {
 
 		/* Define top and bottom margins for UI */
 
-		if User.shared.hasNotch {
-			topMargin = 5
-			bottomMargin = 0
-		} else {
-			topMargin = 20
-			bottomMargin = 20
-		}
+//		if User.shared.hasNotch {
+//			topMargin = 5
+//			bottomMargin = 0
+//		} else {
+//			topMargin = 20
+//			bottomMargin = -20
+//		}
+		topMargin = 5
+		bottomMargin = 0
 
 		/* Setup video button */
 
@@ -305,8 +308,8 @@ extension CameraController {
 		flashButton.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
 		exposureButton.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)
 		lensButton.addTarget(self, action: #selector(onOffManualLens), for: .touchDown)
-		videoButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpInside)
-		videoButton.addTarget(self, action: #selector(recordTouchUp), for: .touchUpOutside)
+		videoButton.addTarget(self, action: #selector(captureTouchUp), for: .touchUpInside)
+		videoButton.addTarget(self, action: #selector(captureTouchUp), for: .touchUpOutside)
 		
 		NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
 		NotificationCenter.default.addObserver(self, selector: #selector(didEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
@@ -317,17 +320,17 @@ extension CameraController {
 
 extension CameraController {
 	
-	@objc private func recordTouchUp() {
+	@objc private func captureTouchUp() {
 		videoButton.touchUp(camIsRecording: camera.isRecording)
 		
 		if !camera.isRecording {
 			recordPath = TemporaryFileURL(extension: "mp4")
 			camera.startRecording(to: recordPath!.contentURL, self)
 			camera.durationAnim?.addCompletion({ [weak self] _ in
-				self?.recordTouchUp()
+				self?.captureTouchUp()
 			})
 			camera.durationAnim?.startAnimation()
-			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide()
+			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide(); modeButton.hide()
 		} else {
 			view.isUserInteractionEnabled = false
 			camera.stopRecording()
@@ -385,12 +388,12 @@ extension CameraController {
 	}
 	
 	@objc private func didBecomeActive() {
-//		cam.previewView.videoPreviewLayer.connection?.isEnabled = true
-//		cam.captureSession.startRunning()
+//		camera.previewView.videoPreviewLayer.connection?.isEnabled = true
+//		camera.captureSession.startRunning()
 //		if let vc = presentedViewController as? PlayerController {
 //			vc.player.play()
 //		} else if User.shared.torchEnabled {
-//			cam.torch(.on)
+//			camera.torch(.on)
 //		}
 	}
 	
@@ -399,7 +402,7 @@ extension CameraController {
 		if let vc = presentedViewController as? PlayerController {
 			vc.player.pause()
 		} else if camera.isRecording {
-			recordTouchUp()
+			captureTouchUp()
 		}
 	}
 	
@@ -410,7 +413,7 @@ extension CameraController {
 			camera.torch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		optionsGroup.show(); toolsGroup.show()
+		optionsGroup.show(); toolsGroup.show(); modeButton.show()
 		statusBar.transform = .identity
 		statusBar.alpha = 1
 		playerController = nil
@@ -469,20 +472,4 @@ extension UIView {
 			self.alpha = 0
 		}.startAnimation()
 	}
-}
-
-extension UIView {
-	func attachSafelyBottomInContainer(margin: CGFloat = 0) {
-		if #available(iOS 11.0, *) {
-			self.bottomAnchor.constraint(
-				equalTo: superview!.safeAreaLayoutGuide.bottomAnchor,
-				constant: margin
-			).isActive = true
-		} else {
-			self.bottomAnchor.constraint(
-				equalTo: superview!.bottomAnchor,
-				constant: margin
-			).isActive = true
-		}
-    }
 }
