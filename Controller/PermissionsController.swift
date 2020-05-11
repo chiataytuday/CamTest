@@ -156,6 +156,8 @@ final class PermissionsController: UIViewController {
 			
 			if PermissionsController.grantedCount() == 3 {
 				let vc = CameraController()
+				vc.additionalSafeAreaInsets.top = 15
+				vc.additionalSafeAreaInsets.bottom = 20
 				vc.modalPresentationStyle = .fullScreen
 				self.present(vc, animated: true)
 			}
