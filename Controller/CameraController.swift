@@ -10,7 +10,19 @@ import UIKit
 import AVFoundation
 import AudioToolbox
 
-final class CameraController: UIViewController {
+protocol Notifiable {
+	func videoSaved()
+}
+
+final class CameraController: UIViewController, Notifiable {
+
+	func videoSaved() {
+		let notification = Notification(text: "Saved it!")
+		notification.center = CGPoint(x: view.center.x, y: view.frame.height - 130)
+		notification.backgroundColor = UIColor(red: 39/255, green: 174/255, blue: 96/255, alpha: 1)
+		view.addSubview(notification)
+		notification.show(for: 1)
+	}
 	
 	private var camera: Camera!
 	private var photoButton: PhotoButton!
@@ -433,6 +445,7 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 			camera.torch(.off)
 		}
 		playerController = PlayerController()
+		playerController?.delegate = self
 		playerController?.additionalSafeAreaInsets = additionalSafeAreaInsets
 		playerController?.modalPresentationStyle = .overFullScreen
 		playerController?.setupPlayer(outputFileURL) { [weak self, weak playerController] (ready) in

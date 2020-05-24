@@ -22,6 +22,8 @@ final class PlayerController: UIViewController {
 	private var rangeSlider: RangeSlider!
 	private var btnGroup: ButtonsGroup!
 	private var statusBar: StatusBar!
+
+	var delegate: Notifiable?
 	
 	private let saveButton: UIButton = {
 		let button = UIButton(type: .custom)
@@ -253,6 +255,7 @@ final class PlayerController: UIViewController {
 	@objc private func video(videoPath: String, didFinishSavingWithError error: NSError, contextInfo info: UnsafeMutableRawPointer) {
 		exportPath = nil
 		AppStoreReviewManager.requestReviewIfAppropriate()
+		delegate?.videoSaved()
 	}
 	
 	override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
