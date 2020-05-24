@@ -58,6 +58,8 @@ final class RecordButton : CustomButton {
 	}
 	
 	@objc override func touchDown() {
+		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.25)
+
 		circleView.transform = .identity
 		UIView.animate(withDuration: 0.16, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .allowUserInteraction, animations: {
 			self.circleView.transform = CGAffineTransform(translationX: 0, y: 5)
