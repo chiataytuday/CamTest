@@ -71,7 +71,7 @@ final class PlayerController: UIViewController {
 		btnGroup = ButtonsGroup([backButton, trimButton, muteButton])
 		view.addSubview(btnGroup)
 		NSLayoutConstraint.activate([
-			btnGroup.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: bottomMargin),
+			btnGroup.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -User.shared.bottomInset - bottomMargin),
 			btnGroup.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20)
 		])
 		
@@ -80,7 +80,7 @@ final class PlayerController: UIViewController {
 		NSLayoutConstraint.activate([
 			saveButton.widthAnchor.constraint(equalToConstant: 110),
 			saveButton.heightAnchor.constraint(equalToConstant: 45),
-			saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: bottomMargin),
+			saveButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -User.shared.bottomInset - bottomMargin),
 			saveButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
 		])
 
@@ -91,14 +91,16 @@ final class PlayerController: UIViewController {
 			statusBar.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 		])
 
-		let sliderY = User.shared.deviceHasNotch ?
-			view.frame.height - additionalSafeAreaInsets.bottom - 5 :
-			view.frame.height + 7.5
-
-		rangeSlider = RangeSlider(frame: CGRect(x: view.center.x,
-			y: sliderY, width: view.frame.width - 40, height: 30))
+		rangeSlider = RangeSlider(frame: CGRect(origin: .zero, size: CGSize(width: view.frame.width - 40, height: 30)))
+		rangeSlider.translatesAutoresizingMaskIntoConstraints = false
 		rangeSlider.alpha = 0
 		view.addSubview(rangeSlider)
+		NSLayoutConstraint.activate([
+			rangeSlider.widthAnchor.constraint(equalTo: view.widthAnchor, constant: -40),
+			rangeSlider.heightAnchor.constraint(equalToConstant: 30),
+			rangeSlider.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			rangeSlider.topAnchor.constraint(equalTo: saveButton.bottomAnchor, constant: 12)
+		])
 		
 		blurEffectView.frame = view.bounds
 		view.addSubview(blurEffectView)
@@ -201,7 +203,7 @@ final class PlayerController: UIViewController {
 		UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.4)
 		UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1.25, options: .allowUserInteraction, animations: {
 			self.view.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
-			self.view.layer.cornerRadius = 18
+			self.view.layer.cornerRadius = User.shared.deviceHasNotch ? 44 : 22
 			sender?.backgroundColor = .systemGray5
 		})
 	}

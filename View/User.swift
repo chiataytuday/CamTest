@@ -15,11 +15,13 @@ final class User {
 	var focusMode: AVCaptureDevice.FocusMode
 	var torchEnabled: Bool
 	var deviceHasNotch: Bool
+	var bottomInset: CGFloat
 	
 	private init() {
 		exposureMode = .continuousAutoExposure
 		focusMode = .continuousAutoFocus
 		torchEnabled = false
 		deviceHasNotch = false
+		bottomInset = 0
 	}
 }

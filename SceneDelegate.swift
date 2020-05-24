@@ -22,6 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 		if let window = window {
 			let hasNotch = window.safeAreaInsets.bottom > 0
 			User.shared.deviceHasNotch = hasNotch
+			User.shared.bottomInset = hasNotch ? window.safeAreaInsets.bottom : 20
 			if !hasNotch && vc is CameraController {
 				vc.additionalSafeAreaInsets.top = 15
 				vc.additionalSafeAreaInsets.bottom = 20
