@@ -15,7 +15,7 @@ final class StatusBar : UIStackView {
 	init(contentsOf imageNames: [String]) {
 		super.init(frame: .zero)
 		translatesAutoresizingMaskIntoConstraints = false
-		heightAnchor.constraint(equalToConstant: 25).isActive = true
+		heightAnchor.constraint(equalToConstant: 28).isActive = true
 		distribution = .equalCentering
 		spacing = 6
 		
@@ -31,13 +31,13 @@ final class StatusBar : UIStackView {
 		let item = UIButton(type: .custom)
 		item.backgroundColor = .systemYellow
 		item.tintColor = .black
-		item.layer.cornerRadius = 12
+		item.layer.cornerRadius = 14
 		item.isUserInteractionEnabled = false
 		item.setImage(image, for: .normal)
 		item.isHidden = true
 		NSLayoutConstraint.activate([
-			item.heightAnchor.constraint(equalToConstant: 25),
-			item.widthAnchor.constraint(equalToConstant: 40)
+			item.heightAnchor.constraint(equalToConstant: 28),
+			item.widthAnchor.constraint(equalToConstant: 43)
 		])
 		return item
 	}

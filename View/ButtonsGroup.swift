@@ -20,8 +20,8 @@ final class ButtonsGroup : UIStackView {
 	
 	override func layoutSubviews() {
 		super.layoutSubviews()
-		arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 18)
-		arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 18)
+    arrangedSubviews.first?.roundCorners(corners: [.topLeft, .bottomLeft], radius: 25)
+    arrangedSubviews.last?.roundCorners(corners: [.topRight, .bottomRight], radius: 25)
 	}
 	
 	required init(coder: NSCoder) {

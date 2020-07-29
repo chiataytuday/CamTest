@@ -28,7 +28,7 @@ final class ModeButton: UIView {
 		let view = UIView()
 		view.backgroundColor = .systemGray6
 		view.translatesAutoresizingMaskIntoConstraints = false
-		view.layer.cornerRadius = 12
+		view.layer.cornerRadius = 14
 		return view
 	}()
 	
@@ -56,8 +56,8 @@ final class ModeButton: UIView {
 	private func setupSubviews() {
 		addSubview(backgroundView)
 		NSLayoutConstraint.activate([
-			backgroundView.widthAnchor.constraint(equalToConstant: 40),
-			backgroundView.heightAnchor.constraint(equalToConstant: 25),
+			backgroundView.widthAnchor.constraint(equalToConstant: 43),
+			backgroundView.heightAnchor.constraint(equalToConstant: 28),
 			backgroundView.centerXAnchor.constraint(equalTo: centerXAnchor),
 			backgroundView.centerYAnchor.constraint(equalTo: centerYAnchor)
 		])

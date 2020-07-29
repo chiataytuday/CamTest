@@ -21,12 +21,12 @@ class GridButton: UIButton {
 		setImage(UIImage(systemName: "grid", withConfiguration: config), for: .normal)
 		tintColor = .systemGray3
 		adjustsImageWhenHighlighted = false
-		layer.cornerRadius = 12
+		layer.cornerRadius = 14
 
 		translatesAutoresizingMaskIntoConstraints = false
 		NSLayoutConstraint.activate([
-			widthAnchor.constraint(equalToConstant: 40),
-			heightAnchor.constraint(equalToConstant: 25)
+			widthAnchor.constraint(equalToConstant: 43),
+			heightAnchor.constraint(equalToConstant: 28)
 		])
 
 		addTarget(self, action: #selector(touchDown), for: .touchDown)

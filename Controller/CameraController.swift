@@ -111,7 +111,7 @@ extension CameraController {
 
 		/* Setup video button */
 
-		videoButton = RecordButton(.big, radius: 23)
+    videoButton = RecordButton(.big, radius: 31.5)
 		videoButton.isHidden = true
 		view.addSubview(videoButton)
 		NSLayoutConstraint.activate([
@@ -128,7 +128,7 @@ extension CameraController {
 		let photoCounter = Tracker(center: counterPosition, maxNumber: 20)
 		view.addSubview(photoCounter)
 
-		photoButton = PhotoButton(.big, radius: 23, view: blinkView, tracker: photoCounter, delegate: self)
+    photoButton = PhotoButton(.big, radius: 31.5, view: blinkView, tracker: photoCounter, delegate: self)
 		view.addSubview(photoButton)
 		NSLayoutConstraint.activate([
 			photoButton.bottomAnchor.constraint(equalTo: videoButton.bottomAnchor),
