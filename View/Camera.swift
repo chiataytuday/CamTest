@@ -64,9 +64,28 @@ final class Camera {
 		previewView = PreviewView(session: captureSession)
 		previewView.videoPreviewLayer.videoGravity = .resizeAspectFill
 		previewView.videoPreviewLayer.connection?.videoOrientation = .portrait
-		
+    
+		configureDeviceFormat()
 		captureSession.startRunning()
 	}
+
+  private func configureDeviceFormat() {
+    let formats = captureDevice?.formats.filter {
+      $0.videoSupportedFrameRateRanges[0].maxFrameRate == 60
+    }
+    do {
+      try captureDevice?.lockForConfiguration()
+      defer { captureDevice?.unlockForConfiguration() }
+
+      let formatId = formats!.count/2
+      captureDevice?.activeFormat = formats![formatId]
+      let duration = CMTime(value: 1, timescale: 60)
+      captureDevice?.activeVideoMinFrameDuration = duration
+      captureDevice?.activeVideoMaxFrameDuration = duration
+    } catch {
+      print(error.localizedDescription)
+    }
+  }
 	
 	private func bestDevice(in position: AVCaptureDevice.Position) -> AVCaptureDevice {
 		let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes:

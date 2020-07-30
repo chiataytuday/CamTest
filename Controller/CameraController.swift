@@ -61,16 +61,16 @@ final class CameraController: UIViewController, Notifiable {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		view.backgroundColor = .systemBackground
+    view.backgroundColor = .black
+    camera = Camera()
 
-		setupGrid()
     setupBottomBar()
 		setupTopButtons()
+    setupGrid()
 		targetActions()
 		setupSliders()
-		camera = Camera()
 //		photoButton.cam = camera
-		camera.attachPreview(to: view)
+//		camera.attachPreview(to: view)
 		setupMovablePoints()
 	}
 	
@@ -97,13 +97,15 @@ final class CameraController: UIViewController, Notifiable {
 	override var prefersStatusBarHidden: Bool {
 		return true
 	}
+
+  var previewView: UIView!
 }
 
 
 extension CameraController {
 
   private func setupBottomBar() {
-    let bottomInset: CGFloat = User.shared.deviceHasNotch ? 5 : 20
+    let bottomInset: CGFloat = User.shared.deviceHasNotch ? 0 : 15
     topMargin = 10
 
     videoButton = RecordButton(.big, radius: 22)
@@ -147,8 +149,24 @@ extension CameraController {
       backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
       backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 40),
       backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-      backgroundView.topAnchor.constraint(equalTo: videoButton.topAnchor, constant: -25)
+      backgroundView.topAnchor.constraint(equalTo: videoButton.topAnchor, constant: -20)
     ])
+
+    let sum = User.shared.bottomInset + bottomInset + 64 + 20
+    previewView = UIView(frame: view.frame)
+    previewView.frame.size.height -= sum
+    previewView.layer.cornerRadius = 25
+    previewView.layer.masksToBounds = true
+    previewView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(previewView)
+    view.sendSubviewToBack(previewView)
+    NSLayoutConstraint.activate([
+      previewView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      previewView.topAnchor.constraint(equalTo: view.topAnchor),
+      previewView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      previewView.bottomAnchor.constraint(equalTo: backgroundView.topAnchor),
+    ])
+    camera.attachPreview(to: previewView)
   }
 
 	private func setupBottomButtons() {
@@ -286,24 +304,23 @@ extension CameraController {
 
 		/* Configure lines layer */
 
-		let offsets = CGPoint(x: view.frame.width/6, y: view.frame.height/6)
+		let offsets = CGPoint(x: previewView.frame.width/6, y: previewView.frame.height/6)
 		grid = UIView(frame: view.frame)
 		grid.isUserInteractionEnabled = false
 		grid.layer.shadowColor = UIColor.black.cgColor
 		grid.layer.shadowRadius = 1.5
 		grid.layer.shadowOffset.height = -0.75
 		grid.layer.shadowOpacity = 0.4
-		grid.alpha = 0
+    grid.alpha = 0.3
 
 		/* Layout lines */
-
-		let leftLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
-		leftLine.center = CGPoint(x: offsets.x * 2, y: view.center.y)
+		let leftLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: previewView.frame.height)))
+		leftLine.center = CGPoint(x: offsets.x * 2, y: previewView.center.y)
 		leftLine.backgroundColor = .white
 		grid.addSubview(leftLine)
 
-		let rightLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: view.frame.height)))
-		rightLine.center = CGPoint(x: offsets.x * 4, y: view.center.y)
+		let rightLine = UIView(frame: CGRect(origin: .zero, size: CGSize(width: 1, height: previewView.frame.height)))
+		rightLine.center = CGPoint(x: offsets.x * 4, y: previewView.center.y)
 		rightLine.backgroundColor = .white
 		grid.addSubview(rightLine)
 
@@ -350,7 +367,7 @@ extension CameraController {
 
 	private func setupMovablePoints() {
 		exposurePoint = MovablePoint(symbolName: "circle.fill")
-		exposurePoint.center = view.center
+		exposurePoint.center = previewView.center
 		exposurePoint.moved = { [weak self] in
 			self?.camera.setExposure(.autoExpose, self!.exposurePoint.center)
 		}
@@ -396,7 +413,7 @@ extension CameraController {
 				self?.captureTouchUp()
 			})
 			camera.durationAnim?.startAnimation()
-			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide(); modeButton.hide(); gridButton.hide()
+//			optionsGroup.hide(); toolsGroup.hide(); statusBar.hide(); modeButton.hide(); gridButton.hide()
 		} else {
 			view.isUserInteractionEnabled = false
 			camera.stopRecording()
@@ -479,7 +496,7 @@ extension CameraController {
 			camera.torch(.on)
 		}
 		touchesEnded(Set<UITouch>(), with: nil)
-		optionsGroup.show(); toolsGroup.show(); modeButton.show(); gridButton.show()
+//		optionsGroup.show(); toolsGroup.show(); modeButton.show(); gridButton.show()
 		statusBar.transform = .identity
 		statusBar.alpha = 1
 		playerController = nil
