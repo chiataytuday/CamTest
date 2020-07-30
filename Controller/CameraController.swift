@@ -64,12 +64,12 @@ final class CameraController: UIViewController, Notifiable {
 		view.backgroundColor = .systemBackground
 
 		setupGrid()
-		setupBottomButtons()
+    setupBottomBar()
 		setupTopButtons()
 		targetActions()
 		setupSliders()
 		camera = Camera()
-		photoButton.cam = camera
+//		photoButton.cam = camera
 		camera.attachPreview(to: view)
 		setupMovablePoints()
 	}
@@ -102,6 +102,55 @@ final class CameraController: UIViewController, Notifiable {
 
 extension CameraController {
 
+  private func setupBottomBar() {
+    let bottomInset: CGFloat = User.shared.deviceHasNotch ? 5 : 20
+    topMargin = 10
+
+    videoButton = RecordButton(.big, radius: 22)
+    view.addSubview(videoButton)
+    NSLayoutConstraint.activate([
+      videoButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -bottomInset),
+      videoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+    ])
+
+    flashButton = CustomButton(.small, "bolt.fill")
+    lockButton = CustomButton(.small, "lock.fill")
+    let toolsStackView = UIStackView(arrangedSubviews: [flashButton, lockButton])
+    toolsStackView.axis = .horizontal
+    toolsStackView.spacing = 12
+    toolsStackView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(toolsStackView)
+    NSLayoutConstraint.activate([
+      toolsStackView.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
+      toolsStackView.trailingAnchor.constraint(equalTo: videoButton.leadingAnchor, constant: -24)
+    ])
+
+    exposureButton = CustomButton(.small, "sun.max.fill")
+    lensButton = CustomButton(.small, "scope")
+    let optionsStackView = UIStackView(arrangedSubviews: [exposureButton, lensButton])
+    optionsStackView.axis = .horizontal
+    optionsStackView.spacing = 12
+    optionsStackView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(optionsStackView)
+    NSLayoutConstraint.activate([
+      optionsStackView.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
+      optionsStackView.leadingAnchor.constraint(equalTo: videoButton.trailingAnchor, constant: 24)
+    ])
+
+    let backgroundView = UIView()
+    backgroundView.layer.cornerRadius = 40
+    backgroundView.backgroundColor = .black
+    backgroundView.translatesAutoresizingMaskIntoConstraints = false
+    view.addSubview(backgroundView)
+    view.sendSubviewToBack(backgroundView)
+    NSLayoutConstraint.activate([
+      backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+      backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 40),
+      backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+      backgroundView.topAnchor.constraint(equalTo: videoButton.topAnchor, constant: -25)
+    ])
+  }
+
 	private func setupBottomButtons() {
 
 		/* Define top and bottom margins for UI */
@@ -128,35 +177,35 @@ extension CameraController {
 		let photoCounter = Tracker(center: counterPosition, maxNumber: 20)
 		view.addSubview(photoCounter)
 
-    photoButton = PhotoButton(.big, radius: 31.5, view: blinkView, tracker: photoCounter, delegate: self)
-		view.addSubview(photoButton)
-		NSLayoutConstraint.activate([
-			photoButton.bottomAnchor.constraint(equalTo: videoButton.bottomAnchor),
-			photoButton.centerXAnchor.constraint(equalTo: videoButton.centerXAnchor)
-		])
+//    photoButton = PhotoButton(.big, radius: 31.5, view: blinkView, tracker: photoCounter, delegate: self)
+//		view.addSubview(photoButton)
+//		NSLayoutConstraint.activate([
+//			photoButton.bottomAnchor.constraint(equalTo: videoButton.bottomAnchor),
+//			photoButton.centerXAnchor.constraint(equalTo: videoButton.centerXAnchor)
+//		])
 
 		/* Setup left stackview */
 
-		flashButton = CustomButton(.small, "bolt.fill")
-		lockButton = CustomButton(.small, "lock.fill")
-		toolsGroup = ButtonsGroup([flashButton, lockButton])
-		view.addSubview(toolsGroup)
-		let widthQuarter = (view.frame.width/2 - 58)/2
-		NSLayoutConstraint.activate([
-			toolsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
-			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
-		])
+//		flashButton = CustomButton(.small, "bolt.fill")
+//		lockButton = CustomButton(.small, "lock.fill")
+//		toolsGroup = ButtonsGroup([flashButton, lockButton])
+//		view.addSubview(toolsGroup)
+//		let widthQuarter = (view.frame.width/2 - 58)/2
+//		NSLayoutConstraint.activate([
+//			toolsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
+//			toolsGroup.centerXAnchor.constraint(equalTo: view.leadingAnchor, constant: widthQuarter)
+//		])
 
 		/* Setup right stackview */
 
-		exposureButton = CustomButton(.small, "sun.max.fill")
-		lensButton = CustomButton(.small, "scope")
-		optionsGroup = ButtonsGroup([exposureButton, lensButton])
-		view.addSubview(optionsGroup)
-		NSLayoutConstraint.activate([
-			optionsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
-			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
-		])
+//		exposureButton = CustomButton(.small, "sun.max.fill")
+//		lensButton = CustomButton(.small, "scope")
+//		optionsGroup = ButtonsGroup([exposureButton, lensButton])
+//		view.addSubview(optionsGroup)
+//		NSLayoutConstraint.activate([
+//			optionsGroup.centerYAnchor.constraint(equalTo: videoButton.centerYAnchor),
+//			optionsGroup.centerXAnchor.constraint(equalTo: view.trailingAnchor, constant: -widthQuarter)
+//		])
 	}
 
 	private func setupTopButtons() {
@@ -172,22 +221,22 @@ extension CameraController {
 
 		/* Mode button setup */
 
-		modeButton = ModeButton()
-		modeButton.willSelect = modeSelectionWillChange
-		modeButton.didChange = modeDidChange(to:)
-		modeButton.clipsToBounds = false
-		view.addSubview(modeButton)
-		NSLayoutConstraint.activate([
-			modeButton.centerXAnchor.constraint(equalTo: lensButton.centerXAnchor),
-			modeButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
-		])
-
-		gridButton = GridButton(grid)
-		view.addSubview(gridButton)
-		NSLayoutConstraint.activate([
-			gridButton.centerXAnchor.constraint(equalTo: flashButton.centerXAnchor),
-			gridButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
-		])
+//		modeButton = ModeButton()
+//		modeButton.willSelect = modeSelectionWillChange
+//		modeButton.didChange = modeDidChange(to:)
+//		modeButton.clipsToBounds = false
+//		view.addSubview(modeButton)
+//		NSLayoutConstraint.activate([
+//			modeButton.centerXAnchor.constraint(equalTo: lensButton.centerXAnchor),
+//			modeButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
+//		])
+//
+//		gridButton = GridButton(grid)
+//		view.addSubview(gridButton)
+//		NSLayoutConstraint.activate([
+//			gridButton.centerXAnchor.constraint(equalTo: flashButton.centerXAnchor),
+//			gridButton.centerYAnchor.constraint(equalTo: statusBar.centerYAnchor)
+//		])
 	}
 
 	private func modeSelectionWillChange() {
@@ -300,7 +349,7 @@ extension CameraController {
 	}
 
 	private func setupMovablePoints() {
-		exposurePoint = MovablePoint(symbolName: "sun.max.fill")
+		exposurePoint = MovablePoint(symbolName: "circle.fill")
 		exposurePoint.center = view.center
 		exposurePoint.moved = { [weak self] in
 			self?.camera.setExposure(.autoExpose, self!.exposurePoint.center)
@@ -320,7 +369,7 @@ extension CameraController {
 			btn?.addTarget(btn, action: #selector(btn?.touchDown), for: .touchDown)
 		}
 
-		photoButton.addTarget(photoButton, action: #selector(photoButton.touchUp), for: [.touchUpInside, .touchUpOutside])
+//		photoButton.addTarget(photoButton, action: #selector(photoButton.touchUp), for: [.touchUpInside, .touchUpOutside])
 		lockButton.addTarget(self, action: #selector(changeExposureMode), for: .touchDown)
 		flashButton.addTarget(self, action: #selector(changeTorchMode), for: .touchDown)
 		exposureButton.addTarget(self, action: #selector(onOffManualExposure), for: .touchDown)

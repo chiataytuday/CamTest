@@ -40,9 +40,11 @@ final class RecordButton : CustomButton {
 	
 	init(_ size: Size, radius: CGFloat) {
 		super.init(size)
-		backgroundColor = .systemGray6
+		backgroundColor = .black
 		layer.cornerRadius = radius
-		clipsToBounds = true
+//		clipsToBounds = true
+    layer.borderColor = UIColor(white: 35/255, alpha: 1).cgColor
+    layer.borderWidth = 2
 		
 		addSubview(circleView)
 		NSLayoutConstraint.activate([

@@ -15,15 +15,16 @@ final class MovablePoint : UIImageView {
 	var moved, ended: (() -> ())?
 	
 	init(symbolName: String? = nil) {
-		let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .ultraLight))
+    let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .thin))
 		super.init(image: image)
 		isUserInteractionEnabled = true
-		tintColor = .systemYellow
+		tintColor = .white
+    alpha = 0.25
 		
 		if let name = symbolName {
-			let image = UIImage(systemName: name, withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .thin))
+			let image = UIImage(systemName: name, withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .thin))
 			let imageView = UIImageView(image: image)
-			imageView.tintColor = .systemYellow
+			imageView.tintColor = .white
 			imageView.center = center
 			addSubview(imageView)
 		}
