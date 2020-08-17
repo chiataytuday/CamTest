@@ -344,8 +344,9 @@ extension CameraController {
 
 		/* Exposure slider */
 
-		exposureSlider = VerticalSlider(CGSize(width: 40, height: 300))
+		exposureSlider = VerticalSlider(CGSize(width: 44, height: 250))
 		exposureSlider.range(min: -3, max: 3, value: 0)
+    exposureSlider.center.y = previewView.center.y
 		exposureSlider.setImage("sun.max.fill")
 		exposureSlider.delegate = { [weak self] in
 			self?.camera.setTargetBias(Float(self!.exposureSlider.value))
@@ -355,8 +356,9 @@ extension CameraController {
 
 		/* Lens slider */
 		
-		lensSlider = VerticalSlider(CGSize(width: 40, height: 300))
+		lensSlider = VerticalSlider(CGSize(width: 44, height: 250))
 		lensSlider.range(min: 0, max: 1, value: 0.4)
+    lensSlider.center.y = previewView.center.y
 		lensSlider.setImage("scope")
 		lensSlider.delegate = { [weak self] in
 			self?.camera.lockLens(at: Float(self!.lensSlider.value))
@@ -366,7 +368,7 @@ extension CameraController {
 	}
 
 	private func setupMovablePoints() {
-		exposurePoint = MovablePoint(symbolName: "circle.fill")
+		exposurePoint = MovablePoint()
 		exposurePoint.center = previewView.center
 		exposurePoint.moved = { [weak self] in
 			self?.camera.setExposure(.autoExpose, self!.exposurePoint.center)

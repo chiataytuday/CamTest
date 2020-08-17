@@ -28,7 +28,7 @@ final class VerticalSlider : UIView {
 	init(_ size: CGSize) {
 		min = 0; max = 1; value = max
 		super.init(frame: CGRect(origin: .zero, size: size))
-		roundCorners(corners: .allCorners, radius: frame.width/2)
+		roundCorners(corners: .allCorners, radius: 30)
 		backgroundColor = .systemGray6
 		
 		filledView = UIView(frame: bounds)
@@ -38,7 +38,7 @@ final class VerticalSlider : UIView {
 	
 	func align(to side: Alignment) {
 		guard let superview = superview else { return }
-		center.y = superview.frame.midY
+		center.y = superview.frame.midY - 58
 		if side == .left {
 			center.x = 0
 			translationX = -frame.width/2

@@ -15,11 +15,10 @@ final class MovablePoint : UIImageView {
 	var moved, ended: (() -> ())?
 	
 	init(symbolName: String? = nil) {
-    let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 50, weight: .thin))
+    let image = UIImage(systemName: "circle", withConfiguration: UIImage.SymbolConfiguration(pointSize: 48, weight: .ultraLight))
 		super.init(image: image)
 		isUserInteractionEnabled = true
-		tintColor = .white
-    alpha = 0.25
+		tintColor = .systemYellow
 		
 		if let name = symbolName {
 			let image = UIImage(systemName: name, withConfiguration: UIImage.SymbolConfiguration(pointSize: 12, weight: .thin))
@@ -57,7 +56,8 @@ final class MovablePoint : UIImageView {
 		touchOffset = nil
 		if frame.maxY > superview!.frame.height - 80 {
 			UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
-				self.center.y = self.superview!.frame.height - self.frame.height/2 - 88.5
+        self.center.y = self.superview!.frame.height - self.frame.height/2 - 95
+        #warning("HARDCODED PIECE OF SHIT")
 			})
 		}
 		ended?()
